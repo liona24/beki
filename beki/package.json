@@ -10,6 +10,7 @@
   "dependencies": {
     "buefy": "^0.9.4",
     "core-js": "^3.6.5",
+    "lodash.clonedeep": "^4.5.0",
     "vue": "^2.6.11"
   },
   "devDependencies": {
@@ -33,7 +34,10 @@
     "parserOptions": {
       "parser": "babel-eslint"
     },
-    "rules": {}
+    "rules": {
+      "vue/no-v-model-argument": "off",
+      "vue/valid-v-model": "off"
+    }
   },
   "browserslist": [
     "> 1%",
