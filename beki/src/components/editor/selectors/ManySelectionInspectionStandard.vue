@@ -1,39 +1,39 @@
 <template>
-  <cross-reference-selection
+  <cross-reference-many-selection
     :label="label"
     :value="value"
     @input="bubbleInput"
     @open-modal="openModal" required>
 
     <generic-edit-modal
-      endpoint="api/facility"
+      endpoint="api/inspection_standard"
       :is-visible="isModalVisible"
       @close="closeModal">
 
       <template slot-scope="{ commit, discard }">
-        <modal-facility
+        <modal-inspection-standard
           :initial="value"
           :commit="commit"
           :discard="discard">
-        </modal-facility>
+        </modal-inspection-standard>
       </template>
     </generic-edit-modal>
-  </cross-reference-selection>
+  </cross-reference-many-selection>
 </template>
 
 <script>
-import CrossReferenceSelection from '../../utility/CrossReferenceSelection'
+import CrossReferenceManySelection from '../../utility/CrossReferenceManySelection'
 import GenericEditModal from '../GenericEditModal'
-import ModalFacility from '../modal_forms/ModalFacility'
+import ModalInspectionStandard from '../modal_forms/ModalInspectionStandard'
 
 export default {
-  name: "SelectionFacility",
-  components: { CrossReferenceSelection, GenericEditModal, ModalFacility },
+  name: "ManySelectionInspectionStandard",
+  components: { CrossReferenceManySelection, GenericEditModal, ModalInspectionStandard },
   props: {
-    value: Object,
+    value: Array,
     label: {
       type: String,
-      default: "Objekt:"
+      default: "Prüfkriterium:"
     }
   },
   data() {

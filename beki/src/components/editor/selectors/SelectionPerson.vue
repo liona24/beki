@@ -6,16 +6,16 @@
     @open-modal="openModal" required>
 
     <generic-edit-modal
-      endpoint="api/facility"
+      endpoint="api/person"
       :is-visible="isModalVisible"
       @close="closeModal">
 
       <template slot-scope="{ commit, discard }">
-        <modal-facility
+        <modal-person
           :initial="value"
           :commit="commit"
           :discard="discard">
-        </modal-facility>
+        </modal-person>
       </template>
     </generic-edit-modal>
   </cross-reference-selection>
@@ -24,16 +24,16 @@
 <script>
 import CrossReferenceSelection from '../../utility/CrossReferenceSelection'
 import GenericEditModal from '../GenericEditModal'
-import ModalFacility from '../modal_forms/ModalFacility'
+import ModalPerson from '../modal_forms/ModalPerson'
 
 export default {
-  name: "SelectionFacility",
-  components: { CrossReferenceSelection, GenericEditModal, ModalFacility },
+  name: "SelectionPerson",
+  components: { CrossReferenceSelection, GenericEditModal, ModalPerson },
   props: {
     value: Object,
     label: {
       type: String,
-      default: "Objekt:"
+      default: "Person:"
     }
   },
   data() {

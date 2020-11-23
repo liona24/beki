@@ -1,6 +1,8 @@
 <template>
   <nav class="level">
-    <div class="level-left"></div>
+    <div class="level-left">
+      <slot name="left"></slot>
+    </div>
     <div class="level-right">
       <div class="level-item">
         <b-tag :type="type">

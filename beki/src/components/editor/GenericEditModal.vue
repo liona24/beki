@@ -28,11 +28,12 @@ export default {
   methods: {
     commit(obj) {
       this.isLoading = true;
-      setTimeout(() => {
-        console.log("Committed ", JSON.stringify(obj), "to ", this.endpoint);
+      this.$store.dispatch("tmp/addOrganization", obj).then(() => {
+        console.log("TODO: Committed ", JSON.stringify(obj), "to ", this.endpoint);
+
         this.$emit("close", obj);
         this.isLoading = false;
-      }, 1000)
+      });
     },
     discard(obj) {
       console.log("Discarding to initial value", obj);

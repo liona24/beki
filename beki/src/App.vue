@@ -2,7 +2,7 @@
   <div id="app">
 
     <section class="section">
-      <div class="container">
+      <div class="container is-max-desktop">
 
         <template v-if="state === 'MAIN_MENU'">
           <div class="box">

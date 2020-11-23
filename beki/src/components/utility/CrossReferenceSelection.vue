@@ -3,21 +3,33 @@
     <b-field :label="label" horizontal>
       <b-field>
         <b-autocomplete placeholder="Suchen ..."
-            v-model="searchInput"
+            v-model="innerSearchString"
+
             type="search"
             icon="magnify"
-            :data="data"
+            field="repr"
+
+            :data="selectable"
             :loading="isFetching"
-            field="meta.repr.short"
             :required="required"
+            :open-on-focus="true"
+
             @select="updateSelection"
             @typing="fetchData"
+            @blur="makeSureSelectionIsUpdated"
+
             clearable
             expanded>
-            <template slot="empty">Keine Übereinstimmung.</template>
+
+             <template slot="footer">
+              <a @click="spawnCreateNew">
+                  <span>Hinzufügen ... </span>
+              </a>
+            </template>
+
         </b-autocomplete>
         <p class="control">
-            <button class="button" @click="spawnEdit"><b-icon icon="pencil" ></b-icon></button>
+            <button class="button" @click="spawnEdit" :disabled="!value"><b-icon icon="pencil" ></b-icon></button>
         </p>
         <p class="control">
             <button class="button" @click="spawnCreateNew"><b-icon icon="file" ></b-icon></button>
@@ -26,6 +38,9 @@
     </b-field>
 
     <slot></slot>
+    <p>
+      {{ selectable }}
+    </p>
   </div>
 </template>
 
@@ -41,38 +56,42 @@ export default {
       default: false
     },
     endpoint: String,
-    value: {
-      type: Object,
-      default: () => {
-        return { meta: { repr: { short: "" } } }
-      }
-    }
+    value: Object,
+    defaultValue: Object,
   },
   data() {
     return {
-      searchInput: "",
       isFetching: false,
-      data: [
-        {
-          id: 1,
-          meta: {
-            repr: { short: "Short descr", long: "Long description" },
-            is_dirty: false
-          },
-        }
-      ]
+      innerSearchString: "",
+      data: [],
+    }
+  },
+  computed: {
+    selectable() {
+      return this.data.map(el => {
+        return {
+          id: el.value.id,
+          repr: el.repr()
+        };
+      });
     }
   },
   watch: {
     value() {
-      if (this.value !== null) {
-        this.searchInput = this.value.meta.repr.short;
-      } else {
-        this.searchInput = "";
+      // TODO: this may be a bad idea
+      // the idea was to sync an *extern* selection
+      const repr = this.value.repr();
+      if (repr !== this.innerSearchString) {
+        this.innerSearchString = repr;
       }
     }
   },
   methods: {
+    updateSelection(e) {
+      console.log("Selection changed", e);
+      const val = this.data.find(el => el.value.id === e.id);
+      this.$emit("input", val || this.defaultValue);
+    },
     fetchData: debounce(function(query) {
       if (query.length === 0) {
         this.data = [];
@@ -80,7 +99,10 @@ export default {
       }
 
       this.isFetching = true;
-      setTimeout(() => this.isFetching = false, 2000);
+      setTimeout(() => {
+        this.isFetching = false
+        this.data = this.$store.state.tmp.organizations;
+      }, 500);
       /*
       this.$http.get(`https://api.themoviedb.org/3/search/movie?api_key=bb6f51bef07465653c3e553d6ab161a8&query=${name}`)
                     .then(({ data }) => {
@@ -98,16 +120,33 @@ export default {
     }, 500),
     spawnEdit() {
       console.log("Edit clicked");
+      console.log("TODO: prepare tmp state object")
       this.$emit("open-modal");
     },
     spawnCreateNew() {
       console.log("Create new clicked");
-      this.$emit("input", null);
+      console.log("TODO: clear tmp state object")
       this.$emit("open-modal");
     },
-    updateSelection(option) {
-      console.log("Update selection", option);
-      this.$emit("input", option);
+    makeSureSelectionIsUpdated() {
+      // this method is here to check if the selection was updated
+      // in the case the user *only* types the name of the element
+      // he/she wishes to select without actually clicking it.
+      // In this case the expected behaviour would be that the element
+      // was actually selected, which we make sure of here
+
+      const repr = this.value.value.repr();
+      if (repr !== this.innerSearchString) {
+        const candidate = this.selectable.find(el => el.repr === this.innerSearchString);
+        if (candidate !== undefined) {
+          this.updateValue(candidate);
+        } else if (this.innerSelected.id !== null) {
+          this.updateValue({
+            repr: "",
+            id: null
+          });
+        }
+      }
     }
   }
 }

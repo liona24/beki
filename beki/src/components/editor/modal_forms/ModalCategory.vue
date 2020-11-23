@@ -1,7 +1,7 @@
 <template>
   <div class="modal-card" style="width: auto">
     <header class="modal-card-head">
-      <p class="modal-card-title">Objekt/Einrichtung</p>
+      <p class="modal-card-title">Kategorie</p>
       <button
         type="button"
         class="delete"
@@ -9,48 +9,19 @@
     </header>
 
     <section class="modal-card-body">
-      <p> TODO: Bild einfügen </p>
       <div class="block">
       <b-field label="Name:">
         <b-input
             type="text"
             v-model="data.name"
-            placeholder="Kindergarten Musterstadt"
             expand
             required>
         </b-input>
       </b-field></div>
-      <div class="block">
-      <b-field label="Straße/Hausnummer:">
-        <b-input
-            type="text"
-            v-model="data.street"
-            placeholder="Musterstraße 13"
-            expand
-            required>
-        </b-input>
-      </b-field></div>
-      <div class="block">
-      <b-field label="Postleitzahl:">
-        <b-input
-            type="text"
-            v-model="data.zip_code"
-            placeholder="12345"
-            pattern="[0-9]{5}"
-            expand
-            required>
-        </b-input>
-      </b-field></div>
-      <div class="block">
-      <b-field label="Stadt:">
-        <b-input
-            type="text"
-            v-model="data.city"
-            placeholder="Musterstadt"
-            expand
-            required>
-        </b-input>
-      </b-field></div>
+
+      <many-selection-inspection-standard v-model="data.inspection_standards" label="Prüfkriterium aufnehmen:">
+      </many-selection-inspection-standard>
+
       <b-checkbox>TODO: Alle anderen Protokolle aktualisieren?</b-checkbox>
     </section>
     <footer class="modal-card-foot">
@@ -62,12 +33,14 @@
 
 <script>
 import cloneDeep from 'lodash.clonedeep';
+import ManySelectionInspectionStandard from '../selectors/ManySelectionInspectionStandard.vue';
 
 export default {
-  name: "ModalFacility",
+  components: { ManySelectionInspectionStandard },
+  name: "ModalCategory",
   props: {
     discard: Function,
-    commit: Function,
+    commit : Function,
     initial: {
       type: Object,
       default: null
@@ -79,12 +52,13 @@ export default {
         id: null,
         meta: {
           repr: {
-            short: "TODO bootstrap facility data",
-            long: "TODO bootstrap facility data"
+            short: "TODO bootstrap category data",
+            long: "TODO bootstrap category data"
           },
           is_dirty: true
         }
-      }
+      },
+      tmpInspectionStandard: null
     }
   }
 }

@@ -6,16 +6,16 @@
     @open-modal="openModal" required>
 
     <generic-edit-modal
-      endpoint="api/facility"
+      endpoint="api/category"
       :is-visible="isModalVisible"
       @close="closeModal">
 
       <template slot-scope="{ commit, discard }">
-        <modal-facility
+        <modal-category
           :initial="value"
           :commit="commit"
           :discard="discard">
-        </modal-facility>
+        </modal-category>
       </template>
     </generic-edit-modal>
   </cross-reference-selection>
@@ -24,16 +24,16 @@
 <script>
 import CrossReferenceSelection from '../../utility/CrossReferenceSelection'
 import GenericEditModal from '../GenericEditModal'
-import ModalFacility from '../modal_forms/ModalFacility'
+import ModalCategory from '../modal_forms/ModalCategory.vue'
 
 export default {
   name: "SelectionFacility",
-  components: { CrossReferenceSelection, GenericEditModal, ModalFacility },
+  components: { CrossReferenceSelection, GenericEditModal, ModalCategory },
   props: {
     value: Object,
     label: {
       type: String,
-      default: "Objekt:"
+      default: "Kategorie:"
     }
   },
   data() {

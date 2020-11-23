@@ -2,20 +2,19 @@
   <cross-reference-selection
     :label="label"
     :value="value"
-    @input="bubbleInput"
+    @input="updateValue"
     @open-modal="openModal" required>
 
     <generic-edit-modal
-      endpoint="api/facility"
+      endpoint="api/organization"
       :is-visible="isModalVisible"
       @close="closeModal">
 
       <template slot-scope="{ commit, discard }">
-        <modal-facility
-          :initial="value"
+        <modal-organization
           :commit="commit"
           :discard="discard">
-        </modal-facility>
+        </modal-organization>
       </template>
     </generic-edit-modal>
   </cross-reference-selection>
@@ -24,16 +23,16 @@
 <script>
 import CrossReferenceSelection from '../../utility/CrossReferenceSelection'
 import GenericEditModal from '../GenericEditModal'
-import ModalFacility from '../modal_forms/ModalFacility'
+import ModalOrganization from '../modal_forms/ModalOrganization.vue'
 
 export default {
-  name: "SelectionFacility",
-  components: { CrossReferenceSelection, GenericEditModal, ModalFacility },
+  name: "SelectionOrganization",
+  components: { CrossReferenceSelection, GenericEditModal, ModalOrganization },
   props: {
     value: Object,
     label: {
       type: String,
-      default: "Objekt:"
+      default: "Organisation:"
     }
   },
   data() {
@@ -52,7 +51,7 @@ export default {
         this.bubbleInput(selectedObj);
       }
     },
-    bubbleInput(obj) {
+    updateValue(obj) {
       this.$emit("input", obj);
     }
   }
@@ -60,5 +59,4 @@ export default {
 </script>
 
 <style>
-
 </style>

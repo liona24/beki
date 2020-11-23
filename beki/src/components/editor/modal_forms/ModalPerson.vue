@@ -1,7 +1,7 @@
 <template>
   <div class="modal-card" style="width: auto">
     <header class="modal-card-head">
-      <p class="modal-card-title">Objekt/Einrichtung</p>
+      <p class="modal-card-title">Person</p>
       <button
         type="button"
         class="delete"
@@ -9,48 +9,33 @@
     </header>
 
     <section class="modal-card-body">
-      <p> TODO: Bild einfügen </p>
       <div class="block">
       <b-field label="Name:">
         <b-input
             type="text"
             v-model="data.name"
-            placeholder="Kindergarten Musterstadt"
             expand
             required>
         </b-input>
       </b-field></div>
       <div class="block">
-      <b-field label="Straße/Hausnummer:">
+      <b-field label="Vorname:">
         <b-input
             type="text"
-            v-model="data.street"
-            placeholder="Musterstraße 13"
+            v-model="data.first_name"
             expand
             required>
         </b-input>
       </b-field></div>
       <div class="block">
-      <b-field label="Postleitzahl:">
+      <b-field label="E-Mail:">
         <b-input
-            type="text"
-            v-model="data.zip_code"
-            placeholder="12345"
-            pattern="[0-9]{5}"
-            expand
-            required>
+            type="email"
+            v-model="data.email"
+            expand>
         </b-input>
       </b-field></div>
-      <div class="block">
-      <b-field label="Stadt:">
-        <b-input
-            type="text"
-            v-model="data.city"
-            placeholder="Musterstadt"
-            expand
-            required>
-        </b-input>
-      </b-field></div>
+      <selection-organization v-model="data.organization"></selection-organization>
       <b-checkbox>TODO: Alle anderen Protokolle aktualisieren?</b-checkbox>
     </section>
     <footer class="modal-card-foot">
@@ -62,9 +47,11 @@
 
 <script>
 import cloneDeep from 'lodash.clonedeep';
+import SelectionOrganization from '../selectors/SelectionOrganization.vue';
 
 export default {
-  name: "ModalFacility",
+  components: { SelectionOrganization },
+  name: "ModalPerson",
   props: {
     discard: Function,
     commit: Function,
@@ -79,8 +66,8 @@ export default {
         id: null,
         meta: {
           repr: {
-            short: "TODO bootstrap facility data",
-            long: "TODO bootstrap facility data"
+            short: "TODO bootstrap person data",
+            long: "TODO bootstrap person data"
           },
           is_dirty: true
         }
