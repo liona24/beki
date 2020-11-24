@@ -2,36 +2,35 @@
   <b-field :label="label" horizontal>
     <b-field>
       <b-autocomplete placeholder="Suchen ..."
-          v-model="innerSearchString"
+        v-model="innerSearchString"
 
-          type="search"
-          icon="magnify"
-          field="$repr"
+        type="search"
+        icon="magnify"
+        field="$repr"
 
-          :data="data"
-          :loading="isFetching"
-          :required="required"
-          :open-on-focus="true"
+        :data="data"
+        :loading="isFetching"
+        :required="required"
+        :open-on-focus="true"
 
-          @select="updateSelection"
-          @typing="fetchData"
-          @blur="makeSureSelectionIsUpdated"
+        @select="updateSelection"
+        @typing="fetchData"
+        @blur="makeSureSelectionIsUpdated"
 
-          clearable
-          expanded>
+        clearable
+        expanded>
 
-            <template slot="footer">
-            <a @click="spawnCreateNew">
-                <span>Hinzufügen ... </span>
-            </a>
-          </template>
-
+        <template slot="footer">
+          <a @click="() => launchEditor(false)">
+            <span>Hinzufügen ... </span>
+          </a>
+        </template>
       </b-autocomplete>
       <p class="control">
-        <button class="button" @click="launchEditor(true)"><b-icon icon="pencil" ></b-icon></button>
+        <button class="button" @click="() => launchEditor(true)"><b-icon icon="pencil" ></b-icon></button>
       </p>
       <p class="control">
-        <button class="button" @click="launchEditor(false)"><b-icon icon="file" ></b-icon></button>
+        <button class="button" @click="() => launchEditor(false)"><b-icon icon="file" ></b-icon></button>
       </p>
     </b-field>
   </b-field>
@@ -39,8 +38,7 @@
 
 <script>
 import { SyncStatus } from '../../store/common'
-import { debounce } from 'lodash'
-import { cloneDeep } from 'lodash.clonedeep'
+import { debounce, cloneDeep } from 'lodash'
 
 export default {
   name: "AutocompleteSelect",
@@ -55,6 +53,7 @@ export default {
   },
   data() {
     return {
+      initialValue: cloneDeep(this.value),
       data: [],
       isFetching: false,
       innerSearchString: this.value.$repr
@@ -62,7 +61,11 @@ export default {
   },
   methods: {
     updateSelection(e) {
-      this.$emit("input", e);
+      if (!e) {
+        this.$emit("input", cloneDeep(this.initialValue));
+      } else {
+        this.$emit("input", e);
+      }
     },
     fetchData: debounce(function() {
       this.isFetching = true;

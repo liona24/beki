@@ -12,20 +12,19 @@
             </ul>
           </nav>
 
-          <view-main-menu v-if="currentViewType === ViewType.MainMenu"> </view-main-menu>
+          <view-main-menu v-if="currentViewType === ViewType.MainMenu" />
 
-          <view-protocol v-else-if="currentViewType === ViewType.Protocol"> </view-protocol>
+          <view-protocol v-else-if="currentViewType === ViewType.Protocol" />
 
-          <template v-else-if="currentViewType === ViewType.Facility">
-          </template>
-          <template v-else-if="currentViewType === ViewType.Organization">
-          </template>
-          <template v-else-if="currentViewType === ViewType.Person">
-          </template>
-          <template v-else-if="currentViewType === ViewType.InspectionStandard">
-          </template>
-          <template v-else-if="currentViewType === ViewType.Category">
-          </template>
+          <view-facility v-else-if="currentViewType === ViewType.Facility" />
+
+          <view-organization v-else-if="currentViewType === ViewType.Organization" />
+
+          <view-person v-else-if="currentViewType === ViewType.Person" />
+
+          <view-inspection-standard v-else-if="currentViewType === ViewType.InspectionStandard" />
+
+          <view-category v-else-if="currentViewType === ViewType.Category" />
         </div>
       </div>
     </section>
@@ -35,6 +34,11 @@
 <script>
 import ViewMainMenu from './components/views/ViewMainMenu'
 import ViewProtocol from './components/views/ViewProtocol'
+import ViewFacility from './components/views/ViewFacility'
+import ViewOrganization from './components/views/ViewOrganization'
+import ViewPerson from './components/views/ViewPerson'
+import ViewInspectionStandard from './components/views/ViewInspectionStandard'
+import ViewCategory from './components/views/ViewCategory.vue'
 
 import { ViewType } from './store/common'
 
@@ -44,7 +48,12 @@ export default {
   name: 'App',
   components: {
     ViewMainMenu,
-    ViewProtocol
+    ViewProtocol,
+    ViewInspectionStandard,
+    ViewCategory,
+    ViewPerson,
+    ViewFacility,
+    ViewOrganization,
   },
   computed: {
     ...mapState(['views']),

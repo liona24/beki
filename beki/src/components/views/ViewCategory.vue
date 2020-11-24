@@ -1,13 +1,10 @@
 <template>
-  <p>
-    AutocompleteTextarea
-  </p>
+<p>View Category</p>
 </template>
 
 <script>
 export default {
-  name: "AutocompleteTextarea"
-
+  name: "ViewCategory"
 }
 </script>
 

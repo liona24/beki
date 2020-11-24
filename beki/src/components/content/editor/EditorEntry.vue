@@ -2,10 +2,12 @@
   <div>
     <div class="content columns">
       <div class="column">
-        <p> Place holder category</p>
-        <!--
-        <selection-category v-model="category"></selection-category>
-        -->
+        <autocomplete-select
+          label="Kategorie:"
+          endpoint="api/category"
+          :value="category"
+          @input="updateCategory">
+        </autocomplete-select>
       </div>
 
       <div class="column is-one-quarter">
@@ -16,21 +18,21 @@
     </div>
     <div class="sep-line-small"><hr></div>
 
-    <autocomplete-input :default="title" @update:value="updateTitle" required>
+    <autocomplete-text :default="title" @update:value="updateTitle" required>
       Bezeichnung (entries:title):
-    </autocomplete-input>
+    </autocomplete-text>
 
-    <autocomplete-input :default="manufacturer" @update:value="updateManufacturer" required>
+    <autocomplete-text :default="manufacturer" @update:value="updateManufacturer" required>
       Hersteller (entries:manufacturer):
-    </autocomplete-input>
+    </autocomplete-text>
 
     <b-field label="Baujahr:" horizontal>
       <b-input type="number" :maxlength="4" placeholder="Baujahr" :value="yearBuilt" @input="udpateYearBuilt"></b-input>
     </b-field>
 
-    <autocomplete-input :default="inspectionSigns" @update:value="updateInspectionSigns" required>
+    <autocomplete-text :default="inspectionSigns" @update:value="updateInspectionSigns" required>
       Prüfzeichen (entries:inspection_signs):
-    </autocomplete-input>
+    </autocomplete-text>
 
     <b-field label="Herstellerinformation:" horizontal>
       <b-radio-button :value="manufactureInfoAvailable" @input="updateManufactureInfoAvailable"
@@ -87,11 +89,11 @@
 <script>
 import EditorFlaw from './EditorFlaw.vue'
 // import SelectionCategory from './selectors/SelectionCategory.vue'
-import AutocompleteInput from '../../utility/AutocompleteInput.vue'
+import AutocompleteText from '../../utility/AutocompleteText.vue'
 import { mapGetters } from 'vuex';
 
 export default {
-  components: { EditorFlaw, AutocompleteInput },
+  components: { EditorFlaw, AutocompleteText },
   name: "EditorEntry",
   props: {
     index: Number,

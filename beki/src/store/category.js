@@ -24,7 +24,7 @@ export const categoryGetters = {
   },
 }
 
-export const organizationActions = {
+export const categoryActions = {
   store({ commit, rootGetters }) {
     return new Promise((resolve, reject) => {
       console.log("Store category");

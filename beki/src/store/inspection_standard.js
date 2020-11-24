@@ -24,7 +24,7 @@ export const inspectionStandardMutations = {
   }),
 }
 
-export const categoryGetters = {
+export const inspectionStandardGetters = {
   din(...args) {
     const getter = args[3];
     return getter.currentView.din;
@@ -39,7 +39,7 @@ export const categoryGetters = {
   },
 }
 
-export const organizationActions = {
+export const inspectionStandardActions = {
   store({ commit, rootGetters }) {
     return new Promise((resolve, reject) => {
       console.log("Store inspectionStandard");
@@ -48,6 +48,7 @@ export const organizationActions = {
         commit('pop', { root: true });
         resolve(obj);
       } else {
+        console.log(reject);
         // TODO: push to server
       }
 

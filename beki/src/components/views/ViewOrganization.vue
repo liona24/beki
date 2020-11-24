@@ -64,10 +64,10 @@
 </template>
 
 <script>
-import { mapGetters, mapState } from 'vuex'
+import { mapGetters } from 'vuex'
 
 export default {
-  name: "ModalOrganization",
+  name: "ViewOrganization",
   props: {
     commit: Function,
     discard: Function,
