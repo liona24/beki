@@ -61,7 +61,9 @@ export default {
     }
   },
   methods: {
-
+    fetchData() {
+      // TODO: fetch actual data
+    },
   }
 }
 </script>

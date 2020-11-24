@@ -13,15 +13,12 @@
 
 <script>
 import debounce from 'lodash/debounce'
+import { mapGetters } from 'vuex';
 
 export default {
   name: "MenuSearchAndDisplay",
   data() {
     return {
-      selected: null,
-      searchResults: [
-        { id: 123, title: "Protokoll 1", inspection_date: "24.10.1996", facility: "Area 51" }
-      ],
       columns: [
         {
           field: 'title',
@@ -46,13 +43,15 @@ export default {
   },
   computed: {
     selectionValid() {
+      // TODO
       return false;
-    }
+    },
+    ...mapGetters('menu', ['selected', 'searchResults'])
   },
   methods: {
     queryProtocolTitles: debounce(function(title) {
       if (title.length === 0) {
-        this.data = [];
+        this.$store.commit("menu_searchResults", []);
         return;
       }
 

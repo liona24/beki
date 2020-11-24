@@ -1,7 +1,9 @@
 <template>
   <div>
     <b-field>
-      <b-upload v-model="dropFiles"
+      <b-upload
+        :value="droppedFiles"
+        @input="updateDroppedFiles"
         multiple
         drag-drop
         expanded>
@@ -20,16 +22,15 @@
     </b-field>
 
     <div class="block">
-      <b-collapse v-show="dropFiles.length > 0" class="card" animation="slide" :open="false" aria-id="contentIdForA11y3">
+      <b-collapse v-show="droppedFiles.length > 0" class="card" animation="slide" :open="false" aria-id="contentIdForA11y3">
         <div
           slot="trigger"
           slot-scope="props"
           class="card-header"
           role="button"
-          aria-controls="contentIdForA11y3"
-          :disabled="previewImages.length === 0">
+          aria-controls="contentIdForA11y3">
           <p class="card-header-title">
-            {{ dropFiles.length }} Bild(er) ausgewählt
+            {{ droppedFiles.length }} Bild(er) ausgewählt
           </p>
           <a class="card-header-icon">
             <b-icon
@@ -38,24 +39,22 @@
           </a>
         </div>
         <div class="card-content" style="overflow-x: auto">
-          <div class="tile is-ancestor">
-            <div v-for="(img, i) in previewImages" class="tile is-parent" :key="i">
-
+          <div class="tile is-ancestor" v-show="!isPreviewLoading">
+            <div v-for="(img, name) in previewImages" class="tile is-parent" :key="name">
               <div class="tile is-child box">
                 <b-tooltip position="is-bottom" type="is-light" always>
                   <template slot="content">
-                    {{ img.name }}
+                    {{ name }}
                     <button class="delete is-small"
                           type="button"
-                          @click="deleteDropFile(i)">
+                          @click="deleteDropFile(name)">
                     </button>
                   </template>
                   <figure class="image is-128x128">
-                    <img :src="img.url" />
+                    <img :src="img" />
                   </figure>
                 </b-tooltip>
               </div>
-
             </div>
           </div>
         </div>
@@ -63,56 +62,36 @@
     </div>
     <b-button class="is-primary is-light"
       expanded
-      :disabled="dropFiles.length === 0"
       @click="clickSubmit">
-      Vorbereiten
+      <template v-if="droppedFiles.length === 0">
+        Neu
+      </template>
+      <template v-else>
+        Vorbereiten
+      </template>
     </b-button>
   </div>
 </template>
 
 <script>
+import { mapGetters } from 'vuex'
+
 export default {
   name: "MenuCreateNew",
-  data() {
-    return {
-      dropFiles: [],
-      previewImages: [],
-    }
-  },
   computed: {
-    isPreviewLoading() {
-      return this.dropFiles.length !== this.previewImages.length;
-    }
-  },
-  watch: {
-    dropFiles() {
-      if (this.isPreviewLoading !== true) {
-        return;
-      }
-
-      this.previewImages.splice(0, this.previewImages.length);
-      this.dropFiles.forEach((file, i) => {
-        const reader = new FileReader();
-        reader.onload = e => {
-          this.previewImages.push({
-            index: i,
-            name: file.name,
-            url: e.target.result
-          });
-        };
-        reader.readAsDataURL(file);
-      });
-    }
+    ...mapGetters('menu', ['droppedFiles', 'previewImages', 'isPreviewLoading'])
   },
   methods: {
-    deleteDropFile(index) {
-      const fi = this.previewImages[index].index;
-      this.previewImages.splice(index, 1);
-      this.dropFiles.splice(fi, 1);
+    deleteDropFile(name) {
+      this.$store.commit("menu_removePreviewImage", name);
+      this.$store.commit("menu_removeDroppedFile", name);
     },
-    clickSubmit(e) {
-      console.log("MenuCreateNew Submit Clicked");
-      console.log(e);
+    clickSubmit() {
+      this.$store.dispatch("menu/newProtocol");
+    },
+    updateDroppedFiles(e) {
+      this.$store.commit("menu_droppedFiles", e);
+      this.$store.dispatch("menu/loadPreviews");
     }
   }
 }

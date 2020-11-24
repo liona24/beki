@@ -1,18 +1,18 @@
 <template>
   <div class="box">
-    <status-indicator type="is-warning" content="Status">
-      <a class="tag delete is-danger" slot="left" @click="removeEntry(0)"></a>
+    <status-indicator :status="base.$status">
+      <a class="tag delete is-danger" slot="left" @click="removeEntry"></a>
     </status-indicator>
 
-    <autocomplete-input :default="flaw" @update:value="flaw = $event" required>
+    <autocomplete-text :default="flaw" @update:value="updateFlaw" required>
       Mangel (flaws:flaw):
-    </autocomplete-input>
+    </autocomplete-text>
 
     <div class="columns">
       <div class="column">
-        <autocomplete-input :default="priority" @update:value="priority = $event" required>
+        <autocomplete-text :default="priority" @update:value="updatePriority" required>
           Priorität (flaws:priority):
-        </autocomplete-input>
+        </autocomplete-text>
 
         <b-field label="Bemerkungen (flaws:notes):" horizontal>
           <textarea class="textarea">
@@ -21,8 +21,9 @@
         </b-field>
       </div>
       <div class="column is-one-quarter">
-        <b-field v-if="!imgFile">
+        <b-field v-if="!img">
           <b-upload v-model="imgFile"
+              :disabled="!!imgFile"
               drag-drop>
               <section class="section">
                   <div class="content has-text-centered">
@@ -47,7 +48,7 @@
               </button>
             </template>
             <figure class="image">
-              <img :src="imgPreviewUrl" />
+              <img :src="img" />
             </figure>
           </b-tooltip>
         </template>
@@ -57,39 +58,64 @@
 </template>
 
 <script>
-import StatusIndicator from '../utility/StatusIndicator'
-import AutocompleteInput from '../utility/AutocompleteInput'
+import StatusIndicator from '../../utility/StatusIndicator'
+import AutocompleteText from '../../utility/AutocompleteText'
+import { mapGetters } from 'vuex'
 
 export default {
   name: "EditorFlaw",
-  components: { StatusIndicator, AutocompleteInput },
+  components: { StatusIndicator, AutocompleteText },
+  props: {
+    entry: Number,
+    index: Number,
+  },
   data() {
     return {
-      flaw: "",
-      priority: "",
-      notes: "",
       imgFile: null,
-      imgPreviewUrl: null
+    }
+  },
+  computed: {
+    ...mapGetters('protocol', ['entries']),
+    base() {
+      return this.entries[this.entry].flaws[this.index];
+    },
+    flaw() {
+      return this.base.flaw;
+    },
+    priority() {
+      return this.base.priority;
+    },
+    notes() {
+      return this.base.notes;
+    },
+    img() {
+      return this.base.img;
     }
   },
   watch: {
     imgFile() {
+      // TODO: overthink the handling of images
+      // we probably need the url AND the image name in the store
+      // right now this assumes an url only
+      // We might have to handle duplicates somehow though
+
       if (this.imgFile !== null) {
         const reader = new FileReader();
         reader.onload = e => {
-          this.imgPreviewUrl = e.target.result;
+          console.log("Image loaded", e)
+          // this.imgPreviewUrl = e.target.result;
         };
         reader.readAsDataURL(this.imgFile);
       }
     }
   },
   methods: {
-    removeEntry(i) {
-      console.log("Flaw remove", i);
+    removeEntry() {
+      this.$store.commit("entry_removeFlaw", { entry: this.entry, i: this.index });
     },
     removeImage() {
       this.imgFile = null;
-      this.imgPreviewUrl = null;
+      this.$store.commit("flaw_img", { entry: this.entry, i: this.index, val: null });
     }
   }
 }

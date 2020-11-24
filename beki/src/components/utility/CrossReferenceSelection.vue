@@ -9,7 +9,7 @@
             icon="magnify"
             field="repr"
 
-            :data="selectable"
+            :data="data"
             :loading="isFetching"
             :required="required"
             :open-on-focus="true"
@@ -39,7 +39,7 @@
 
     <slot></slot>
     <p>
-      {{ selectable }}
+      {{ data }}
     </p>
   </div>
 </template>
@@ -66,21 +66,11 @@ export default {
       data: [],
     }
   },
-  computed: {
-    selectable() {
-      return this.data.map(el => {
-        return {
-          id: el.value.id,
-          repr: el.repr()
-        };
-      });
-    }
-  },
   watch: {
     value() {
       // TODO: this may be a bad idea
       // the idea was to sync an *extern* selection
-      const repr = this.value.repr();
+      const repr = this.value.repr;
       if (repr !== this.innerSearchString) {
         this.innerSearchString = repr;
       }
@@ -89,8 +79,7 @@ export default {
   methods: {
     updateSelection(e) {
       console.log("Selection changed", e);
-      const val = this.data.find(el => el.value.id === e.id);
-      this.$emit("input", val || this.defaultValue);
+      this.$emit("input", e || this.defaultValue);
     },
     fetchData: debounce(function(query) {
       if (query.length === 0) {
@@ -126,7 +115,7 @@ export default {
     spawnCreateNew() {
       console.log("Create new clicked");
       console.log("TODO: clear tmp state object")
-      this.$emit("open-modal");
+      this.$emit("open-modal", this.innerSearchString);
     },
     makeSureSelectionIsUpdated() {
       // this method is here to check if the selection was updated
@@ -135,17 +124,10 @@ export default {
       // In this case the expected behaviour would be that the element
       // was actually selected, which we make sure of here
 
-      const repr = this.value.value.repr();
+      const repr = this.value.repr;
       if (repr !== this.innerSearchString) {
-        const candidate = this.selectable.find(el => el.repr === this.innerSearchString);
-        if (candidate !== undefined) {
-          this.updateValue(candidate);
-        } else if (this.innerSelected.id !== null) {
-          this.updateValue({
-            repr: "",
-            id: null
-          });
-        }
+        const candidate = this.data.find(el => el.repr === this.innerSearchString);
+        this.updateValue(candidate);
       }
     }
   }

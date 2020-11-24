@@ -19,10 +19,16 @@
 export default {
   name: "StatusIndicator",
   props: {
-    type: String,
-    content: {
-      type: String,
-      default: ""
+    status: Number
+  },
+  computed: {
+    type() {
+      // TODO: build based on status
+      return "is-warning";
+    },
+    content() {
+      // TODO: build based on status
+      return "Status"
     }
   }
 }

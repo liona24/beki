@@ -1,50 +1,110 @@
-import { newProtocol, newEntry, SyncStatus } from './common.js'
+import { modifyLatestView, ViewType, SyncStatus } from "./common";
+import { organizationState } from './organization'
+import { personState } from "./person";
+import { facilityState } from "./facility";
+import { entryState } from "./entry";
 
-export default {
-  namespaced: true,
-  state: newProtocol,
-  mutations: {
-    title(state, title) {
-      state.status |= SyncStatus.Modified;
-      state.value.title = title;
-    },
-    overview(state, overview) {
-      state.status |= SyncStatus.Modified;
-      state.value.overview = overview;
-    },
-    facility(state, facility) {
-      state.status |= SyncStatus.Modified;
-      state.value.facility = facility;
-    },
-    inspection_date(state, inspection_date) {
-      state.status |= SyncStatus.Modified;
-      state.value.inspection_date = inspection_date;
-    },
-    inspector(state, inspector) {
-      state.status |= SyncStatus.Modified;
-      state.value.inspector = inspector;
-    },
-    issuer(state, issuer) {
-      state.status |= SyncStatus.Modified;
-      state.value.issuer = issuer;
-    },
-    attendees(state, attendees) {
-      state.status |= SyncStatus.Modified;
-      state.value.attendees = attendees;
-    },
+export function protocolState() {
+  return {
+    $type: ViewType.Protocol,
+    $status: SyncStatus.Empty,
+    $repr: "",
+    id: null,
+    title: "",
+    overview: "",
+    facility: facilityState(),
+    inspection_date: "",
+    inspector: personState(),
+    issuer: organizationState(),
+    attendees: "",
+    entries: [],
+  };
+}
 
-    addEntry(state) {
-      state.status |= SyncStatus.Modified;
-      state.value.entries.push(newEntry());
-    },
-    removeEntry(state, index) {
-      state.status |= SyncStatus.Modified;
-      state.value.entries.splice(index, 1);
-    }
+export const protocolMutations = {
+  protocol_title: modifyLatestView((obj, val) => {
+    obj.title = val;
+  }),
+  protocol_overview: modifyLatestView((obj, val) => {
+    obj.overview = val;
+  }),
+  protocol_facility: modifyLatestView((obj, val) => {
+    obj.facility = val;
+  }),
+  protocol_inspectionDate: modifyLatestView((obj, val) => {
+    obj.inspectionDate = val;
+  }),
+  protocol_inspector: modifyLatestView((obj, val) => {
+    obj.inspector = val;
+  }),
+  protocol_issuer: modifyLatestView((obj, val) => {
+    obj.issuer = val;
+  }),
+  protocol_attendees: modifyLatestView((obj, val) => {
+    obj.issuer = val;
+  }),
+  protocol_addEntry: modifyLatestView(obj => {
+    obj.entries.push(entryState());
+  }),
+  protocol_removeEntry: modifyLatestView((obj, index) => {
+    obj.entries.splice(index, 1);
+  })
+}
+
+export const protocolGetters = {
+  title(...args) {
+    const getter = args[3];
+    return getter.currentView.title;
   },
-  actions: {
-    load({ commit }) {
-      console.log(commit);
-    }
+  overview(...args) {
+    const getter = args[3];
+    return getter.currentView.overview;
+  },
+  facility(...args) {
+    const getter = args[3];
+    return getter.currentView.facility;
+  },
+  inspectionDate(...args) {
+    const getter = args[3];
+    return getter.currentView.inspectionDate;
+  },
+  inspector(...args) {
+    const getter = args[3];
+    return getter.currentView.inspector;
+  },
+  issuer(...args) {
+    const getter = args[3];
+    return getter.currentView.issuer;
+  },
+  attendees(...args) {
+    const getter = args[3];
+    return getter.currentView.attendees;
+  },
+  entries(...args) {
+    const getter = args[3];
+    return getter.currentView.entries;
+  },
+}
+
+export const protocolActions = {
+  store({ commit, rootGetters }) {
+    return new Promise((resolve, reject) => {
+      console.log("Store protocol");
+      const obj = rootGetters.currentView;
+      if ((obj.$status & SyncStatus.Modified) == 0) {
+        commit('pop', { root: true });
+        resolve(obj);
+      } else {
+        console.log(reject);
+        // TODO: push to server
+      }
+    });
+  },
+  discard({ commit }) {
+    return new Promise(resolve => {
+      console.log("Discard protocol");
+      commit('pop', { root: true });
+      resolve();
+    })
   }
-};
+}

@@ -1,11 +1,11 @@
 <template>
   <div>
-    <autocomplete-input
+    <autocomplete-text
       :default="title"
       @update:value="updateTitle"
       required>
       Titel:
-    </autocomplete-input>
+    </autocomplete-text>
 
     <b-field label="Prüfgrundlagen (overview):" horizontal>
       <textarea class="textarea"
@@ -15,13 +15,15 @@
       </textarea>
     </b-field>
 
-    <selection-facility
+    <autocomplete-select
+      endpoint="api/facility"
+      label="Objekt:"
       :value="facility"
       @input="updateFacility">
-    </selection-facility>
+    </autocomplete-select>
 
     <b-field label="Prüfdatum:" horizontal>
-      <b-input :value="inspection_date"
+      <b-input :value="inspectionDate"
         @input="updateInspectionDate"
         expanded
         type="date"
@@ -29,17 +31,21 @@
       </b-input>
     </b-field>
 
+    <!--
     <selection-person
       :value="inspector"
       @input="updateInspector"
       label="Prüfer:">
     </selection-person>
+    -->
 
+    <!--
     <selection-organization
       :value="issuer"
       @input="updateIssuer"
       label="Auftraggeber:">
     </selection-organization>
+    -->
 
     <b-field label="Weitere Teilnehmer:" horizontal>
       <b-input
@@ -49,57 +55,52 @@
         type="text">
       </b-input>
     </b-field>
-
-    <p>{{ $store.state.protocol.value }}</p>
   </div>
 
 </template>
 
 <script>
-import AutocompleteInput from '../utility/AutocompleteInput.vue'
-import SelectionFacility from './selectors/SelectionFacility.vue'
-import SelectionOrganization from './selectors/SelectionOrganization.vue'
-import SelectionPerson from './selectors/SelectionPerson.vue'
+import AutocompleteText from '../../utility/AutocompleteText'
+import AutocompleteSelect from '../../utility/AutocompleteSelect.vue'
 
-import { mapState } from 'vuex'
+import { mapGetters } from 'vuex'
 
 export default {
-  components: { AutocompleteInput, SelectionFacility, SelectionOrganization, SelectionPerson },
+  components: { AutocompleteText, AutocompleteSelect },
   name: "EditorProtocolHeader",
   computed: {
-    ...mapState({
-      title: state => state.protocol.title,
-      overview: state => state.protocol.overview,
-      attendees: state => state.protocol.attendees,
-      inspection_date: state => state.protocol.inspection_date,
-
-      facility: state => state.protocol.facility,
-      inspector: state => state.protocol.inspector,
-      issuer: state => state.protocol.issuer
-    })
+    ...mapGetters('protocol', [
+      'title',
+      'overview',
+      'attendees',
+      'inspectionDate',
+      'facility',
+      'inspector',
+      'issuer'
+    ])
   },
   methods: {
     updateTitle(e) {
-      this.$store.commit("protocol/title", e);
+      this.$store.commit("protocol_title", e);
     },
     updateOverview(e) {
-      console.log(e.target.value);
-      this.$store.commit("protocol/overview", e.target.value);
+      console.log("TODO: fix textarea", e.target.value);
+      this.$store.commit("protocol_overview", e.target.value);
     },
     updateAttendees(e) {
-      this.$store.commit("protocol/attendees", e);
+      this.$store.commit("protocol_attendees", e);
     },
     updateInspectionDate(e) {
-      this.$store.commit("protocol/inspection_date", e);
+      this.$store.commit("protocol_inspectionDate", e);
     },
     updateFacility(e) {
-      this.$store.commit("protocol/facility", e);
+      this.$store.commit("protocol_facility", e);
     },
     updateInspector(e) {
-      this.$store.commit("protocol/inspector", e);
+      this.$store.commit("protocol_inspector", e);
     },
     updateIssuer(e) {
-      this.$store.commit("protocol/issuer", e);
+      this.$store.commit("protocol_issuer", e);
     },
   }
 }

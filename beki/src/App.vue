@@ -3,42 +3,76 @@
 
     <section class="section">
       <div class="container is-max-desktop">
+        <div class="box">
+          <nav v-if="currentViewType !== ViewType.MainMenu" class="breadcrumb">
+            <ul>
+              <li v-for="(view, i) in views" :key="i">
+                <a href="#">{{ breadcrumbForType(view.$type) }}</a>
+              </li>
+            </ul>
+          </nav>
 
-        <template v-if="state === 'MAIN_MENU'">
-          <div class="box">
-            <b-tabs size="is-medium" type="is-boxed">
-                <b-tab-item label="Anzeigen" icon="eye">
-                  <menu-search-and-display />
-                </b-tab-item>
-                <b-tab-item label="Neu" icon="file">
-                  <menu-create-new />
-                </b-tab-item>
-            </b-tabs>
-          </div>
-        </template>
+          <view-main-menu v-if="currentViewType === ViewType.MainMenu"> </view-main-menu>
 
-        <editor-protocol v-else-if="state === 'SHOW_EDITOR'" />
+          <view-protocol v-else-if="currentViewType === ViewType.Protocol"> </view-protocol>
 
+          <template v-else-if="currentViewType === ViewType.Facility">
+          </template>
+          <template v-else-if="currentViewType === ViewType.Organization">
+          </template>
+          <template v-else-if="currentViewType === ViewType.Person">
+          </template>
+          <template v-else-if="currentViewType === ViewType.InspectionStandard">
+          </template>
+          <template v-else-if="currentViewType === ViewType.Category">
+          </template>
+        </div>
       </div>
     </section>
   </div>
 </template>
 
 <script>
-import EditorProtocol from './components/editor/EditorProtocol.vue'
-import MenuCreateNew from './components/menu/MenuCreateNew'
-import MenuSearchAndDisplay from './components/menu/MenuSearchAndDisplay'
+import ViewMainMenu from './components/views/ViewMainMenu'
+import ViewProtocol from './components/views/ViewProtocol'
+
+import { ViewType } from './store/common'
+
+import { mapGetters, mapState } from 'vuex'
 
 export default {
   name: 'App',
   components: {
-    MenuCreateNew,
-    MenuSearchAndDisplay,
-    EditorProtocol
+    ViewMainMenu,
+    ViewProtocol
   },
-  data() {
-    return {
-      state: "SHOW_EDITOR"
+  computed: {
+    ...mapState(['views']),
+    ...mapGetters(['currentViewType']),
+    ViewType() {
+      return ViewType;
+    }
+  },
+  methods: {
+    breadcrumbForType(type) {
+      switch (type) {
+        case ViewType.MainMenu:
+          return '#'
+        case ViewType.Protocol:
+          return 'Neu'
+        case ViewType.Facility:
+          return 'Objekt'
+        case ViewType.Organization:
+          return 'Organisation'
+        case ViewType.Person:
+          return 'Person'
+        case ViewType.InspectionStandard:
+          return 'Prüfkriterium'
+        case ViewType.Category:
+          return 'Kategorie'
+        default:
+          return ''
+      }
     }
   }
 }

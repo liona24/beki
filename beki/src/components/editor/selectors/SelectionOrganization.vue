@@ -3,7 +3,8 @@
     :label="label"
     :value="value"
     @input="updateValue"
-    @open-modal="openModal" required>
+    @open-edit="openModalEdit"
+    @open-new="openModalNew" required>
 
     <generic-edit-modal
       endpoint="api/organization"
@@ -24,6 +25,7 @@
 import CrossReferenceSelection from '../../utility/CrossReferenceSelection'
 import GenericEditModal from '../GenericEditModal'
 import ModalOrganization from '../modal_forms/ModalOrganization.vue'
+// import { newOrganization } from '../../../store/common'
 
 export default {
   name: "SelectionOrganization",
@@ -41,7 +43,7 @@ export default {
     }
   },
   methods: {
-    openModal() {
+    openModalEdit() {
       this.isModalVisible = true;
     },
     closeModal(selectedObj) {
