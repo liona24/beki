@@ -8,7 +8,7 @@ export function organizationState() {
     id: null,
     name: "",
     street: "",
-    zipcode: "",
+    zip_code: "",
     city: ""
   }
 }
@@ -20,8 +20,8 @@ export const organizationMutations = {
   organization_street: modifyLatestView((obj, street) => {
     obj.street = street;
   }),
-  organization_zipcode: modifyLatestView((obj, zipcode) => {
-    obj.zipcode = zipcode;
+  organization_zipCode: modifyLatestView((obj, zipcode) => {
+    obj.zip_code = zipcode;
   }),
   organization_city: modifyLatestView((obj, city) => {
     obj.city = city;
@@ -37,9 +37,9 @@ export const organizationGetters = {
     const getter = args[3];
     return getter.currentView.street;
   },
-  zipcode(...args) {
+  zipCode(...args) {
     const getter = args[3];
-    return getter.currentView.zipcode;
+    return getter.currentView.zip_code;
   },
   city(...args) {
     const getter = args[3];

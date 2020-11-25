@@ -7,7 +7,7 @@
       focusable>
     </b-table>
 
-    <b-button class="is-primary is-light" expanded :disabled="!selectionValid">PDF erstellen</b-button>
+    <b-button type="is-dark" outlined expanded :disabled="!selectionValid">PDF erstellen</b-button>
   </div>
 </template>
 

@@ -25,19 +25,19 @@ export const protocolMutations = {
   protocol_title: modifyLatestView((obj, val) => {
     obj.title = val;
   }),
-  protocol_overview: modifyLatestView((obj, val) => {
+  protocol_overview: modifyLatestView((obj, { val }) => {
     obj.overview = val;
   }),
-  protocol_facility: modifyLatestView((obj, val) => {
+  protocol_facility: modifyLatestView((obj, { val }) => {
     obj.facility = val;
   }),
   protocol_inspectionDate: modifyLatestView((obj, val) => {
     obj.inspectionDate = val;
   }),
-  protocol_inspector: modifyLatestView((obj, val) => {
+  protocol_inspector: modifyLatestView((obj, { val }) => {
     obj.inspector = val;
   }),
-  protocol_issuer: modifyLatestView((obj, val) => {
+  protocol_issuer: modifyLatestView((obj, { val }) => {
     obj.issuer = val;
   }),
   protocol_attendees: modifyLatestView((obj, val) => {

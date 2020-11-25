@@ -1,5 +1,5 @@
 <template>
-  <section class="section">
+  <div>
     <autocomplete-text
       :default="title"
       @update:value="updateTitle"
@@ -19,7 +19,7 @@
       endpoint="api/facility"
       label="Objekt:"
       :value="facility"
-      @input="updateFacility">
+      update="protocol_facility">
     </autocomplete-select>
 
     <b-field label="Prüfdatum:" horizontal>
@@ -35,14 +35,14 @@
       endpoint="api/inspector"
       label="Prüfer:"
       :value="inspector"
-      @input="updateInspector">
+      update="protocol_inspector">
     </autocomplete-select>
 
     <autocomplete-select
       endpoint="api/organization"
       label="Auftraggeber:"
       :value="issuer"
-      @input="updateIssuer">
+      update="protocol_issuer">
     </autocomplete-select>
 
     <b-field label="Weitere Teilnehmer:" horizontal>
@@ -53,8 +53,7 @@
         type="text">
       </b-input>
     </b-field>
-  </section>
-
+  </div>
 </template>
 
 <script>

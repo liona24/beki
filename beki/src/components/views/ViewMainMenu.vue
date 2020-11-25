@@ -1,6 +1,7 @@
 <template>
   <b-loading v-if="isLoadingInternal" v-model="isLoadingInternal" :is-full-page="true" :can-cancel="false"></b-loading>
-  <b-tabs v-else size="is-medium" type="is-boxed">
+  <b-tabs v-else type="is-boxed">
+    <!-- TODO: change highlight color -->
     <b-tab-item label="Anzeigen" icon="eye">
       <menu-search-and-display />
     </b-tab-item>

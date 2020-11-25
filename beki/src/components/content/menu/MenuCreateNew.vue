@@ -60,7 +60,7 @@
         </div>
       </b-collapse>
     </div>
-    <b-button class="is-primary is-light"
+    <b-button type="is-dark" outlined
       expanded
       @click="clickSubmit">
       <template v-if="droppedFiles.length === 0">

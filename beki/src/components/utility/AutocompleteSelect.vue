@@ -21,8 +21,8 @@
         expanded>
 
         <template slot="footer">
-          <a @click="() => launchEditor(false)">
-            <span>Hinzufügen ... </span>
+          <a class="dropdown-item" @click="() => launchEditor(false)">
+            <b-icon icon="file" size="is-small"></b-icon><span> Hinzufügen ... </span>
           </a>
         </template>
       </b-autocomplete>
@@ -50,6 +50,13 @@ export default {
     label: String,
     endpoint: String,
     value: Object,
+    update: String,
+    updateArgs: {
+      type: Object,
+      default() {
+        return {}
+      }
+    }
   },
   data() {
     return {
@@ -61,11 +68,8 @@ export default {
   },
   methods: {
     updateSelection(e) {
-      if (!e) {
-        this.$emit("input", cloneDeep(this.initialValue));
-      } else {
-        this.$emit("input", e);
-      }
+      const val = e || cloneDeep(this.initialValue);
+      this.$store.commit(this.update, { val: val, ...this.updateArgs });
     },
     fetchData: debounce(function() {
       this.isFetching = true;
@@ -77,8 +81,13 @@ export default {
       const obj = cloneDeep(this.value);
       if (edit !== true) {
         obj.$status = SyncStatus.New;
+        obj.id = null;
       }
-      this.$store.commit("push", obj);
+      this.$store.commit("push", {
+        view: obj,
+        callback: this.update,
+        args: this.updateArgs
+      });
     },
     makeSureSelectionIsUpdated() {
       // this method is here to check if the selection was updated

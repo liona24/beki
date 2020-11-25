@@ -45,7 +45,7 @@ export const entryMutations = {
   entry_easyAccess: modifyLatestView((obj, { i, val }) => {
     obj.entries[i].easy_access = val;
   }),
-  entry_addFlaw: modifyLatestView((obj, i) => {
+  entry_addFlaw: modifyLatestView((obj, { i }) => {
     obj.entries[i].flaws.push(flawState());
   }),
   entry_removeFlaw: modifyLatestView((obj, { entry, i }) => {

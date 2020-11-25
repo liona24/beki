@@ -1,7 +1,7 @@
 <template>
   <div class="box">
     <status-indicator :status="base.$status">
-      <a class="tag delete is-danger" slot="left" @click="removeEntry"></a>
+      <a class="tag delete is-danger" @click="removeEntry"></a>
     </status-indicator>
 
     <autocomplete-text :default="flaw" @update:value="updateFlaw" required>
@@ -116,6 +116,15 @@ export default {
     removeImage() {
       this.imgFile = null;
       this.$store.commit("flaw_img", { entry: this.entry, i: this.index, val: null });
+    },
+    updateFlaw(e) {
+      this.$store.commit("flaw_flaw", { entry: this.entry, i: this.index, val: e });
+    },
+    updatePriority(e) {
+      this.$store.commit("flaw_priority", { entry: this.entry, i: this.index, val: e });
+    },
+    updateNotes(e) {
+      this.$store.commit("flaw_notes", { entry: this.entry, i: this.index, val: e });
     }
   }
 }

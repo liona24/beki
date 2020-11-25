@@ -99,8 +99,9 @@ export const menuActions = {
     commit('menu_isLoading', true, { root: true });
     setTimeout(() => {
       console.log("TODO process upload", getters.droppedFiles);
+      // TODO: clear pictures
       commit('menu_isLoading', false, { root: true });
-      commit('push', protocolState(), { root: true })
-    }, 2000)
+      commit('push', { view: protocolState() }, { root: true })
+    }, 500)
   }
 }

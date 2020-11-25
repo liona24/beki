@@ -10,21 +10,30 @@ import { inspectionStandardGetters, inspectionStandardMutations, inspectionStand
 import { personGetters, personMutations, personActions } from './person'
 
 import { entryMutations } from './entry'
+import { flawMutations } from './flaw'
+
+// TODO: update $repr for all entities
 
 Vue.use(Vuex);
 
 export const store = new Vuex.Store({
   state: {
     views: [
-      menuState()
-    ]
+      menuState(),
+    ],
+    pop_callbacks: []
   },
   mutations: {
-    push(state, view) {
+    push(state, { view, callback, args }) {
+      state.pop_callbacks.push({ callback: callback, args: args });
       state.views.push(view);
     },
-    pop(state, count = 1) {
-      state.views.splice(state.views.length - count, count);
+    pop(state, { discard }) {
+      const obj = state.views.pop();
+      const { callback, args } = state.pop_callbacks.pop();
+      if (!discard && callback) {
+        state.commit(callback, { val: obj, ...args });
+      }
     },
     // sadly we cannot scope the mutations easily
     ...menuMutations,
@@ -35,6 +44,7 @@ export const store = new Vuex.Store({
     ...inspectionStandardMutations,
     ...personMutations,
     ...entryMutations,
+    ...flawMutations,
   },
   getters: {
     currentViewType(state) {
@@ -42,6 +52,9 @@ export const store = new Vuex.Store({
     },
     currentView(state) {
       return state.views[state.views.length - 1];
+    },
+    currentStatus(state) {
+      return state.views[state.views.length - 1].$status;
     }
   },
 
