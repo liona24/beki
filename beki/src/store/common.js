@@ -3,6 +3,9 @@ export const SyncStatus = Object.freeze({
   Modified: 1,
   New: 2,
   AwaitsConfirmation: 4,
+
+  StoredLazy: 32,
+  Stored: 64,
 });
 
 export const ViewType = Object.freeze({
@@ -25,13 +28,5 @@ export function modifyLatestView(func) {
     const obj = state.views[state.views.length - 1];
     obj.$status |= SyncStatus.Modified;
     return func(obj, ...args);
-  }
-}
-
-export function newFlaw() {
-  console.error("newFlaw not implemented");
-  return {
-    $type: ViewType.Flaw,
-    id: null
   }
 }

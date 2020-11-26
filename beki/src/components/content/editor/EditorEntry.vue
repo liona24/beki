@@ -4,7 +4,7 @@
       <b-field grouped positition="is-right">
         <autocomplete-select
           label="Kategorie:"
-          endpoint="api/category"
+          request-src="category"
 
           update="entry_category"
           :update-args="{ i: index }"
@@ -21,20 +21,20 @@
     <hr>
 
     <section>
-    <autocomplete-text :default="title" @update:value="updateTitle" required>
-      Bezeichnung (entries:title):
+    <autocomplete-text :value="title" @input="updateTitle" request-key="title" request-src="entry" required>
+      Bezeichnung:
     </autocomplete-text>
 
-    <autocomplete-text :default="manufacturer" @update:value="updateManufacturer" required>
-      Hersteller (entries:manufacturer):
+    <autocomplete-text :value="manufacturer" @input="updateManufacturer" request-key="manufacturer" request-src="entry" required>
+      Hersteller:
     </autocomplete-text>
 
     <b-field label="Baujahr:" horizontal>
       <b-input type="number" :maxlength="4" placeholder="Baujahr" :value="yearBuilt" @input="updateYearBuilt"></b-input>
     </b-field>
 
-    <autocomplete-text :default="inspectionSigns" @update:value="updateInspectionSigns" required>
-      Prüfzeichen (entries:inspection_signs):
+    <autocomplete-text :value="inspectionSigns" @input="updateInspectionSigns" request-key="inspection_signs" request-src="entry" required>
+      Prüfzeichen:
     </autocomplete-text>
 
     <b-field label="Herstellerinformation:" horizontal>

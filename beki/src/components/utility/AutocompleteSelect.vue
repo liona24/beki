@@ -12,6 +12,7 @@
         :loading="isFetching"
         :required="required"
         :open-on-focus="true"
+        :disabled="isWaitingForLazyResolve"
 
         @select="updateSelection"
         @typing="fetchData"
@@ -27,10 +28,10 @@
         </template>
       </b-autocomplete>
       <p class="control">
-        <button class="button" @click="() => launchEditor(true)"><b-icon icon="pencil" ></b-icon></button>
+        <button class="button" @click="() => launchEditor(true)" :disabled="isWaitingForLazyResolve"><b-icon icon="pencil" ></b-icon></button>
       </p>
       <p class="control">
-        <button class="button" @click="() => launchEditor(false)"><b-icon icon="file" ></b-icon></button>
+        <button class="button" @click="() => launchEditor(false)" :disabled="isWaitingForLazyResolve"><b-icon icon="file" ></b-icon></button>
       </p>
     </b-field>
   </b-field>
@@ -48,8 +49,11 @@ export default {
       default: false
     },
     label: String,
-    endpoint: String,
+
+    requestSrc: String,
+
     value: Object,
+
     update: String,
     updateArgs: {
       type: Object,
@@ -62,6 +66,7 @@ export default {
     return {
       initialValue: cloneDeep(this.value),
       data: [],
+      isWaitingForLazyResolve: false,
       isFetching: false,
       innerSearchString: this.value.$repr
     }
@@ -69,13 +74,34 @@ export default {
   methods: {
     updateSelection(e) {
       const val = e || cloneDeep(this.initialValue);
-      this.$store.commit(this.update, { val: val, ...this.updateArgs });
+      if((val.$status & SyncStatus.StoredLazy) != 0) {
+        this.isWaitingForLazyResolve = true;
+        this.$http.get(`api/${this.requestSrc}/${val.id}/recursive`).then(resp => {
+          this.$store.commit(this.update, { val: resp.body, ...this.updateArgs });
+        }).finally(() => {
+          this.isWaitingForLazyResolve = false;
+        });
+      } else {
+        this.$store.commit(this.update, { val: val, ...this.updateArgs });
+      }
     },
-    fetchData: debounce(function() {
+    fetchData: debounce(function(query) {
+      if (query.length < 2) {
+        return;
+      }
+
       this.isFetching = true;
-      console.log("Fetching from ", this.endpoint);
-      // TODO: fetch actual autocompletions
-      setTimeout(() => this.isFetching = false, 500);
+
+      this.$http.post("api/_discover", {
+          q: query,
+          src: this.requestSrc,
+      }).then(resp => {
+        this.data = resp.body;
+      }, () => {
+        console.error("discover api unavailable");
+      }).finally(() => {
+        this.isFetching = false;
+      });
     }, 500),
     launchEditor(edit) {
       const obj = cloneDeep(this.value);

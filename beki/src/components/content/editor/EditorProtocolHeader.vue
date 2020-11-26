@@ -1,8 +1,10 @@
 <template>
   <div>
     <autocomplete-text
-      :default="title"
-      @update:value="updateTitle"
+      :value="title"
+      @input="updateTitle"
+      request-key="title"
+      request-src="protocol"
       required>
       Titel:
     </autocomplete-text>
@@ -16,7 +18,7 @@
     </b-field>
 
     <autocomplete-select
-      endpoint="api/facility"
+      request-src="facility"
       label="Objekt:"
       :value="facility"
       update="protocol_facility">
@@ -32,14 +34,14 @@
     </b-field>
 
     <autocomplete-select
-      endpoint="api/inspector"
+      request-src="person"
       label="Prüfer:"
       :value="inspector"
       update="protocol_inspector">
     </autocomplete-select>
 
     <autocomplete-select
-      endpoint="api/organization"
+      request-src="organization"
       label="Auftraggeber:"
       :value="issuer"
       update="protocol_issuer">

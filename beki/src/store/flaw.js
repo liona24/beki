@@ -6,7 +6,7 @@ export function flawState() {
     $status: SyncStatus.Empty,
     $repr: "",
     id: null,
-    flaw: "",
+    title: "",
     img: "",
     notes: "",
     priority: ""
@@ -14,8 +14,8 @@ export function flawState() {
 }
 
 export const flawMutations = {
-  flaw_flaw: modifyLatestView((obj, { entry, i, val }) => {
-    obj.entries[entry].flaws[i].category = val;
+  flaw_title: modifyLatestView((obj, { entry, i, val }) => {
+    obj.entries[entry].flaws[i].title = val;
   }),
   flaw_img: modifyLatestView((obj, { entry, i, val }) => {
     obj.entries[entry].flaws[i].img = val;

@@ -4,17 +4,17 @@
       <a class="tag delete is-danger" @click="removeEntry"></a>
     </status-indicator>
 
-    <autocomplete-text :default="flaw" @update:value="updateFlaw" required>
-      Mangel (flaws:flaw):
+    <autocomplete-text :value="title" @input="updateTitle" request-key="title" request-src="flaw" required>
+      Mangel:
     </autocomplete-text>
 
     <div class="columns">
       <div class="column">
-        <autocomplete-text :default="priority" @update:value="updatePriority" required>
-          Priorität (flaws:priority):
+        <autocomplete-text :value="priority" @input="updatePriority" request-key="priority" request-src="flaw" required>
+          Priorität:
         </autocomplete-text>
 
-        <b-field label="Bemerkungen (flaws:notes):" horizontal>
+        <b-field label="Bemerkungen:" horizontal>
           <textarea class="textarea">
             TODO: Add autocomplete
           </textarea>
@@ -79,8 +79,8 @@ export default {
     base() {
       return this.entries[this.entry].flaws[this.index];
     },
-    flaw() {
-      return this.base.flaw;
+    title() {
+      return this.base.title;
     },
     priority() {
       return this.base.priority;
@@ -117,8 +117,8 @@ export default {
       this.imgFile = null;
       this.$store.commit("flaw_img", { entry: this.entry, i: this.index, val: null });
     },
-    updateFlaw(e) {
-      this.$store.commit("flaw_flaw", { entry: this.entry, i: this.index, val: e });
+    updateTitle(e) {
+      this.$store.commit("flaw_title", { entry: this.entry, i: this.index, val: e });
     },
     updatePriority(e) {
       this.$store.commit("flaw_priority", { entry: this.entry, i: this.index, val: e });

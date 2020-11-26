@@ -1,13 +1,18 @@
 <template>
   <div class="block">
-    <b-field horizontal :type="isValid ? '' : 'is-danger'" :message="message">
+    <b-field horizontal>
       <b-autocomplete
-        v-model="innerValue"
-        :data="filteredDataArray"
+        :value="value"
+        @input="updateValue"
+
+        :data="data"
+        :loading="isFetching"
+        @typing="fetchData"
+
         placeholder="..."
         clearable
         :required="required"
-        @select="option => innerValue = option">
+        @select="updateValue">
         <template slot="empty">Keine Übereinstimmung</template>
       </b-autocomplete>
       <template slot="label">
@@ -20,50 +25,46 @@
 </template>
 
 <script>
+import { debounce } from 'lodash'
+
 export default {
-  name: "AutocompleteInput",
+  name: "AutocompleteText",
   props: {
-    name: String,
-    validator: {
-      type: Function,
-      default: () => null,
-    },
     required: {
       type: Boolean,
       default: false
     },
-    default: {
-      type: String,
-      default: "",
-    },
+    value: String,
+    requestSrc: String,
+    requestKey: String
   },
   data() {
     return {
-      message: null,
-      innerValue: this.default,
-      filteredDataArray: ["Hi", "Bye"]
-    }
-  },
-  computed: {
-    isValid() {
-      return this.message === null || this.message.length === 0;
-    }
-  },
-  watch: {
-    innerValue() {
-      this.message = this.validator(this.innerValue);
-
-      if (this.isValid) {
-        this.$emit("update:value", this.innerValue);
-      } else {
-        this.$emit("update:value", null);
-      }
+      data: [],
+      isFetching: false,
     }
   },
   methods: {
-    fetchData() {
-      // TODO: fetch actual data
+    updateValue(e) {
+      this.$emit("input", e);
     },
+    fetchData: debounce(function(query) {
+      if (query.length < 2) {
+        return;
+      }
+
+      this.$http.post("api/_autocomplete", {
+          q: query,
+          key: this.requestKey,
+          src: this.requestSrc
+      }).then(resp => {
+        this.data = resp.body;
+        this.isFetching = false;
+      }, () => {
+        console.error("autocomplete api unavailable");
+        this.isFetching = false;
+      });
+    }, 500),
   }
 }
 </script>

@@ -41,7 +41,7 @@ export const protocolMutations = {
     obj.issuer = val;
   }),
   protocol_attendees: modifyLatestView((obj, val) => {
-    obj.issuer = val;
+    obj.attendees = val;
   }),
   protocol_addEntry: modifyLatestView(obj => {
     obj.entries.push(entryState());

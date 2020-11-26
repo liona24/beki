@@ -27,7 +27,7 @@
       </b-input>
     </b-field>
     <autocomplete-select
-      endpoint="api/organization"
+      request-src="organization"
       label="Organisation:"
       :value="organization"
       update="person_organization">
