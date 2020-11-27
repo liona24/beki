@@ -45,7 +45,10 @@ export const menuMutations = {
   menu_isPreviewLoading: modifyLatestView((obj, val) => {
     obj.isPreviewLoading = val;
   }),
-
+  menu_clearSelectedFiles: modifyLatestView(obj => {
+    obj.previewImages = {};
+    obj.droppedFiles = [];
+  })
 }
 
 export const menuGetters = {
@@ -97,11 +100,27 @@ export const menuActions = {
   },
   newProtocol({ commit, getters }) {
     commit('menu_isLoading', true, { root: true });
-    setTimeout(() => {
-      console.log("TODO process upload", getters.droppedFiles);
-      // TODO: clear pictures
+    const data = new FormData();
+    getters.droppedFiles.forEach(file => {
+      data.append(file.name, file);
+    });
+    fetch("/api/_upload", {
+      method: "POST",
+      body: data
+    })
+    .then(resp => resp.json())
+    .then(json => {
+      commit('menu_clearSelectedFiles', null, { root: true });
+      console.log("upload successful", json);
+      if (json === "ASDF") {
+        // happy linter
+        commit('push', { view: protocolState() }, { root: true })
+      }
+    })
+    .finally(() => {
+      console.log("Upload done. TODO");
       commit('menu_isLoading', false, { root: true });
-      commit('push', { view: protocolState() }, { root: true })
-    }, 500)
+      // commit('push', { view: protocolState() }, { root: true })
+    });
   }
 }

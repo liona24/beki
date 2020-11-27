@@ -1,7 +1,5 @@
-from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.inspection import inspect
-from sqlalchemy.orm.collections import InstrumentedList
 from sqlalchemy.orm.attributes import CollectionAttributeImpl
 
 
@@ -23,7 +21,6 @@ class Serializer(object):
 
     def common_repr(self):
         return "<UNKNOWN>"
-
 
     def serialize(self, full=False):
         # these are some ugly hacks in order to prevent lazy fetching

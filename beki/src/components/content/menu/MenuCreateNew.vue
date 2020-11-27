@@ -4,6 +4,7 @@
       <b-upload
         :value="droppedFiles"
         @input="updateDroppedFiles"
+        accept="image/*"
         multiple
         drag-drop
         expanded>

@@ -1,17 +1,27 @@
-from flask import Flask, request, jsonify, abort
-from sqlalchemy import or_
-import database
-
 import os
+import hashlib
+
+from flask import Flask, request, jsonify, abort, send_from_directory
+from werkzeug.utils import secure_filename
+from sqlalchemy import or_
+import cv2 as cv
+import numpy as np
+
+import database
 
 app = Flask(__name__)
 
 DB_PATH = "/tmp/beki.db"
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///" + DB_PATH
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+app.config["IMG_UPLOAD_PATH"] = "/tmp/beki/uploads"
+app.config["IMG_CROP_SIZE"] = (342, 256)
 
 database.init_db(app)
 db = database.db
+
+if not os.path.exists(app.config["IMG_UPLOAD_PATH"]):
+    os.makedirs(app.config["IMG_UPLOAD_PATH"])
 
 
 def int_or_400(string):
@@ -37,7 +47,7 @@ def api_protocol():
         if id is None:
             abort(400)
 
-        id = int_or_404(id)
+        id = int_or_400(id)
 
         protocol = db.session.query(database.Protocol)\
             .filter(database.Protocol.id == id)\
@@ -66,8 +76,6 @@ def api_protocol():
                 db.session.query(database.ProtocolEntry)\
                     .filter(database.ProtocolEntry.protocol_id == id)\
                     .delete()
-
-
 
         db.session.commit()
 
@@ -132,6 +140,56 @@ def generic_discover_handler(table, query):
     return jsonify(list(map(lambda record: record.serialize(), result)))
 
 
+def allowed_file(file):
+    # i suppose this does not even matter since we are processing the images
+    # before doing anything with them  opencv will surely revolt if the
+    # files are no valid images
+    return True
+
+
+def process_image(file):
+    in_buf = file.read()
+    in_buf = np.asarray(bytearray(in_buf), dtype=np.uint8)
+    img = cv.imdecode(in_buf, 0)
+    if img is None:
+        return None
+
+    w, h = app.config["IMG_CROP_SIZE"]
+    assert w != h, "TODO we might want to actually crop the image"
+    img = cv.resize(img, (w, h), interpolation=cv.INTER_AREA)
+
+    _, out_buf = cv.imencode(".png", img)
+    out_buf = bytes(out_buf)
+    h = hashlib.sha1()
+    h.update(out_buf)
+    file_name = h.hexdigest() + ".png"
+
+    dst_path = os.path.join(app.config["IMG_UPLOAD_PATH"], file_name)
+    if not os.path.exists(dst_path):
+        # TODO: Feature extraction
+        # Some keywords which might be useful:
+        # - GrabCut
+        # - ORB
+        # - Unsupervised learning of foreground object detection
+        # - locality sensitive hashing
+        #       https://github.com/RSIA-LIESMARS-WHU/LSHBOX
+        #       https://github.com/kayzhu/LSHash/blob/master/lshash/lshash.py
+        #       https://github.com/spotify/annoy
+        #       https://medium.com/machine-learning-world/feature-extraction-and-similar-image-search-with-opencv-for-newbies-3c59796bf774
+
+
+        orb = cv.ORB_create()
+        mask = None
+        keypoints, descriptors = orb.detectAndCompute(img, mask)
+        # 2 modes: Full for facility images and masked (i.e. obj of interest only)
+        # for all other images
+
+        with open(dst_path, "wb") as f:
+            f.write(out_buf)
+
+    return file_name
+
+
 @app.route("/api/_autocomplete", methods=["GET", "POST"])
 def autocomplete():
     query = param_or_400("q")
@@ -162,6 +220,24 @@ def discover():
 
     return generic_discover_handler(table, query)
 
+
+@app.route("/api/_upload", methods=["POST"])
+def upload_image():
+    files = []
+    for key in request.files:
+        file = request.files[key]
+        if not allowed_file(file):
+            abort(400)
+
+        files.append(file)
+
+    results = {}
+    for file in files:
+        results[file.name] = process_image(file)
+
+    return jsonify(results)
+
+
 @app.route("/api/<collection>/<int:id>", methods=["GET"], defaults={'recursive': False})
 @app.route("/api/<collection>/<int:id>/recursive", methods=["GET"], defaults={'recursive': True})
 def api_get(collection, id, recursive):
@@ -174,6 +250,13 @@ def api_get(collection, id, recursive):
         .first_or_404()
 
     return jsonify(result.serialize(full=recursive))
+
+
+@app.route("/images/<img>", methods=["GET"])
+def serve_img(img):
+    img_path = secure_filename(img)
+    return send_from_directory(app.config["IMG_UPLOAD_PATH"], img_path)
+
 
 if __name__ == '__main__':
     app.run("0.0.0.0", port=5000, debug=True)
