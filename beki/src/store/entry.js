@@ -28,7 +28,9 @@ export const entryMutations = {
     obj.entries[i].category_version = val;
   }),
   entry_title: modifyLatestView((obj, { i, val }) => {
-    obj.entries[i].title = val;
+    const entry = obj.entries[i];
+    entry.title = val;
+    entry.$repr = val;
   }),
   entry_manufacturer: modifyLatestView((obj, { i, val }) => {
     obj.entries[i].manufacturer = val;

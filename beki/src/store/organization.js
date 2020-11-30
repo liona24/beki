@@ -13,9 +13,18 @@ export function organizationState() {
   }
 }
 
+function updateRepr(obj) {
+  if (obj.name && obj.city) {
+    obj.$repr = `${obj.name}, ${obj.city}`;
+  } else {
+    obj.$repr = obj.name;
+  }
+}
+
 export const organizationMutations = {
   organization_name: modifyLatestView((obj, name) => {
     obj.name = name;
+    updateRepr(obj);
   }),
   organization_street: modifyLatestView((obj, street) => {
     obj.street = street;
@@ -25,6 +34,7 @@ export const organizationMutations = {
   }),
   organization_city: modifyLatestView((obj, city) => {
     obj.city = city;
+    updateRepr(obj);
   }),
 }
 

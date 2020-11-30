@@ -4,7 +4,7 @@ export const SyncStatus = Object.freeze({
   New: 2,
   AwaitsConfirmation: 4,
 
-  StoredLazy: 32,
+  Lazy: 32,
   Stored: 64,
 });
 

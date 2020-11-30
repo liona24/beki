@@ -74,7 +74,7 @@ export default {
   methods: {
     updateSelection(e) {
       const val = e || cloneDeep(this.initialValue);
-      if((val.$status & SyncStatus.StoredLazy) != 0) {
+      if((val.$status & SyncStatus.Lazy) != 0) {
         this.isWaitingForLazyResolve = true;
         this.$http.get(`api/${this.requestSrc}/${val.id}/recursive`).then(resp => {
           this.$store.commit(this.update, { val: resp.body, ...this.updateArgs });

@@ -2,6 +2,8 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.inspection import inspect
 from sqlalchemy.orm.attributes import CollectionAttributeImpl
 
+from enum import IntFlag, IntEnum
+
 
 db = SQLAlchemy()
 
@@ -10,14 +12,34 @@ def init_db(app):
     db.init_app(app)
 
 
-# TODO: make common_type enum
+class CommonType(IntEnum):
+    Unknown = -1
+
+    Protocol = 1
+    Facility = 2
+    Organization = 3
+    Person = 4
+    InspectionStandard = 5
+    Category = 6
+    Entry = 7
+    Flaw = 8
+
+
+class SyncStatus(IntFlag):
+    Empty = 0
+    Modified = 1
+    New = 2
+    AwaitsConfirmation = 4
+
+    Lazy = 32
+    Stored = 64
 
 
 class Serializer(object):
 
     @property
     def common_type(self):
-        return -1
+        return CommonType.Unknown
 
     def common_repr(self):
         return "<UNKNOWN>"
@@ -58,9 +80,9 @@ class Serializer(object):
                     val = val.serialize(full)
                 rv[a] = val
 
-        rv["$status"] = 64
+        rv["$status"] = SyncStatus.Stored
         if not full:
-            rv["$status"] = 32
+            rv["$status"] |= SyncStatus.Lazy
 
         rv["$type"] = self.common_type
         rv["$repr"] = self.common_repr()
@@ -93,7 +115,7 @@ class Facility(db.Model, Serializer):
 
     @property
     def common_type(self):
-        return 2
+        return CommonType.Facility
 
     def common_repr(self):
         return f"{self.name}, {self.city}"
@@ -122,7 +144,7 @@ class Protocol(db.Model, Serializer):
 
     @property
     def common_type(self):
-        return 1
+        return CommonType.Protocol
 
     def common_repr(self):
         return self.title
@@ -146,10 +168,10 @@ class Person(db.Model, Serializer):
 
     @property
     def common_type(self):
-        return 4
+        return CommonType.Person
 
     def common_repr(self):
-        return f"{self.first_name}, {self.name}"
+        return f"{self.name}, {self.first_name}"
 
 
 class Category(db.Model, Serializer):
@@ -166,7 +188,7 @@ class Category(db.Model, Serializer):
 
     @property
     def common_type(self):
-        return 6
+        return CommonType.Category
 
     def common_repr(self):
         return self.name
@@ -186,11 +208,13 @@ class InspectionStandard(db.Model, Serializer):
 
     @property
     def common_type(self):
-        return 5
+        return CommonType.InspectionStandard
 
     def common_repr(self):
-        # TODO: this was something else
-        return self.din
+        v = ''
+        if self.has_version.startswith('Ja'):
+            v = '(V)'
+        return f"DIN {v} {self.din} {self.description}"
 
 
 class Organization(db.Model, Serializer):
@@ -208,7 +232,7 @@ class Organization(db.Model, Serializer):
 
     @property
     def common_type(self):
-        return 3
+        return CommonType.Organization
 
     def common_repr(self):
         return f"{self.name}, {self.city}"
@@ -229,7 +253,7 @@ class Flaw(db.Model, Serializer):
 
     @property
     def common_type(self):
-        return 8
+        return CommonType.Flaw
 
     def common_repr(self):
         return self.title
@@ -261,7 +285,7 @@ class Entry(db.Model, Serializer):
 
     @property
     def common_type(self):
-        return 7
+        return CommonType.Entry
 
     def common_repr(self):
         return self.title

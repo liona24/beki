@@ -12,15 +12,22 @@ export function inspectionStandardState() {
   };
 }
 
+function updateRepr(obj) {
+  obj.$repr = `DIN ${obj.has_version === 'Ja' ? '(V) ' : ''} ${obj.din} ${obj.description}`;
+}
+
 export const inspectionStandardMutations = {
   inspectionStandard_din: modifyLatestView((obj, val) => {
     obj.din = val;
+    updateRepr(obj);
   }),
   inspectionStandard_description: modifyLatestView((obj, val) => {
     obj.description = val;
+    updateRepr(obj);
   }),
   inspectionStandard_hasVersion: modifyLatestView((obj, val) => {
     obj.has_version = val;
+    updateRepr(obj);
   }),
 }
 

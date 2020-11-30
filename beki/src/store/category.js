@@ -14,6 +14,7 @@ export function categoryState() {
 export const categoryMutations = {
   category_name: modifyLatestView((obj, name) => {
     obj.name = name;
+    obj.$repr = name;
   }),
   category_inspectionStandards: modifyLatestView((obj, { val }) => {
     obj.inspection_standards = val;

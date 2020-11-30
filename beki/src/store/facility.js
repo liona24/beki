@@ -13,9 +13,18 @@ export function facilityState() {
   };
 }
 
+function updateRepr(obj) {
+  if (obj.name && obj.city) {
+    obj.$repr = `${obj.name}, ${obj.city}`;
+  } else {
+    obj.$repr = obj.name;
+  }
+}
+
 export const facilityMutations = {
   facility_name: modifyLatestView((obj, name) => {
     obj.name = name;
+    updateRepr(obj);
   }),
   facility_street: modifyLatestView((obj, val) => {
     obj.street = val;
@@ -25,6 +34,7 @@ export const facilityMutations = {
   }),
   facility_city: modifyLatestView((obj, val) => {
     obj.city = val;
+    updateRepr(obj);
   }),
 }
 

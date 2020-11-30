@@ -12,8 +12,6 @@ import { personGetters, personMutations, personActions } from './person'
 import { entryMutations } from './entry'
 import { flawMutations } from './flaw'
 
-// TODO: update $repr for all entities
-
 Vue.use(Vuex);
 
 export const store = new Vuex.Store({

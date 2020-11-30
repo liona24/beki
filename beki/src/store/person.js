@@ -14,12 +14,22 @@ export function personState() {
   }
 }
 
+function updateRepr(obj) {
+  if (obj.name && obj.first_name) {
+    obj.$repr = `${obj.name}, ${obj.first_name}`;
+  } else {
+    obj.$repr = obj.name;
+  }
+}
+
 export const personMutations = {
   person_name: modifyLatestView((obj, name) => {
     obj.name = name;
+    updateRepr(obj);
   }),
   person_firstName: modifyLatestView((obj, val) => {
     obj.first_name = val;
+    updateRepr(obj);
   }),
   person_email: modifyLatestView((obj, val) => {
     obj.email = val;

@@ -5,7 +5,7 @@
         type="text"
         :value="din"
         @input="updateDin"
-        placeholder="DIN A4"
+        placeholder="A4"
         expand
         required>
       </b-input>

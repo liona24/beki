@@ -24,6 +24,7 @@ export function protocolState() {
 export const protocolMutations = {
   protocol_title: modifyLatestView((obj, val) => {
     obj.title = val;
+    obj.$repr = val;
   }),
   protocol_overview: modifyLatestView((obj, { val }) => {
     obj.overview = val;

@@ -15,7 +15,9 @@ export function flawState() {
 
 export const flawMutations = {
   flaw_title: modifyLatestView((obj, { entry, i, val }) => {
-    obj.entries[entry].flaws[i].title = val;
+    const flaw = obj.entries[entry].flaws[i];
+    flaw.title = val;
+    flaw.$repr = val;
   }),
   flaw_img: modifyLatestView((obj, { entry, i, val }) => {
     obj.entries[entry].flaws[i].img = val;
