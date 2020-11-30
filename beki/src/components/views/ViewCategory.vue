@@ -10,7 +10,7 @@
       </b-input>
     </b-field>
     <autocomplete-many-select
-      endpoint="api/inspection_standard"
+      request-src="inspection_standard"
       label="Prüfkriterien:"
       :value="inspectionStandards"
       :create="createInspectionStandard"

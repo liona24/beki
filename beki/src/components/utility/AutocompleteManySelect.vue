@@ -3,11 +3,12 @@
     <b-field>
       <b-taginput placeholder="..."
         :value="value"
+        @add="addValue"
 
         icon="label"
         field="$repr"
 
-        :data="data"
+        :data="filteredData"
         :loading="isFetching"
         :required="required"
         :open-on-focus="true"
@@ -53,8 +54,10 @@ export default {
       default: false
     },
     label: String,
-    endpoint: String,
-    value: Object,
+
+    requestSrc: String,
+
+    value: Array,
 
     create: Function,
     update: String,
@@ -67,14 +70,40 @@ export default {
       currentInput: "",
     }
   },
+  computed: {
+    filteredData() {
+      return this.data.filter(record =>
+        this.value.find(val =>
+          val.id === record.id) === undefined
+      );
+    }
+  },
   methods: {
+    addValue(e) {
+      this.$store.commit(this.update, {
+        val: e,
+        i: -1
+      });
+    },
     fetchData: debounce(function(query) {
+      if (query.length < 1) {
+        this.data = [];
+        return;
+      }
+
       this.isFetching = true;
       this.currentInput = query;
 
-      console.log("Fetching from ", this.endpoint);
-      // TODO: fetch actual autocompletions
-      setTimeout(() => this.isFetching = false, 500);
+      this.$http.post("api/_discover", {
+          q: query,
+          src: this.requestSrc,
+      }).then(resp => {
+        this.data = resp.body;
+      }, () => {
+        console.error("discover api unavailable");
+      }).finally(() => {
+        this.isFetching = false;
+      });
     }, 500),
     launchEditor() {
       const obj = this.create(this.currentInput);
@@ -89,11 +118,9 @@ export default {
       });
     },
     removeAt(index) {
-      console.log("TODO remove", index);
       this.$store.commit(this.remove, index);
     },
     modifyAt(index) {
-      console.log("TODO modify", index);
       const obj = cloneDeep(this.value[index]);
       this.$store.commit("push", {
         view: obj,

@@ -150,7 +150,7 @@ def process_image(file):
 @app.route("/api/_autocomplete", methods=["GET", "POST"])
 def autocomplete():
     query = param_or_400("q")
-    if len(query) < 2:
+    if len(query) < 1:
         abort(400)
 
     data_src = param_or_400("src")
@@ -166,7 +166,7 @@ def autocomplete():
 @app.route("/api/_discover", methods=["GET", "POST"])
 def discover():
     query = param_or_400("q")
-    if len(query) < 2:
+    if len(query) < 1:
         abort(400)
 
     data_src = param_or_400("src")

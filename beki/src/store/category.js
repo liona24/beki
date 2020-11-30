@@ -38,7 +38,7 @@ export const categoryGetters = {
   },
   inspectionStandards(...args) {
     const getter = args[3];
-    return getter.currentView.inspectionStandards;
+    return getter.currentView.inspection_standards;
   }
 }
 

@@ -86,7 +86,8 @@ export default {
       }
     },
     fetchData: debounce(function(query) {
-      if (query.length < 2) {
+      if (query.length < 1) {
+        this.data = [];
         return;
       }
 
