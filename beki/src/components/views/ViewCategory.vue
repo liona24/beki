@@ -13,8 +13,7 @@
       endpoint="api/inspection_standard"
       label="Prüfkriterien:"
       :value="inspectionStandards"
-      @input="updateInspectionStandards"
-      :constructor="createInspectionStandard"
+      :create="createInspectionStandard"
       update="category_updateInspectionStandard"
       remove="category_removeInspectionStandard">
     </autocomplete-many-select>
@@ -32,24 +31,16 @@ export default {
   name: "ViewCategory",
   computed: {
     ...mapGetters('category', [
-      'name',
-      'inspectionStandards',
-    ]),
+        'name',
+        'inspectionStandards',
+      ]),
   },
   methods: {
     updateName(e) {
       this.$store.commit("category_name", e);
     },
-    updateInspectionStandards(e) {
-      this.$store.commit("category_inspectionStandards", e);
-    },
-    createInspectionStandard(initial_str) {
+    createInspectionStandard() {
       const obj = inspectionStandardState();
-
-      if(initial_str) {
-        obj.din = initial_str;
-      }
-
       return obj;
     }
   }

@@ -56,24 +56,18 @@ export default {
     endpoint: String,
     value: Object,
 
-    constructor: Function,
+    create: Function,
     update: String,
     remove: String,
   },
   data() {
     return {
-      data: [{
-        $repr: "Test 1",
-      }, { $repr: "Test 2"
-      }],
+      data: [],
       isFetching: false,
       currentInput: "",
     }
   },
   methods: {
-    updateValue(e) {
-      this.$emit("input", e);
-    },
     fetchData: debounce(function(query) {
       this.isFetching = true;
       this.currentInput = query;
@@ -83,7 +77,7 @@ export default {
       setTimeout(() => this.isFetching = false, 500);
     }, 500),
     launchEditor() {
-      const obj = this.constructor(this.currentInput);
+      const obj = this.create(this.currentInput);
       obj.$status = SyncStatus.New;
 
       this.$store.commit("push", {

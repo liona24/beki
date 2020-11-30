@@ -13,7 +13,7 @@
     <b-field label="Versioniert:" horizontal>
       <b-switch
         :value="hasVersion"
-        @input="udpateHasVersion"
+        @input="updateHasVersion"
         true-value="Ja"
         false-value="Nein">
       </b-switch>
