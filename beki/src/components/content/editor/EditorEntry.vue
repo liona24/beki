@@ -9,8 +9,7 @@
           update="entry_category"
           :update-args="{ i: index }"
 
-          :value="category"
-          @input="updateCategory">
+          :value="category">
         </autocomplete-select>
 
         <b-field label="Version:" horizontal position="is-right">
@@ -87,7 +86,7 @@
     </section>
 
     <br>
-    <editor-flaw v-for="(_flaw, i) in flaws" :entry="index" :index="i" :key="i" />
+    <editor-flaw v-for="(_flaw, i) in flaws" :entry="index" :index="i" :key="'protocol-entry-flaw' + i" />
 
     <b-button size="is-small" type="is-dark" outlined expanded @click="addFlaw">
       <b-icon icon="chevron-double-right" size="is-small"></b-icon> Mangel hinzufügen
@@ -139,9 +138,6 @@ export default {
     }
   },
   methods: {
-    updateCategory(e) {
-      this.$store.commit("entry_category", { i: this.index, val: e });
-    },
     updateCategoryVersion(e) {
       this.$store.commit("entry_categoryVersion", { i: this.index, val: e });
     },

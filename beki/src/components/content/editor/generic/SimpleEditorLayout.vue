@@ -32,7 +32,15 @@ export default {
   },
   methods: {
     commit() {
-      console.log("TODO commit", this.commitAction);
+      this.$store.dispatch(this.commitAction)
+        .then(wasUpdated => {
+          if (wasUpdated) {
+            console.log("TODO: snackbar erfolgreich gespeichert", this.title);
+          }
+          this.$store.commit('pop', { discard: !wasUpdated });
+        }, () => {
+          console.log("TODO: snackbar nicht erfolgreich gespeichert", this.title);
+        });
     }
   }
 }

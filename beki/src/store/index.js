@@ -11,6 +11,7 @@ import { personGetters, personMutations, personActions } from './person'
 
 import { entryMutations } from './entry'
 import { flawMutations } from './flaw'
+import { SyncStatus } from './common'
 
 Vue.use(Vuex);
 
@@ -31,6 +32,17 @@ export const store = new Vuex.Store({
       const { callback, args } = state.pop_callbacks.pop();
       if (!discard && callback) {
         state.commit(callback, { val: obj, ...args });
+      }
+    },
+    updateId(state, { id }) {
+      const obj = state.views[state.views.length - 1];
+      if (id !== undefined && id !== null) {
+        obj.$status &= ~(SyncStatus.New | SyncStatus.Modified);
+        obj.$status |= SyncStatus.Stored;
+        obj.id = id;
+      } else {
+        obj.$status &= ~(SyncStatus.Stored | SyncStatus.Modified | SyncStatus.Lazy);
+        obj.$status |= SyncStatus.New;
       }
     },
     // sadly we cannot scope the mutations easily

@@ -131,7 +131,7 @@ class Protocol(db.Model, Serializer):
 
     title = db.Column(db.String, nullable=False)
     overview = db.Column(db.String, nullable=False)
-    inspection_date = db.Column(db.Date)
+    inspection_date = db.Column(db.Date, nullable=False)
     attendees = db.Column(db.String)
 
     inspector_id = db.Column(db.Integer, db.ForeignKey("person.id"), nullable=False)
@@ -201,7 +201,7 @@ class InspectionStandard(db.Model, Serializer):
 
     din = db.Column(db.String, nullable=False)
     description = db.Column(db.String)
-    has_version = db.Column(db.String)
+    has_version = db.Column(db.String, nullable=False)
 
     autocompleteable = ()
     discoverable = "din", "description"
@@ -223,9 +223,9 @@ class Organization(db.Model, Serializer):
     id = db.Column(db.Integer, primary_key=True)
 
     name = db.Column(db.String, nullable=False)
-    street = db.Column(db.String)
-    zip_code = db.Column(db.String)
-    city = db.Column(db.String)
+    street = db.Column(db.String, nullable=False)
+    zip_code = db.Column(db.String, nullable=False)
+    city = db.Column(db.String, nullable=False)
 
     autocompleteable = ()
     discoverable = "name", "street", "zip_code", "city"

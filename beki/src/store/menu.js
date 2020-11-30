@@ -99,6 +99,11 @@ export const menuActions = {
     ).then(() => commit('menu_isPreviewLoading', false, { root: true }));
   },
   newProtocol({ commit, getters }) {
+    if (getters.droppedFiles.length === 0) {
+      commit('push', { view: protocolState() }, { root: true })
+      return;
+    }
+
     commit('menu_isLoading', true, { root: true });
     const data = new FormData();
     getters.droppedFiles.forEach(file => {

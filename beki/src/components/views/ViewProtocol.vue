@@ -10,7 +10,7 @@
     <br>
     <br>
 
-    <div class="box" v-for="(entry, i) in entries" :key="i">
+    <div class="box" v-for="(entry, i) in entries" :key="'protocol-entry' + i">
       <status-indicator :status="entry.$status">
         <a class="tag delete is-danger" @click="removeEntry(i)"></a> {{ entry.$repr }}
       </status-indicator>

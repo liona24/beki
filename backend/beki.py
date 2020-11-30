@@ -8,6 +8,7 @@ import cv2 as cv
 import numpy as np
 
 import database
+from post import api_post
 
 app = Flask(__name__)
 
@@ -38,50 +39,6 @@ def param_or_400(name):
     if rv is None:
         abort(400)
     return rv
-
-
-@app.route("/api/protocol", methods=["GET", "POST"])
-def api_protocol():
-    if request.method == "GET":
-        id = request.args.get("id", None)
-        if id is None:
-            abort(400)
-
-        id = int_or_400(id)
-
-        protocol = db.session.query(database.Protocol)\
-            .filter(database.Protocol.id == id)\
-            .first()
-
-        if protocol is None:
-            return jsonify(None)
-
-        # TODO: We probably want to fetch all the entries (ids)
-        # We could also fetch everything here but I assume it is better for
-        # lazy loading if we only fetch the ids of everything
-
-        protocol = protocol.serialize()
-        return protocol
-    elif request.method == "POST":
-        if id in request.form:
-            id = int_or_400(request.form.pop("id"))
-
-            protocol = db.session.query(database.Protocol)\
-                .filter(database.Protocol.id == id)\
-                .first()
-
-            if protocol is not None:
-                entries = list(protocol.entries)
-
-                db.session.query(database.ProtocolEntry)\
-                    .filter(database.ProtocolEntry.protocol_id == id)\
-                    .delete()
-
-        db.session.commit()
-
-        return 201
-    else:
-        raise NotImplementedError(f"Method {request.method} for /api/protocol not implemented!")
 
 
 def escape_for_like_query(query):
@@ -250,6 +207,9 @@ def api_get(collection, id, recursive):
         .first_or_404()
 
     return jsonify(result.serialize(full=recursive))
+
+
+api_post = app.route("/api/<collection>", methods=["POST"])(api_post)
 
 
 @app.route("/images/<img>", methods=["GET"])

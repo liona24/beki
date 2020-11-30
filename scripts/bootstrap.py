@@ -116,7 +116,7 @@ with app.app_context():
             name="Mann",
             first_name="Max",
             email="max@thereal.de",
-            organization_id=orgs[1].id
+            organization=orgs[1]
         ),
     ]
 

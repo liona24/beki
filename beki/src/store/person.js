@@ -46,7 +46,7 @@ export const personGetters = {
   },
   firstName(...args) {
     const getter = args[3];
-    return getter.currentView.firstName;
+    return getter.currentView.first_name;
   },
   email(...args) {
     const getter = args[3];
