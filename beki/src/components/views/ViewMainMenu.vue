@@ -1,14 +1,16 @@
 <template>
   <b-loading v-if="isLoadingInternal" v-model="isLoadingInternal" :is-full-page="true" :can-cancel="false"></b-loading>
-  <b-tabs v-else type="is-boxed">
-    <!-- TODO: change highlight color -->
-    <b-tab-item label="Anzeigen" icon="eye">
-      <menu-search-and-display />
-    </b-tab-item>
-    <b-tab-item label="Neu" icon="file">
-      <menu-create-new />
-    </b-tab-item>
-  </b-tabs>
+  <div v-else class="box">
+    <b-tabs type="is-boxed">
+      <!-- TODO: change highlight color -->
+      <b-tab-item label="Anzeigen" icon="eye">
+        <menu-search-and-display />
+      </b-tab-item>
+      <b-tab-item label="Neu" icon="file">
+        <menu-create-new />
+      </b-tab-item>
+    </b-tabs>
+  </div>
 </template>
 
 <script>

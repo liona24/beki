@@ -88,7 +88,7 @@
     <br>
     <editor-flaw v-for="(_flaw, i) in flaws" :entry="index" :index="i" :key="'protocol-entry-flaw' + i" />
 
-    <b-button size="is-small" type="is-dark" outlined expanded @click="addFlaw">
+    <b-button v-if="flaws.length < 3" size="is-small" type="is-dark" outlined expanded @click="addFlaw">
       <b-icon icon="chevron-double-right" size="is-small"></b-icon> Mangel hinzufügen
     </b-button>
   </div>

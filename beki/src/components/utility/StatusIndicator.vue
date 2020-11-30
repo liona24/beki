@@ -1,16 +1,21 @@
 <template>
-  <nav class="level">
-    <div class="level-left">
+  <div class="columns is-gapless">
+    <div class="column is-6">
+      <div class="level-item is-pulled-left">
       <slot></slot>
+      </div>
     </div>
-    <div class="level-right">
-      <div class="level-item">
+    <div class="column">
+      <slot name="center"></slot>
+    </div>
+    <div class="column">
+      <div class="level-item is-pulled-right">
         <b-tag :type="type">
             {{ content }}
         </b-tag>
       </div>
     </div>
-  </nav>
+  </div>
 </template>
 
 <script>

@@ -8,6 +8,7 @@ export function entryState() {
     $status: SyncStatus.Empty,
     $repr: "",
     id: null,
+    index: null,
     category: categoryState(),
     category_version: "",
     title: "",
@@ -16,7 +17,8 @@ export function entryState() {
     inspection_signs: "",
     manufacture_info_available: "Keine Angabe",
     easy_access: "Keine Angabe",
-    flaws: []
+    flaws: [],
+    _collapsed: false,
   };
 }
 
@@ -53,4 +55,8 @@ export const entryMutations = {
   entry_removeFlaw: modifyLatestView((obj, { entry, i }) => {
     obj.entries[entry].flaws.splice(i, 1);
   }),
+  entry_triggerCollapse: (state, { i }) => {
+    const entry = state.views[state.views.length - 1].entries[i];
+    entry._collapsed = !entry._collapsed;
+  }
 }

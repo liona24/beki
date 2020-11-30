@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="box">
     <status-indicator :status="currentStatus">
       <h4 class="title is-4">{{ title }}</h4>
     </status-indicator>

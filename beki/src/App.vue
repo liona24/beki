@@ -30,21 +30,19 @@
 
     <section class="section">
       <div class="container is-max-desktop">
-        <div class="box">
-          <view-main-menu v-if="currentViewType === ViewType.MainMenu" />
+        <view-main-menu v-if="currentViewType === ViewType.MainMenu" />
 
-          <view-protocol v-else-if="currentViewType === ViewType.Protocol" />
+        <view-protocol v-else-if="currentViewType === ViewType.Protocol" />
 
-          <view-facility v-else-if="currentViewType === ViewType.Facility" />
+        <view-facility v-else-if="currentViewType === ViewType.Facility" />
 
-          <view-organization v-else-if="currentViewType === ViewType.Organization" />
+        <view-organization v-else-if="currentViewType === ViewType.Organization" />
 
-          <view-person v-else-if="currentViewType === ViewType.Person" />
+        <view-person v-else-if="currentViewType === ViewType.Person" />
 
-          <view-inspection-standard v-else-if="currentViewType === ViewType.InspectionStandard" />
+        <view-inspection-standard v-else-if="currentViewType === ViewType.InspectionStandard" />
 
-          <view-category v-else-if="currentViewType === ViewType.Category" />
-        </div>
+        <view-category v-else-if="currentViewType === ViewType.Category" />
       </div>
     </section>
   </div>
