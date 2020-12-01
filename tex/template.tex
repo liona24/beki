@@ -1,0 +1,111 @@
+\documentclass[ngerman, a4paper]{article}
+
+
+\usepackage{sans}
+\usepackage{graphicx,color}
+\usepackage[utf8]{inputenc}
+\usepackage{verbatim}
+\usepackage{tabularx}
+\usepackage{multicol}
+\usepackage{multirow}
+\usepackage{wrapfig}
+\usepackage{fancyhdr}
+\usepackage{pifont}
+\usepackage[inline]{enumitem}
+\usepackage{amssymb}
+\usepackage{lastpage}
+
+\usepackage[left=0.5cm,right=0.5cm]{geometry}
+
+\usepackage[ngerman]{babel}
+\usepackage{blindtext}
+
+\newcommand{\checkx}{\rlap{$\square$}{\raisebox{2pt}{\large\hspace{1pt}\ding{51}}}}
+
+\fancyhead{}
+\cfoot{\parbox[t]{13cm}{\raggedright \VAR{title} \VAR{facility['name']} \\ \copyright \VAR{inspector['organization']['name']}, \VAR{inspector['organization']['street']}, \VAR{inspector['organization']['zipCode']} \VAR{inspector['organization']['city']} \\ Prüfer: \VAR{inspector['name']}}}
+\lfoot{\vbox to 0.3cm{\includegraphics[height=1cm]{../logo.png}}}
+\rfoot{\today \\ Seite \thepage/\pageref{LastPage}}
+\renewcommand{\headrulewidth}{0pt}
+\renewcommand{\headwidth}{190mm}
+\setlength{\headheight}{0cm}
+\pagestyle{fancy}
+
+\setlength{\textheight}{260mm}
+\setlength{\textwidth}{180mm}
+\setlength{\voffset}{-2cm}
+\setlength{\hoffset}{0.5cm}
+
+\begin{document}
+ 	\fboxsep0pt
+ 	\fboxrule0pt
+	\BLOCK{ if facility['picture'] }
+	\fbox{\vbox to 0pt{\hbox to 17cm{\hfill \fbox{\includegraphics[height=3.7cm,width=4.5cm]{\VAR{facility['picture']}}}}}}
+	\BLOCK{ endif }
+
+	{\LARGE Prüfprotokoll \VAR{title} \\}
+
+	\begin{tabular}{l l}
+		Prüfgrundlagen: & \parbox[t]{9cm}{\VAR{overview}}\\
+	\end{tabular}
+
+	\renewcommand{\arraystretch}{1.7}
+	\begin{tabularx}{\textwidth}{l X l X }
+		Spielplatz: & \VAR{facility['name']} \newline \VAR{facility['street']} \newline \VAR{facility['zipCode']} \VAR{facility['city']} & Auftraggeber: & \VAR{issuer['name']} \newline \VAR{issuer['street']} \newline \VAR{issuer['zipCode']} \VAR{issuer['city']} \\
+		Prüfdatum: & \VAR{inspectionDate} & Prüfer: & \VAR{inspector['organization']['name']} \newline \VAR{inspector['organization']['street']} \newline \VAR{inspector['organization']['zipCode']} \VAR{inspector['organization']['city']} \newline \VAR{inspector['firstName']} \VAR{inspector['name']} \newline \VAR{inspector['email']} \\
+		Weitere Teilnehmer: & \VAR{attendees} & & \\
+	\end{tabularx}
+
+	\renewcommand{\arraystretch}{1.5}
+	\BLOCK{ for entry in entries|sort(attribute='index') }
+	\begin{tabularx}{\textwidth}{ |l|X|X| }
+		\hline
+		\multirow{\VAR{entry['flaws']|length + 1}}{*}{\VAR{loop.index - 1}.} & \VAR{entry['category']['name']}: \textbf{\VAR{entry['title']}}
+			\newline \textit{Hersteller:} \VAR{entry['manufacturer']}
+			\newline \textit{Baujahr:} \VAR{entry['yearBuilt']}
+			\BLOCK{ if entry['manufactureInfoAvailable'] != 'Keine Angabe' }
+				\newline \textit{Herstellerinformation lag vor:}
+				\begin{enumerate*}[itemjoin={\quad},label=$\square$]
+					\item\VAR{ '[\checkx]' if entry['manufactureInfoAvailable'] == 'Ja' else '' } Ja
+					\item\VAR{ '[\checkx]' if entry['manufactureInfoAvailable'] == 'Nein' else '' } Nein
+				\end{enumerate*}
+			\BLOCK{ endif }
+			\newline \textit{Prüfzeichen:} \VAR{entry['inspectionSigns']}
+			\BLOCK{ if entry['easyAccess'] != 'Keine Angabe' }
+				\newline
+				\begin{enumerate*}[itemjoin={\quad},label=$\square$]
+					\item\VAR{ '[\checkx]' if entry['easyAccess'] == 'Ja' else '' } leicht zugänglich (Kinder \textless 3 Jahre)
+				\end{enumerate*}
+			\BLOCK{ endif }
+			& \VAR{entry['category']['inspectionStandards']} \\
+		\BLOCK{ for flaw in entry['flaws'] }
+			\cline{2-3}
+			& \multicolumn{2}{>{\hsize=\dimexpr2\hsize+2\tabcolsep+\arrayrulewidth\relax}X|}{
+				\BLOCK{ if flaw['picture'] }
+					\begin{minipage}[t]{0.6\textwidth}
+						\textit{Befund/Mangel:} \VAR{flaw['flaw']}\newline
+						\textit{Priorität:} \VAR{flaw['priority']}\newline
+						\textit{Bemerkung:} \VAR{flaw['notes']}
+					\end{minipage}
+					\begin{minipage}[t]{0.33\textwidth}
+						\raggedleft
+						\vspace{-\ht\strutbox}\includegraphics[height=4cm]{\VAR{flaw['picture']}}
+					\end{minipage}
+				\BLOCK{ else }
+					\textit{Befund/Mangel:} \VAR{flaw['title']}\newline
+					\textit{Priorität:} \VAR{flaw['priority']}\newline
+					\textit{Bemerkung:} \VAR{flaw['notes']}
+				\BLOCK{ endif }
+			} \\
+		\BLOCK{ endfor }
+		\hline
+	\end{tabularx}
+
+	\BLOCK{ endfor }
+
+	\vspace{2.3cm}
+	\VAR{inspector.firstName} \VAR{inspector.name}
+
+	Qualifizierter Spielplatzprüfer, QSP-IH-00165
+
+\end{document}

@@ -360,6 +360,7 @@ def _protocol(body, err_agg):
 
     inspector = getter("inspector", Err("Feld 'Prüfer' wird benötigt!", "Protokoll"))
     facility = getter("facility", Err("Feld 'Objekt' wird benötigt!", "Protokoll"))
+    issuer = getter("issuer", Err("Feld 'Auftraggeber' wird benötigt!", "Protokoll"))
 
     entries = getter("entries", [])
 
@@ -388,6 +389,10 @@ def _protocol(body, err_agg):
         facility = _fetcher(database.Facility)(
             _facility(facility, err_agg)
         )
+    if issuer is not None:
+        issuer = _fetcher(database.Organization)(
+            _organization(issuer, err_agg)
+        )
 
     if err_agg.recent_ok():
         args = dict(
@@ -397,6 +402,7 @@ def _protocol(body, err_agg):
             attendees=attendees,
             inspector=inspector,
             facility=facility,
+            issuer=issuer,
             entries=entries
         )
         if id is not None:

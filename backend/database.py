@@ -137,6 +137,9 @@ class Protocol(db.Model, Serializer):
     inspector_id = db.Column(db.Integer, db.ForeignKey("person.id"), nullable=False)
     inspector = db.relationship("Person", foreign_keys=inspector_id)
 
+    issuer_id = db.Column(db.Integer, db.ForeignKey("organization.id"), nullable=False)
+    issuer = db.relationship("Organization", foreign_keys=issuer_id)
+
     entries = db.relationship("Entry", secondary="protocol_entry")
 
     autocompleteable = "title", "overview"

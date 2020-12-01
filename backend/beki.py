@@ -9,16 +9,21 @@ import numpy as np
 
 import database
 from post import api_post
+from tex import render_protocol, configure_jinja
 
 app = Flask(__name__)
 
 DB_PATH = "/tmp/beki.db"
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///" + DB_PATH
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+
 app.config["IMG_UPLOAD_PATH"] = "/tmp/beki/uploads"
 app.config["IMG_CROP_SIZE"] = (342, 256)
 
+app.config["TEX_WORKDIR"] = "/tmp/beki/tex"
+
 database.init_db(app)
+configure_jinja(app)
 db = database.db
 
 if not os.path.exists(app.config["IMG_UPLOAD_PATH"]):
@@ -216,6 +221,15 @@ api_post = app.route("/api/<collection>", methods=["POST"])(api_post)
 def serve_img(img):
     img_path = secure_filename(img)
     return send_from_directory(app.config["IMG_UPLOAD_PATH"], img_path)
+
+
+@app.route("/api/_render/<int:id>", methods=["GET"])
+def render(id):
+    protocol = db.session.query(database.Protocol)\
+        .filter(database.Protocol.id == id)\
+        .first_or_404()
+
+    return render_protocol(protocol.serialize(full=True))
 
 
 if __name__ == '__main__':

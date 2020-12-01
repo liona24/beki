@@ -180,6 +180,7 @@ with app.app_context():
             inspection_date=datetime.date(2020, 3, 23),
             attendees="Peter Klause, Klause Schmidt",
             inspector_id=persons[0].id,
+            issuer_id=orgs[0].id,
             entries=entries,
         ),
         database.Protocol(
@@ -189,6 +190,7 @@ with app.app_context():
             inspection_date=datetime.date(2020, 10, 16),
             attendees="P. Jama",
             inspector_id=persons[1].id,
+            issuer_id=orgs[0].id,
             entries=entries,
         ),
         database.Protocol(
@@ -198,6 +200,7 @@ with app.app_context():
             inspection_date=datetime.date(2020, 4, 4),
             attendees="P. Swat",
             inspector_id=persons[0].id,
+            issuer_id=orgs[1].id,
             entries=[],
         )
     ]
