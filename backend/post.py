@@ -1,5 +1,7 @@
 from flask import request, abort, jsonify, current_app
+from werkzeug.utils import secure_filename
 
+import os
 import database
 
 db = database.db
@@ -51,6 +53,30 @@ class ErrorAggregator(object):
 
     def ok(self):
         return len(self.errors) == 0
+
+
+def _remove_null_values(dict):
+    keys = list(dict.keys())
+    for k in keys:
+        # this also filters 0 but there is no case in which 0 is acceptable either
+        if not dict[k]:
+            dict.pop(k)
+    return dict
+
+
+def _checked_picture(pic):
+    pic = secure_filename(pic)
+    pic = os.path.basename(pic)
+
+    if not pic.endswith(".png"):
+        return None
+
+    should_path = os.path.join(current_app.config["IMG_UPLOAD_PATH"], pic)
+
+    if os.path.exists(should_path):
+        return pic
+    else:
+        return None
 
 
 def _requires_action(body):
@@ -120,10 +146,10 @@ def _category(body, err_agg):
     ))
 
     if err_agg.recent_ok():
-        args = dict(
+        args = _remove_null_values(dict(
             name=name,
             inspection_standards=inspection_standards
-        )
+        ))
         if id is not None:
             category = _update(database.Category, id, args)
         else:
@@ -164,8 +190,8 @@ def _entry(body, err_agg, idx=None):
             filter(
                 None,
                 map(
-                    lambda x: _flaw(x, err_agg),
-                    flaws
+                    lambda x: _flaw(x[1], err_agg, idx=x[0]),
+                    enumerate(flaws)
                 )
             )
         ))
@@ -176,7 +202,7 @@ def _entry(body, err_agg, idx=None):
         )
 
     if err_agg.recent_ok():
-        args = dict(
+        args = _remove_null_values(dict(
             title=title,
             manufacturer=manufacturer,
             year_built=year_built,
@@ -187,7 +213,7 @@ def _entry(body, err_agg, idx=None):
             category=category,
             category_version=category_version,
             flaws=flaws
-        )
+        ))
         if id is not None:
             obj = _update(database.Entry, id, args)
         else:
@@ -210,16 +236,18 @@ def _facility(body, err_agg):
     city = getter("city", Err("Feld 'Stadt' wird benötigt!", "Objekt"))
     picture = getter("picture", None, not_empty=False)
 
-    # TODO: Check if picture exists
+    if _checked_picture(picture) != picture:
+        err_agg.add_error(Err("Das angegebene Bild konnte nicht gefunden werden!", "Objekt"))
+        picture = None
 
     if err_agg.recent_ok():
-        args = dict(
+        args = _remove_null_values(dict(
             name=name,
             street=street,
             zip_code=zip_code,
             city=city,
             picture=picture,
-        )
+        ))
         if id is not None:
             obj = _update(database.Facility, id, args)
         else:
@@ -230,26 +258,28 @@ def _facility(body, err_agg):
         return None
 
 
-def _flaw(body, err_agg):
+def _flaw(body, err_agg, idx=None):
     action_required, id = _requires_action(body)
     if not action_required:
         return id
 
     getter = err_agg(body)
-    title = getter("title", Err("Feld 'Titel' wird benötigt!", "Mangel"))
+    title = getter("title", Err("Feld 'Titel' wird benötigt!", "Mangel", idx=idx))
     notes = getter("notes", "")
     priority = getter("priority", "")
     picture = getter("picture", None, not_empty=False)
 
-    # TODO: Check if picture exists
+    if _checked_picture(picture) != picture:
+        err_agg.add_error(Err("Das angegebene Bild konnte nicht gefunden werden!", "Mangel", idx=idx))
+        picture = None
 
     if err_agg.recent_ok():
-        args = dict(
+        args = _remove_null_values(dict(
             title=title,
             notes=notes,
             priority=priority,
             picture=picture,
-        )
+        ))
         if id is not None:
             flaw = _update(database.Flaw, id, args)
         else:
@@ -271,11 +301,11 @@ def _inspection_standard(body, err_agg):
     has_version = getter("has_version", Err("Feld 'Versioniert' wird benötigt!", "Prüfkriterium"))
 
     if err_agg.recent_ok():
-        args = dict(
+        args = _remove_null_values(dict(
             din=din,
             description=description,
             has_version=has_version,
-        )
+        ))
         if id is not None:
             std = _update(database.InspectionStandard, id, args)
         else:
@@ -298,12 +328,12 @@ def _organization(body, err_agg):
     city = getter("city", Err("Feld 'Stadt' wird benötigt!", "Organisation"))
 
     if err_agg.recent_ok():
-        args = dict(
+        args = _remove_null_values(dict(
             name=name,
             street=street,
             zip_code=zip_code,
             city=city
-        )
+        ))
         if id is not None:
             obj = _update(database.Organization, id, args)
         else:
@@ -331,12 +361,12 @@ def _person(body, err_agg):
         )
 
     if err_agg.recent_ok():
-        args = dict(
+        args = _remove_null_values(dict(
             name=name,
             first_name=first_name,
             email=email,
             organization=organization
-        )
+        ))
         if id is not None:
             obj = _update(database.Person, id, args)
         else:
@@ -395,7 +425,7 @@ def _protocol(body, err_agg):
         )
 
     if err_agg.recent_ok():
-        args = dict(
+        args = _remove_null_values(dict(
             title=title,
             overview=overview,
             inspection_date=inspection_date,
@@ -404,7 +434,7 @@ def _protocol(body, err_agg):
             facility=facility,
             issuer=issuer,
             entries=entries
-        )
+        ))
         if id is not None:
             # TODO: make sure that this is used correctly w.r.t legacy protocols
             obj = _update(database.Protocol, id, args)
