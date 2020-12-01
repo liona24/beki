@@ -1,4 +1,4 @@
-import { modifyLatestView, ViewType, SyncStatus } from "./common";
+import { modifyLatestView, ViewType, SyncStatus, postToServer } from "./common";
 
 export function facilityState() {
   return {
@@ -59,24 +59,6 @@ export const facilityGetters = {
 
 export const facilityActions = {
   store({ commit, rootGetters }) {
-    return new Promise((resolve, reject) => {
-      console.log("Store facility");
-      const obj = rootGetters.currentView;
-      if ((obj.$status & SyncStatus.Modified) == 0) {
-        commit('pop', { root: true });
-        resolve(obj);
-      } else {
-        // TODO: push to server
-        console.log(reject);
-      }
-
-    });
-  },
-  discard({ commit }) {
-    return new Promise(resolve => {
-      console.log("Discard facility");
-      commit('pop', { root: true });
-      resolve();
-    })
+    return postToServer(commit, rootGetters, "facility");
   }
 }

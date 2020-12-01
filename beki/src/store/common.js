@@ -33,14 +33,12 @@ export function modifyLatestView(func) {
 
 export function postToServer(commit, rootGetters, endpoint) {
   return new Promise((resolve, reject) => {
-    console.log("TODO Store", endpoint);
     const obj = rootGetters.currentView;
     if ((obj.$status & SyncStatus.Modified) == 0) {
       resolve(false);
     } else {
-      const tail = (obj.$status & SyncStatus.New) !== 0 ? '' : `/${obj.id}`;
       const body = Object.assign({}, obj);
-      fetch(`/api/${endpoint}${tail}`, {
+      fetch(`/api/${endpoint}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -49,9 +47,16 @@ export function postToServer(commit, rootGetters, endpoint) {
       })
       .then(resp => resp.json())
       .then(json => {
-        commit("updateId", { id: json.id }, { root: true });
-        resolve(true);
-      }, reject);
+        if (json.errors?.length > 0) {
+          reject(json.errors);
+        } else {
+          commit("updateId", { id: json.id }, { root: true });
+          resolve(true);
+        }
+      }, () => {
+        console.error("post api unavailable");
+        reject([ { msg: "Verbindung zum Server nicht möglich!" } ]);
+      });
     }
   });
 }

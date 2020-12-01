@@ -1,4 +1,4 @@
-import { modifyLatestView, ViewType, SyncStatus } from "./common";
+import { modifyLatestView, ViewType, SyncStatus, postToServer } from "./common";
 
 export function categoryState() {
   return {
@@ -44,24 +44,6 @@ export const categoryGetters = {
 
 export const categoryActions = {
   store({ commit, rootGetters }) {
-    return new Promise((resolve, reject) => {
-      console.log("Store category");
-      const obj = rootGetters.currentView;
-      if ((obj.$status & SyncStatus.Modified) == 0) {
-        commit('pop', { root: true });
-        resolve(obj);
-      } else {
-        console.log(reject);
-        // TODO: push to server
-      }
-
-    });
-  },
-  discard({ commit }) {
-    return new Promise(resolve => {
-      console.log("Discard category");
-      commit('pop', { root: true });
-      resolve();
-    })
+    return postToServer(commit, rootGetters, "category");
   }
 }

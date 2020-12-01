@@ -27,13 +27,6 @@ export const store = new Vuex.Store({
       state.pop_callbacks.push({ callback: callback, args: args });
       state.views.push(view);
     },
-    pop(state, { discard }) {
-      const obj = state.views.pop();
-      const { callback, args } = state.pop_callbacks.pop();
-      if (!discard && callback) {
-        state.commit(callback, { val: obj, ...args });
-      }
-    },
     updateId(state, { id }) {
       const obj = state.views[state.views.length - 1];
       if (id !== undefined && id !== null) {
@@ -44,6 +37,10 @@ export const store = new Vuex.Store({
         obj.$status &= ~(SyncStatus.Stored | SyncStatus.Modified | SyncStatus.Lazy);
         obj.$status |= SyncStatus.New;
       }
+    },
+    pop_view(state) {
+      state.views.pop();
+      state.pop_callbacks.pop();
     },
     // sadly we cannot scope the mutations easily
     ...menuMutations,
@@ -56,6 +53,16 @@ export const store = new Vuex.Store({
     ...entryMutations,
     ...flawMutations,
   },
+  actions: {
+    back({ commit, getters }, { discard }) {
+      const obj = getters.currentView;
+      const { callback, args } = getters.currentCallback;
+      commit("pop_view");
+      if (!discard && callback) {
+        commit(callback, { val: obj, ...args });
+      }
+    },
+  },
   getters: {
     currentViewType(state) {
       return state.views[state.views.length - 1].$type;
@@ -65,6 +72,9 @@ export const store = new Vuex.Store({
     },
     currentStatus(state) {
       return state.views[state.views.length - 1].$status;
+    },
+    currentCallback(state) {
+      return state.pop_callbacks[state.pop_callbacks.length - 1];
     }
   },
 

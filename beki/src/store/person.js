@@ -1,4 +1,4 @@
-import { modifyLatestView, ViewType, SyncStatus } from "./common";
+import { modifyLatestView, ViewType, SyncStatus, postToServer } from "./common";
 import { organizationState } from './organization'
 
 export function personState() {
@@ -34,7 +34,7 @@ export const personMutations = {
   person_email: modifyLatestView((obj, val) => {
     obj.email = val;
   }),
-  person_organization: modifyLatestView((obj, val) => {
+  person_organization: modifyLatestView((obj, { val }) => {
     obj.organization = val;
   }),
 }
@@ -60,24 +60,6 @@ export const personGetters = {
 
 export const personActions = {
   store({ commit, rootGetters }) {
-    return new Promise((resolve, reject) => {
-      console.log("Store person");
-      const obj = rootGetters.currentView;
-      if ((obj.$status & SyncStatus.Modified) == 0) {
-        commit('pop', { root: true });
-        resolve(obj);
-      } else {
-        console.log(reject);
-        // TODO: push to server
-      }
-
-    });
+    return postToServer(commit, rootGetters, "person");
   },
-  discard({ commit }) {
-    return new Promise(resolve => {
-      console.log("Discard person");
-      commit('pop', { root: true });
-      resolve();
-    })
-  }
 }

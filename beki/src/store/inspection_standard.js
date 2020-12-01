@@ -1,4 +1,4 @@
-import { modifyLatestView, ViewType, SyncStatus } from "./common";
+import { modifyLatestView, ViewType, SyncStatus, postToServer } from "./common";
 
 export function inspectionStandardState() {
   return {
@@ -48,24 +48,6 @@ export const inspectionStandardGetters = {
 
 export const inspectionStandardActions = {
   store({ commit, rootGetters }) {
-    return new Promise((resolve, reject) => {
-      console.log("Store inspectionStandard");
-      const obj = rootGetters.currentView;
-      if ((obj.$status & SyncStatus.Modified) == 0) {
-        commit('pop', { root: true });
-        resolve(obj);
-      } else {
-        console.log(reject);
-        // TODO: push to server
-      }
-
-    });
-  },
-  discard({ commit }) {
-    return new Promise(resolve => {
-      console.log("Discard inspectionStandard");
-      commit('pop', { root: true });
-      resolve();
-    })
+    return postToServer(commit, rootGetters, "inspection_standard");
   }
 }

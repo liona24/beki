@@ -1,4 +1,4 @@
-import { modifyLatestView, ViewType, SyncStatus } from "./common";
+import { modifyLatestView, ViewType, SyncStatus, postToServer } from "./common";
 import { organizationState } from './organization'
 import { personState } from "./person";
 import { facilityState } from "./facility";
@@ -89,23 +89,6 @@ export const protocolGetters = {
 
 export const protocolActions = {
   store({ commit, rootGetters }) {
-    return new Promise((resolve, reject) => {
-      console.log("Store protocol");
-      const obj = rootGetters.currentView;
-      if ((obj.$status & SyncStatus.Modified) == 0) {
-        commit('pop', { root: true });
-        resolve(obj);
-      } else {
-        console.log(reject);
-        // TODO: push to server
-      }
-    });
+    return postToServer(commit, rootGetters, "protocol");
   },
-  discard({ commit }) {
-    return new Promise(resolve => {
-      console.log("Discard protocol");
-      commit('pop', { root: true });
-      resolve();
-    })
-  }
 }

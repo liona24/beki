@@ -35,11 +35,18 @@ export default {
       this.$store.dispatch(this.commitAction)
         .then(wasUpdated => {
           if (wasUpdated) {
-            console.log("TODO: snackbar erfolgreich gespeichert", this.title);
+            this.$buefy.snackbar.open("Gespeichert.");
           }
-          this.$store.commit('pop', { discard: !wasUpdated });
-        }, () => {
-          console.log("TODO: snackbar nicht erfolgreich gespeichert", this.title);
+          this.$store.dispatch("back", { discard: !wasUpdated });
+        }, errors => {
+          errors.forEach(err => {
+            this.$buefy.snackbar.open({
+              duration: 6000,
+              message: `${err.target ? err.target : 'Fehler'}: ${err.msg}`,
+              type: 'is-danger',
+              queue: false
+            })
+          })
         });
     }
   }

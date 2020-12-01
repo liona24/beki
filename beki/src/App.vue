@@ -119,7 +119,7 @@ export default {
       }
     },
     goBack() {
-      this.$store.commit("pop", { discard: true });
+      this.$store.dispatch("back", { discard: true });
     }
   }
 }

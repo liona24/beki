@@ -47,7 +47,7 @@ class ErrorAggregator(object):
         self.errors.append(err.__dict__())
 
     def recent_ok(self):
-        return self.has_errors.pop()
+        return not self.has_errors.pop()
 
     def ok(self):
         return len(self.errors) == 0
@@ -78,11 +78,23 @@ def _fetcher(type):
         if isinstance(id_or_orm, type):
             return id_or_orm
         else:
+            assert isinstance(id_or_orm, int)
+
             return db.session.query(type)\
-                .filter(type.id == id)\
+                .filter(type.id == id_or_orm)\
                 .first_or_404()
 
     return fetch_if_needed
+
+
+def _update(type, id, args):
+    obj = _fetcher(type)(id)
+    for key in args:
+        val = getattr(obj, key)
+        val = args[key]
+
+    return obj
+
 
 def _category(body, err_agg):
     action_required, id = _requires_action(body)
@@ -113,12 +125,9 @@ def _category(body, err_agg):
             inspection_standards=inspection_standards
         )
         if id is not None:
-            category = db.session.query(database.Category)\
-                .filter(database.Category.id == id)\
-                .update(args)
-            app.logger.debug("TODO: Check if correct: Update ", category)
+            category = _update(database.Category, id, args)
         else:
-            category = database.Category(*args)
+            category = database.Category(**args)
             db.session.add(category)
         return category
     else:
@@ -180,12 +189,9 @@ def _entry(body, err_agg, idx=None):
             flaws=flaws
         )
         if id is not None:
-            obj = db.session.query(database.Entry)\
-                .filter(database.Entry.id == id)\
-                .update(args)
-            app.logger.debug("TODO: Check if correct: Update ", obj)
+            obj = _update(database.Entry, id, args)
         else:
-            obj = database.Entry(*args)
+            obj = database.Entry(**args)
             db.session.add(obj)
         return obj
     else:
@@ -215,12 +221,9 @@ def _facility(body, err_agg):
             picture=picture,
         )
         if id is not None:
-            obj = db.session.query(database.Facility)\
-                .filter(database.Facility.id == id)\
-                .update(args)
-            app.logger.debug("TODO: Check if correct: Update ", obj)
+            obj = _update(database.Facility, id, args)
         else:
-            obj = database.Facility(*args)
+            obj = database.Facility(**args)
             db.session.add(obj)
         return obj
     else:
@@ -248,12 +251,9 @@ def _flaw(body, err_agg):
             picture=picture,
         )
         if id is not None:
-            flaw = db.session.query(database.Flaw)\
-                .filter(database.Flaw.id == id)\
-                .update(args)
-            app.logger.debug("TODO: Check if correct: Update ", flaw)
+            flaw = _update(database.Flaw, id, args)
         else:
-            flaw = database.Flaw(*args)
+            flaw = database.Flaw(**args)
             db.session.add(flaw)
         return flaw
     else:
@@ -277,12 +277,9 @@ def _inspection_standard(body, err_agg):
             has_version=has_version,
         )
         if id is not None:
-            std = db.session.query(database.InspectionStandard)\
-                .filter(database.InspectionStandard.id == id)\
-                .update(args)
-            app.logger.debug("TODO: Check if correct: Update ", std)
+            std = _update(database.InspectionStandard, id, args)
         else:
-            std = database.InspectionStandard(*args)
+            std = database.InspectionStandard(**args)
             db.session.add(std)
         return std
     else:
@@ -308,12 +305,9 @@ def _organization(body, err_agg):
             city=city
         )
         if id is not None:
-            obj = db.session.query(database.Organization)\
-                .filter(database.Organization.id == id)\
-                .update(args)
-            app.logger.debug("TODO: Check if correct: Update ", obj)
+            obj = _update(database.Organization, id, args)
         else:
-            obj = database.Organization(*args)
+            obj = database.Organization(**args)
             db.session.add(obj)
         return obj
     else:
@@ -344,12 +338,9 @@ def _person(body, err_agg):
             organization=organization
         )
         if id is not None:
-            obj = db.session.query(database.Person)\
-                .filter(database.Person.id == id)\
-                .update(args)
-            app.logger.debug("TODO: Check if correct: Update ", obj)
+            obj = _update(database.Person, id, args)
         else:
-            obj = database.Person(*args)
+            obj = database.Person(**args)
             db.session.add(obj)
         return obj
     else:
@@ -410,13 +401,10 @@ def _protocol(body, err_agg):
         )
         if id is not None:
             # TODO: make sure that this is used correctly w.r.t legacy protocols
-            obj = db.session.query(database.Protocol)\
-                .filter(database.Protocol.id == id)\
-                .update(args)
-            app.logger.debug("TODO: Check if correct: Update ", obj)
+            obj = _update(database.Protocol, id, args)
         else:
             # TODO: update legacy protocols
-            obj = database.Protocol(*args)
+            obj = database.Protocol(**args)
             db.session.add(obj)
         return obj
     else:

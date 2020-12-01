@@ -160,7 +160,6 @@ export default {
       this.$store.commit("entry_easyAccess", { i: this.index, val: e });
     },
     addFlaw() {
-      console.log("Add flaw", this.index, this.entries);
       this.$store.commit("entry_addFlaw", { i: this.index });
     }
   }

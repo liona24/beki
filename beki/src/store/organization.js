@@ -1,4 +1,4 @@
-import { modifyLatestView, ViewType, SyncStatus } from "./common";
+import { modifyLatestView, ViewType, SyncStatus, postToServer } from "./common";
 
 export function organizationState() {
   return {
@@ -59,24 +59,6 @@ export const organizationGetters = {
 
 export const organizationActions = {
   store({ commit, rootGetters }) {
-    return new Promise((resolve, reject) => {
-      console.log("Store organization");
-      const obj = rootGetters.currentView;
-      if ((obj.$status & SyncStatus.Modified) == 0) {
-        commit('pop', { root: true });
-        resolve(obj);
-      } else {
-        // TODO: push to server
-        console.log(reject);
-      }
-
-    });
+    return postToServer(commit, rootGetters, "organization");
   },
-  discard({ commit }) {
-    return new Promise(resolve => {
-      console.log("Discard organization");
-      commit('pop', { root: true });
-      resolve();
-    })
-  }
 }
