@@ -27,7 +27,9 @@
     </div>
 
     <div class="box navigation-sidebar">
-      <p><a class="tag is-dark is-medium mt-1" style="width: 100%" href="#protocol-header">TODO: Insert title</a></p>
+      <p><a class="tag is-dark is-medium mt-1" style="width: 100%" href="#protocol-header">
+        {{ $store.getters.currentView.$repr ? $store.getters.currentView.$repr : 'Protokoll' }}
+      </a></p>
       <p v-for="(entry, i) in entries" :key="'entrylink-' + i">
         <a class="tag is-light is-medium mt-1" style="width: 100%" role="button" :href="'#entry-' + i">{{ entry.$repr ? entry.$repr : 'Eintrag ' + (i + 1) }}</a>
       </p>
