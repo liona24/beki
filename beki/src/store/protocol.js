@@ -26,14 +26,14 @@ export const protocolMutations = {
     obj.title = val;
     obj.$repr = val;
   }),
-  protocol_overview: modifyLatestView((obj, { val }) => {
+  protocol_overview: modifyLatestView((obj, val) => {
     obj.overview = val;
   }),
   protocol_facility: modifyLatestView((obj, { val }) => {
     obj.facility = val;
   }),
   protocol_inspectionDate: modifyLatestView((obj, val) => {
-    obj.inspectionDate = val;
+    obj.inspection_date = val;
   }),
   protocol_inspector: modifyLatestView((obj, { val }) => {
     obj.inspector = val;
@@ -67,7 +67,7 @@ export const protocolGetters = {
   },
   inspectionDate(...args) {
     const getter = args[3];
-    return getter.currentView.inspectionDate;
+    return getter.currentView.inspection_date;
   },
   inspector(...args) {
     const getter = args[3];

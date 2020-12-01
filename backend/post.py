@@ -1,8 +1,10 @@
 from flask import request, abort, jsonify, current_app
+import sqlalchemy
 from werkzeug.utils import secure_filename
 
 import os
 import database
+import datetime
 
 db = database.db
 
@@ -15,11 +17,11 @@ class Err(object):
 
     def __dict__(self):
         rv = {
-            "msg": msg,
-            "target": target
+            "msg": self.msg,
+            "target": self.target
         }
-        if idx is not None:
-            rv["index"] = idx
+        if self.idx is not None:
+            rv["index"] = self.idx
         return rv
 
 
@@ -31,21 +33,30 @@ class ErrorAggregator(object):
     def __call__(self, body):
         self.has_errors.append(False)
 
-        def get_param(name, err_or_default, not_empty=True):
+        def get_param(name, err_or_default, not_empty=True, converter=None):
             if isinstance(err_or_default, Err):
                 v = body.get(name, None)
+
+                if converter is not None:
+                    v = converter(v)
+
                 if not_empty and not v:
+                    v = None
                     self.has_errors[-1] = True
                     self.errors.append(err_or_default.__dict__())
             else:
                 v = body.get(name, err_or_default)
+
+                if converter is not None:
+                    v = converter(v)
 
             return v
 
         return get_param
 
     def add_error(self, err):
-        self.has_erros[-1] = True
+        if len(self.has_errors) > 0:
+            self.has_errors[-1] = True
         self.errors.append(err.__dict__())
 
     def recent_ok(self):
@@ -84,7 +95,9 @@ def _requires_action(body):
     if status is None:
         abort(400)
 
-    if (status & database.SyncStatus.Modified) and (status & database.SyncStatus.New):
+    if status == database.SyncStatus.Empty:
+        return False, None
+    elif (status & database.SyncStatus.Modified) and (status & database.SyncStatus.New):
         return True, None
     elif (status & database.SyncStatus.Stored):
         id = body.get("id", None)
@@ -103,12 +116,14 @@ def _fetcher(type):
     def fetch_if_needed(id_or_orm):
         if isinstance(id_or_orm, type):
             return id_or_orm
-        else:
+        elif id_or_orm is not None:
             assert isinstance(id_or_orm, int)
 
             return db.session.query(type)\
                 .filter(type.id == id_or_orm)\
                 .first_or_404()
+        else:
+            return None
 
     return fetch_if_needed
 
@@ -353,12 +368,11 @@ def _person(body, err_agg):
     name = getter("name", Err("Feld 'Name' wird benötigt!", "Person"))
     first_name = getter("first_name", None, not_empty=False)
     email = getter("email", None, not_empty=False)
-    organization = getter("organization", Err("Feld 'Organisation' wird benötigt!", "Person"))
-
-    if organization is not None:
-        organization = _fetcher(database.Organization)(
-            _organization(organization, err_agg)
-        )
+    organization = getter(
+        "organization",
+        Err("Feld 'Organisation' wird benötigt!", "Person"),
+        converter=lambda v: _fetcher(database.Organization)(_organization(v, err_agg))
+    )
 
     if err_agg.recent_ok():
         args = _remove_null_values(dict(
@@ -388,9 +402,21 @@ def _protocol(body, err_agg):
     inspection_date = getter("inspection_date", Err("Feld 'Prüfdatum' wird benötigt!", "Protokoll"))
     attendees = getter("attendees", None)
 
-    inspector = getter("inspector", Err("Feld 'Prüfer' wird benötigt!", "Protokoll"))
-    facility = getter("facility", Err("Feld 'Objekt' wird benötigt!", "Protokoll"))
-    issuer = getter("issuer", Err("Feld 'Auftraggeber' wird benötigt!", "Protokoll"))
+    inspector = getter(
+        "inspector",
+        Err("Feld 'Prüfer' wird benötigt!", "Protokoll"),
+        converter=lambda v: _fetcher(database.Person)(_person(v, err_agg))
+    )
+    facility = getter(
+        "facility",
+        Err("Feld 'Objekt' wird benötigt!", "Protokoll"),
+        converter=lambda v: _fetcher(database.Facility)(_facility(v, err_agg))
+    )
+    issuer = getter(
+        "issuer",
+        Err("Feld 'Auftraggeber' wird benötigt!", "Protokoll"),
+        converter=lambda v: _fetcher(database.Organization)(_organization(v, err_agg))
+    )
 
     entries = getter("entries", [])
 
@@ -408,21 +434,8 @@ def _protocol(body, err_agg):
         )
     ))
 
-    # TODO: convert to datetime.datetime
-    print(inspection_date)
-
-    if inspector is not None:
-        inspector = _fetcher(database.Person)(
-            _person(inspector, err_agg)
-        )
-    if facility is not None:
-        facility = _fetcher(database.Facility)(
-            _facility(facility, err_agg)
-        )
-    if issuer is not None:
-        issuer = _fetcher(database.Organization)(
-            _organization(issuer, err_agg)
-        )
+    if inspection_date is not None:
+        inspection_date = datetime.date.fromisoformat(inspection_date)
 
     if err_agg.recent_ok():
         args = _remove_null_values(dict(
@@ -469,7 +482,11 @@ def api_post(collection):
     rv = handler(request.json, err_agg)
 
     if err_agg.ok():
-        db.session.commit()
-        id = rv.id
+        try:
+            db.session.commit()
+        except sqlalchemy.exc.IntegrityError:
+            err_agg.add_error(Err("Integrität verletzt. Ausführung abgebrochen.", "Fehler"))
+        else:
+            id = rv.id
 
     return jsonify(id=id, errors=err_agg.errors)

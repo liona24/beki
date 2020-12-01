@@ -100,7 +100,9 @@ export const menuActions = {
   },
   newProtocol({ commit, getters }) {
     if (getters.droppedFiles.length === 0) {
-      commit('push', { view: protocolState() }, { root: true })
+      const view = protocolState();
+      view.$status |= SyncStatus.New;
+      commit('push', { view: view }, { root: true })
       return;
     }
 
@@ -119,6 +121,8 @@ export const menuActions = {
       console.log("upload successful", json);
       if (json === "ASDF") {
         // happy linter
+        // do not forget about the SyncStatus.New! Otherwise the server
+        // might reject changes
         commit('push', { view: protocolState() }, { root: true })
       }
     })

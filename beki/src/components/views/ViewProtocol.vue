@@ -85,7 +85,23 @@ export default {
       this.$store.commit("protocol_addEntry");
     },
     storeProtocol() {
-      console.log("TODO store protocol");
+      this.$store.dispatch("protocol/store")
+        .then(wasUpdated => {
+          if (wasUpdated) {
+            console.log("TODO: redirect to render")
+            this.$buefy.snackbar.open("Gespeichert.");
+          }
+          this.$store.dispatch("back", { discard: !wasUpdated });
+        }, errors => {
+          errors.forEach(err => {
+            this.$buefy.snackbar.open({
+              duration: 6000,
+              message: `${err.target ? err.target : 'Fehler'}: ${err.msg}`,
+              type: 'is-danger',
+              queue: false
+            })
+          })
+        });
     },
     triggerCollapse(index) {
       this.$store.commit("entry_triggerCollapse", { i: index });

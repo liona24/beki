@@ -9,7 +9,7 @@
       Titel:
     </autocomplete-text>
 
-    <b-field label="Prüfgrundlagen (overview):" horizontal>
+    <b-field label="Prüfgrundlagen:" horizontal>
       <textarea class="textarea"
         :value="overview"
         @input="updateOverview">
@@ -83,7 +83,6 @@ export default {
       this.$store.commit("protocol_title", e);
     },
     updateOverview(e) {
-      console.log("TODO: fix textarea", e.target.value);
       this.$store.commit("protocol_overview", e.target.value);
     },
     updateAttendees(e) {
