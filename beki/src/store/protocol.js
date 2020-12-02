@@ -45,10 +45,17 @@ export const protocolMutations = {
     obj.attendees = val;
   }),
   protocol_addEntry: modifyLatestView(obj => {
-    obj.entries.push(entryState());
+    const entry = entryState();
+    entry.$status |= SyncStatus.New;
+    obj.entries.push(entry);
   }),
   protocol_removeEntry: modifyLatestView((obj, index) => {
     obj.entries.splice(index, 1);
+  }),
+  protocol_syncIndices: modifyLatestView(obj => {
+    obj.entries.forEach((entry, i) => {
+      entry.index = i;
+    });
   })
 }
 
@@ -89,6 +96,7 @@ export const protocolGetters = {
 
 export const protocolActions = {
   store({ commit, rootGetters }) {
+    commit("protocol_syncIndices", null, { root: true });
     return postToServer(commit, rootGetters, "protocol");
   },
 }

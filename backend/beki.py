@@ -112,7 +112,7 @@ def allowed_file(file):
 def process_image(file):
     in_buf = file.read()
     in_buf = np.asarray(bytearray(in_buf), dtype=np.uint8)
-    img = cv.imdecode(in_buf, 0)
+    img = cv.imdecode(in_buf, cv.IMREAD_COLOR)
     if img is None:
         return None
 

@@ -3,11 +3,11 @@
   <div v-else class="box">
     <b-tabs type="is-boxed">
       <!-- TODO: change highlight color -->
-      <b-tab-item label="Anzeigen" icon="eye">
-        <menu-search-and-display />
-      </b-tab-item>
       <b-tab-item label="Neu" icon="file">
         <menu-create-new />
+      </b-tab-item>
+      <b-tab-item label="Anzeigen" icon="magnify">
+        <menu-search-and-display />
       </b-tab-item>
     </b-tabs>
   </div>
@@ -27,11 +27,17 @@ export default {
     }
   },
   computed: {
-    ...mapGetters('menu', ['isLoading'])
+    ...mapGetters('menu', ['isLoading', 'currentPreview'])
   },
   watch: {
     isLoading() {
       this.isLoadingInternal = this.isLoading;
+    },
+  },
+  beforeMount() {
+    if (this.currentPreview != null) {
+      window.location.href = `/api/_render/${this.currentPreview.id}`
+      // this.$store.commit("menu_currentPreview", { val: null });
     }
   }
 }

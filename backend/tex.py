@@ -55,6 +55,9 @@ def _prepare_recursive(arg):
     if isinstance(arg, list):
         return list(map(_prepare_recursive, arg))
 
+    if type(arg) == int:
+        return arg
+
     if arg:
         arg = str(arg)
         return ''.join([ TEX_SYMBOL_MAPPING.get(c, c) for c in arg ])
@@ -96,7 +99,7 @@ def render_protocol(protocol):
             s = 'DIN {}{} {}'
             formatter = [ standard['din'], '', standard['description'] ]
             if standard.get('hasVersion', '') == 'Ja':
-                formatter[1] = ':' + entry['categoryVersion']
+                formatter[1] = ':' + str(entry['categoryVersion'])
             return s.format(*formatter)
 
         cat['inspectionStandards'] = ', '.join(map(mapper,
@@ -115,11 +118,16 @@ def render_protocol(protocol):
         'latexmk',
         '-interaction=nonstopmode',
         '-f',
-        '-lualatex',
+        '-pdf',
         '-silent',
         'main.tex'
     ]
-    compiler = subprocess.Popen(pargs, cwd=tmp_dir)
+    compiler = subprocess.Popen(
+        pargs,
+        cwd=tmp_dir,
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL
+    )
     compiler.wait()
     """
     # twice because of lastpage ref (does not seem to be required for luatex)

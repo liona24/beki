@@ -4,26 +4,28 @@
       <a class="tag delete is-danger" @click="removeEntry"></a>
     </status-indicator>
 
-    <autocomplete-text :value="title" @input="updateTitle" request-key="title" request-src="flaw" required>
-      Mangel:
-    </autocomplete-text>
-
     <div class="columns">
       <div class="column">
+        <autocomplete-text :value="title" @input="updateTitle" request-key="title" request-src="flaw" required>
+          Mangel:
+        </autocomplete-text>
+
         <autocomplete-text :value="priority" @input="updatePriority" request-key="priority" request-src="flaw" required>
           Priorität:
         </autocomplete-text>
 
-        <b-field label="Bemerkungen:" horizontal>
-          <textarea class="textarea">
-            TODO: Add autocomplete
+        <b-field label="Bemerkung:" horizontal>
+          <textarea class="textarea"
+            :value="notes"
+            @input="updateNotes">
           </textarea>
         </b-field>
       </div>
       <div class="column is-one-quarter">
-        <b-field v-if="!img">
+        <b-field v-if="!picture">
           <b-upload v-model="imgFile"
               :disabled="!!imgFile"
+              accept="image/*"
               drag-drop>
               <section class="section">
                   <div class="content has-text-centered">
@@ -41,14 +43,14 @@
         <template v-else>
           <b-tooltip position="is-bottom" type="is-light" always>
             <template slot="content">
-              {{ imgFile.name }}
+              {{ imgFile ? imgFile.name : '' }}
               <button class="delete is-small"
                     type="button"
-                    @click="removeImage">
+                    @click="removePicture">
               </button>
             </template>
             <figure class="image">
-              <img :src="img" />
+              <img :src="pictureUrl" />
             </figure>
           </b-tooltip>
         </template>
@@ -88,34 +90,53 @@ export default {
     notes() {
       return this.base.notes;
     },
-    img() {
-      return this.base.img;
+    picture() {
+      return this.base.picture;
+    },
+    pictureUrl() {
+      return `/images/${this.picture}`;
     }
   },
   watch: {
     imgFile() {
-      // TODO: overthink the handling of images
-      // we probably need the url AND the image name in the store
-      // right now this assumes an url only
-      // We might have to handle duplicates somehow though
-
-      if (this.imgFile !== null) {
-        const reader = new FileReader();
-        reader.onload = e => {
-          console.log("Image loaded", e)
-          // this.imgPreviewUrl = e.target.result;
-        };
-        reader.readAsDataURL(this.imgFile);
+      if (this.imgFile === null) {
+        return;
       }
+      const name = this.imgFile.name;
+      const onErr = () => {
+        this.$buefy.snackbar.open({
+          duration: 6000,
+          message: `Bild '${name}' konnte nicht gespeichert werden!`,
+          type: 'is-danger',
+          queue: false
+        });
+        this.imgFile = null;
+      };
+      const data = new FormData();
+      data.append(name, this.imgFile);
+      fetch("/api/_upload", {
+        method: "POST",
+        body: data
+      })
+      .then(resp => resp.json())
+      .then(json => {
+        if (json[name]) {
+          this.$store.commit("flaw_picture", { entry: this.entry, i: this.index, val: json[name] });
+          this.imgFile = null;
+        } else {
+          onErr();
+        }
+      }, onErr)
+      .catch(onErr);
     }
   },
   methods: {
     removeEntry() {
       this.$store.commit("entry_removeFlaw", { entry: this.entry, i: this.index });
     },
-    removeImage() {
+    removePicture() {
       this.imgFile = null;
-      this.$store.commit("flaw_img", { entry: this.entry, i: this.index, val: null });
+      this.$store.commit("flaw_picture", { entry: this.entry, i: this.index, val: null });
     },
     updateTitle(e) {
       this.$store.commit("flaw_title", { entry: this.entry, i: this.index, val: e });
@@ -124,7 +145,7 @@ export default {
       this.$store.commit("flaw_priority", { entry: this.entry, i: this.index, val: e });
     },
     updateNotes(e) {
-      this.$store.commit("flaw_notes", { entry: this.entry, i: this.index, val: e });
+      this.$store.commit("flaw_notes", { entry: this.entry, i: this.index, val: e.target.value });
     }
   }
 }

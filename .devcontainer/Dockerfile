@@ -12,4 +12,4 @@ RUN echo "selected_scheme scheme-basic" >> install-tl-unx/tex.profile
 RUN ./install-tl-unx/install-tl -profile install-tl/tex.profile
 ENV PATH="/usr/local/texlive/2020/bin/x86_64-linux:${PATH}"
 
-RUN tlmgr install latexmk texliveonfly
+RUN tlmgr install latexmk texliveonfly babel-german hyphen-german

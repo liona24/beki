@@ -1,4 +1,4 @@
-import { ViewType, SyncStatus, modifyLatestView } from "./common";
+import { ViewType, SyncStatus } from "./common";
 
 export function flawState() {
   return {
@@ -7,25 +7,34 @@ export function flawState() {
     $repr: "",
     id: null,
     title: "",
-    img: "",
+    picture: "",
     notes: "",
     priority: ""
   };
 }
 
+function _modifyFlaw(func) {
+  return (state, param) => {
+    const obj = state.views[state.views.length - 1];
+    const entry = obj.entries[param.entry];
+    const flaw = entry.flaws[param.i];
+    flaw.$status |= SyncStatus.Modified;
+    return func(flaw, param);
+  }
+}
+
 export const flawMutations = {
-  flaw_title: modifyLatestView((obj, { entry, i, val }) => {
-    const flaw = obj.entries[entry].flaws[i];
-    flaw.title = val;
-    flaw.$repr = val;
+  flaw_title: _modifyFlaw((obj, { val }) => {
+    obj.title = val;
+    obj.$repr = val;
   }),
-  flaw_img: modifyLatestView((obj, { entry, i, val }) => {
-    obj.entries[entry].flaws[i].img = val;
+  flaw_picture: _modifyFlaw((obj, { val }) => {
+    obj.picture = val;
   }),
-  flaw_notes: modifyLatestView((obj, { entry, i, val }) => {
-    obj.entries[entry].flaws[i].notes = val;
+  flaw_notes: _modifyFlaw((obj, { val }) => {
+    obj.notes = val;
   }),
-  flaw_priority: modifyLatestView((obj, { entry, i, val }) => {
-    obj.entries[entry].flaws[i].priority = val;
+  flaw_priority: _modifyFlaw((obj, { val }) => {
+    obj.priority = val;
   })
 }

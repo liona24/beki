@@ -10,7 +10,7 @@
           required>
       </b-input>
     </b-field>
-    <b-field label="Straße/Hausnr.:" horizontal>
+    <b-field label="Straße/Nr.:" horizontal>
       <b-input
           type="text"
           :value="street"

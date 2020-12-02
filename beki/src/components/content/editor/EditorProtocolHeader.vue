@@ -13,7 +13,6 @@
       <textarea class="textarea"
         :value="overview"
         @input="updateOverview">
-        TODO: Add autocomplete
       </textarea>
     </b-field>
 

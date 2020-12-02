@@ -9,7 +9,8 @@ export function facilityState() {
     name: "",
     street: "",
     zip_code: "",
-    city: ""
+    city: "",
+    picture: ""
   };
 }
 
@@ -36,6 +37,9 @@ export const facilityMutations = {
     obj.city = val;
     updateRepr(obj);
   }),
+  facility_picture: modifyLatestView((obj, val) => {
+    obj.picture = val;
+  }),
 }
 
 export const facilityGetters = {
@@ -54,6 +58,10 @@ export const facilityGetters = {
   city(...args) {
     const getter = args[3];
     return getter.currentView.city;
+  },
+  picture(...args) {
+    const getter = args[3];
+    return getter.currentView.picture;
   },
 }
 

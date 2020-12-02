@@ -40,7 +40,7 @@ class ErrorAggregator(object):
                 if converter is not None:
                     v = converter(v)
 
-                if not_empty and not v:
+                if not_empty and not v and type(v) != int:
                     v = None
                     self.has_errors[-1] = True
                     self.errors.append(err_or_default.__dict__())
@@ -69,8 +69,7 @@ class ErrorAggregator(object):
 def _remove_null_values(dict):
     keys = list(dict.keys())
     for k in keys:
-        # this also filters 0 but there is no case in which 0 is acceptable either
-        if not dict[k]:
+        if not dict[k] and type(dict[k]) != int:
             dict.pop(k)
     return dict
 
@@ -223,7 +222,7 @@ def _entry(body, err_agg, idx=None):
             year_built=year_built,
             inspection_signs=inspection_signs,
             manufacture_info_available=manufacture_info_available,
-            easy_acces=easy_access,
+            easy_access=easy_access,
             index=index,
             category=category,
             category_version=category_version,
@@ -251,7 +250,7 @@ def _facility(body, err_agg):
     city = getter("city", Err("Feld 'Stadt' wird benötigt!", "Objekt"))
     picture = getter("picture", None, not_empty=False)
 
-    if _checked_picture(picture) != picture:
+    if picture and _checked_picture(picture) != picture:
         err_agg.add_error(Err("Das angegebene Bild konnte nicht gefunden werden!", "Objekt"))
         picture = None
 
@@ -284,7 +283,7 @@ def _flaw(body, err_agg, idx=None):
     priority = getter("priority", "")
     picture = getter("picture", None, not_empty=False)
 
-    if _checked_picture(picture) != picture:
+    if picture and _checked_picture(picture) != picture:
         err_agg.add_error(Err("Das angegebene Bild konnte nicht gefunden werden!", "Mangel", idx=idx))
         picture = None
 

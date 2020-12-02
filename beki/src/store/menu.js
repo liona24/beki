@@ -12,7 +12,8 @@ export function menuState() {
     droppedFiles: [],
     previewImages: {},
     isPreviewLoading: false,
-    isLoading: false
+    isLoading: false,
+    currentPreview: null
   }
 }
 
@@ -48,6 +49,9 @@ export const menuMutations = {
   menu_clearSelectedFiles: modifyLatestView(obj => {
     obj.previewImages = {};
     obj.droppedFiles = [];
+  }),
+  menu_currentPreview: modifyLatestView((obj, { val }) => {
+    obj.currentPreview = val;
   })
 }
 
@@ -75,6 +79,10 @@ export const menuGetters = {
   isLoading(...args) {
     const getter = args[3];
     return getter.currentView.isLoading;
+  },
+  currentPreview(...args) {
+    const getter = args[3];
+    return getter.currentView.currentPreview;
   }
 }
 
@@ -102,7 +110,7 @@ export const menuActions = {
     if (getters.droppedFiles.length === 0) {
       const view = protocolState();
       view.$status |= SyncStatus.New;
-      commit('push', { view: view }, { root: true })
+      commit('push', { view: view, callback: "menu_currentPreview", args: null }, { root: true });
       return;
     }
 

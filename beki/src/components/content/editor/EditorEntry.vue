@@ -36,7 +36,7 @@
       Prüfzeichen:
     </autocomplete-text>
 
-    <b-field label="Herstellerinformation:" horizontal>
+    <b-field label="Herstellerinfo:" horizontal>
       <b-field>
         <b-radio-button expanded :value="manufactureInfoAvailable" @input="updateManufactureInfoAvailable"
           native-value="Ja"
