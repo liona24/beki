@@ -150,7 +150,7 @@ class Protocol(db.Model, Serializer):
         return CommonType.Protocol
 
     def common_repr(self):
-        return self.title
+        return f"{self.title} {self.facility.name} {self.inspection_date}"
 
 
 class Person(db.Model, Serializer):

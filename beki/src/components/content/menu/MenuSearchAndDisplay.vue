@@ -1,76 +1,71 @@
 <template>
   <div>
-    <b-table
-      :data="searchResults"
-      :columns="columns"
-      :selected.sync="selected"
-      focusable>
-    </b-table>
+    <b-field>
+      <b-autocomplete placeholder="Suchen ..."
+        v-model="searchString"
 
-    <b-button type="is-dark" outlined expanded :disabled="!selectionValid">PDF erstellen</b-button>
+        type="search"
+        icon="magnify"
+        field="$repr"
+
+        :data="data"
+        :loading="isFetching"
+
+        @select="updateSelection"
+        @typing="fetchData"
+
+        clearable
+        expanded>
+      </b-autocomplete>
+    </b-field>
+
+    <b-field>
+      <b-button type="is-dark" outlined expanded :disabled="!selected" @click="displayInNewTab">PDF erstellen</b-button>
+    </b-field>
   </div>
 </template>
 
 <script>
 import debounce from 'lodash/debounce'
-import { mapGetters } from 'vuex';
 
 export default {
   name: "MenuSearchAndDisplay",
   data() {
     return {
-      columns: [
-        {
-          field: 'title',
-          label: 'Titel',
-          searchable: true,
-        },
-        {
-            field: 'facility',
-            label: 'Objekt',
-            searchable: true,
-            center: true,
-        },
-        {
-          field: 'inspection_date',
-          label: 'Prüfdatum',
-          center: true
-        }
-      ],
+      selected: null,
       isFetching: false,
+      searchString: "",
       data: [],
     }
   },
-  computed: {
-    selectionValid() {
-      // TODO
-      return false;
-    },
-    ...mapGetters('menu', ['selected', 'searchResults'])
-  },
   methods: {
-    queryProtocolTitles: debounce(function(title) {
-      if (title.length === 0) {
-        this.$store.commit("menu_searchResults", []);
+    updateSelection(e) {
+      this.selected = e;
+    },
+    displayInNewTab() {
+      if (this.selected) {
+        window.open(`/api/_render/${this.selected.id}`);
+      }
+    },
+    fetchData: debounce(function(query) {
+      if (query.length < 1) {
+        this.data = [];
         return;
       }
 
       this.isFetching = true;
-      /*
-      this.$http.get(`https://api.themoviedb.org/3/search/movie?api_key=bb6f51bef07465653c3e553d6ab161a8&query=${name}`)
-                    .then(({ data }) => {
-                        this.data = []
-                        data.results.forEach((item) => this.data.push(item))
-                    })
-                    .catch((error) => {
-                        this.data = []
-                        throw error
-                    })
-                    .finally(() => {
-                        this.isFetching = false
-                    })
-      */
-    }, 500)
+
+      this.$http.post("api/_discover", {
+          q: query,
+          src: "protocol"
+      }).then(resp => {
+        this.data = resp.body;
+      }, () => {
+        console.error("discover api unavailable");
+      }).finally(() => {
+        this.isFetching = false;
+      });
+    }, 500),
   }
 }
 </script>

@@ -27,7 +27,7 @@ export default {
     }
   },
   computed: {
-    ...mapGetters('menu', ['isLoading', 'currentPreview'])
+    ...mapGetters('menu', ['isLoading', 'currentPreviewId'])
   },
   watch: {
     isLoading() {
@@ -35,8 +35,8 @@ export default {
     },
   },
   beforeMount() {
-    if (this.currentPreview != null) {
-      window.location.href = `/api/_render/${this.currentPreview.id}`
+    if (this.currentPreviewId != null) {
+      window.location.href = `/api/_render/${this.currentPreviewId}`
       // this.$store.commit("menu_currentPreview", { val: null });
     }
   }
