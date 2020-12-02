@@ -10,10 +10,12 @@
     </autocomplete-text>
 
     <b-field label="Prüfgrundlagen:" horizontal>
-      <textarea class="textarea"
+      <autocomplete-textarea
         :value="overview"
-        @input="updateOverview">
-      </textarea>
+        @input="updateOverview"
+        request-key="overview"
+        request-src="protocol">
+      </autocomplete-textarea>
     </b-field>
 
     <autocomplete-select
@@ -60,11 +62,12 @@
 <script>
 import AutocompleteText from '../../utility/AutocompleteText'
 import AutocompleteSelect from '../../utility/AutocompleteSelect.vue'
+import AutocompleteTextarea from '../../utility/AutocompleteTextarea.vue'
 
 import { mapGetters } from 'vuex'
 
 export default {
-  components: { AutocompleteText, AutocompleteSelect },
+  components: { AutocompleteText, AutocompleteSelect, AutocompleteTextarea },
   name: "EditorProtocolHeader",
   computed: {
     ...mapGetters('protocol', [
@@ -82,7 +85,7 @@ export default {
       this.$store.commit("protocol_title", e);
     },
     updateOverview(e) {
-      this.$store.commit("protocol_overview", e.target.value);
+      this.$store.commit("protocol_overview", e);
     },
     updateAttendees(e) {
       this.$store.commit("protocol_attendees", e);

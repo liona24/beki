@@ -15,10 +15,12 @@
         </autocomplete-text>
 
         <b-field label="Bemerkung:" horizontal>
-          <textarea class="textarea"
+          <autocomplete-textarea
+            request-key="notes"
+            request-src="flaw"
             :value="notes"
             @input="updateNotes">
-          </textarea>
+          </autocomplete-textarea>
         </b-field>
       </div>
       <div class="column is-one-quarter">
@@ -62,11 +64,12 @@
 <script>
 import StatusIndicator from '../../utility/StatusIndicator'
 import AutocompleteText from '../../utility/AutocompleteText'
+import AutocompleteTextarea from '../../utility/AutocompleteTextarea.vue'
 import { mapGetters } from 'vuex'
 
 export default {
   name: "EditorFlaw",
-  components: { StatusIndicator, AutocompleteText },
+  components: { StatusIndicator, AutocompleteText, AutocompleteTextarea },
   props: {
     entry: Number,
     index: Number,
@@ -145,7 +148,7 @@ export default {
       this.$store.commit("flaw_priority", { entry: this.entry, i: this.index, val: e });
     },
     updateNotes(e) {
-      this.$store.commit("flaw_notes", { entry: this.entry, i: this.index, val: e.target.value });
+      this.$store.commit("flaw_notes", { entry: this.entry, i: this.index, val: e });
     }
   }
 }
