@@ -6,6 +6,8 @@ export const SyncStatus = Object.freeze({
 
   Lazy: 32,
   Stored: 64,
+
+  Error: 256,
 });
 
 export const ViewType = Object.freeze({

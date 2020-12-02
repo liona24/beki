@@ -11,7 +11,10 @@
     <div class="column">
       <div class="level-item is-pulled-right">
         <b-tag :type="type">
-            {{ content }}
+          <b-icon v-if="isErr" size="is-small" icon="alert-circle-outline"></b-icon>
+          <b-icon v-else-if="isSucc" size="is-small" icon="cloud-upload"></b-icon>
+          <b-icon v-else-if="isAwaiting" size="is-small" icon="eye"></b-icon>
+          <b-icon v-else-if="isNew" size="is-small" icon="newspaper-plus"></b-icon>
         </b-tag>
       </div>
     </div>
@@ -19,6 +22,7 @@
 </template>
 
 <script>
+import { SyncStatus } from '../../store/common';
 export default {
   name: "StatusIndicator",
   props: {
@@ -26,13 +30,29 @@ export default {
   },
   computed: {
     type() {
-      // TODO: build based on status
-      return "is-warning";
+      if (this.isErr) {
+        return 'is-danger';
+      }
+      if (this.isAwaiting) {
+        return 'is-dark';
+      }
+      if (this.isNew || (this.status & SyncStatus.Modified)) {
+        return 'is-warning'
+      }
+      return 'is-success';
     },
-    content() {
-      // TODO: build based on status
-      return "Status"
-    }
+    isErr() {
+      return (this.status & SyncStatus.Error) !== 0;
+    },
+    isSucc() {
+      return (this.status & SyncStatus.Stored) !== 0;
+    },
+    isAwaiting() {
+      return (this.status & SyncStatus.AwaitsConfirmation) !== 0;
+    },
+    isNew() {
+      return (this.status & SyncStatus.New) !== 0;
+    },
   }
 }
 </script>
