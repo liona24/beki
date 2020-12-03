@@ -3,7 +3,7 @@ import hashlib
 
 from flask import Flask, request, jsonify, abort, send_from_directory
 from werkzeug.utils import secure_filename
-from sqlalchemy import or_
+from sqlalchemy import or_, and_
 import cv2 as cv
 import numpy as np
 
@@ -66,16 +66,19 @@ def generic_discover_handler(table, query):
         abort(404)
 
     query = escape_for_like_query(query)
-    like_query = f"%{query}%"
+    keyword_queries = [ f"%{part}%" for part in filter(None, query.split(" ")) ]
+    if len(keyword_queries) == 0:
+        return jsonify([])
 
     query_builder = db.session.query(table)
     columns = [ (table, name) for name in table.discoverable ]
-    conditions = []
+    conditions = [ [] for _ in range(len(keyword_queries)) ]
     i = 0
     while i < len(columns):
         table, name = columns[i]
         if type(name) == str:
-            conditions.append(get_column(table, name).like(like_query))
+            for cond, kw in zip(conditions, keyword_queries):
+                cond.append(get_column(table, name).like(kw))
         else:
             # name is actually another table reference
             table = name
@@ -84,8 +87,12 @@ def generic_discover_handler(table, query):
 
         i += 1
 
+    # each keyword has to be present, no matter where
+    conditions = map(lambda x: or_(*x), conditions)
+    conditions = and_(*conditions)
+
     result = query_builder\
-        .filter(or_(*conditions))\
+        .filter(conditions)\
         .distinct()\
         .limit(10)\
         .all()
