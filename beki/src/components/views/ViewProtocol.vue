@@ -1,6 +1,7 @@
 <template>
+  <div>
   <b-loading v-if="isLoading" v-model="isLoading" :is-full-page="true" :can-cancel="false"></b-loading>
-  <div v-else>
+  <div>
     <div class="box" id="protocol-header">
       <status-indicator :status="$store.getters.mainStatus">
         <h4 class="title is-4">Protokoll</h4>
@@ -48,7 +49,7 @@
       </template>
       <template slot="start">
         <div class="buttons">
-          <a class="button is-light" @click="storeProtocol">
+          <a class="button is-light" @click="storeProtocol" :disabled="isLoading">
               Speichern
           </a>
         </div>
@@ -57,6 +58,7 @@
       <template slot="end">
       </template>
     </b-navbar>
+  </div>
   </div>
 </template>
 
@@ -85,6 +87,11 @@ export default {
       this.$store.commit("protocol_addEntry");
     },
     storeProtocol() {
+      if (this.isLoading) {
+        return false;
+      }
+
+      this.isLoading = true;
       this.$store.dispatch("protocol/store")
         .then(wasUpdated => {
           if (wasUpdated) {
@@ -101,7 +108,8 @@ export default {
               queue: false
             })
           })
-        });
+        })
+        .finally(() => this.isLoading = false);
     },
     triggerCollapse(index) {
       this.$store.commit("entry_triggerCollapse", { i: index });

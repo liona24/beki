@@ -9,7 +9,7 @@
       <div class="level-left"></div>
       <div class="level-right">
         <div class="level-item">
-          <button class="button is-dark" @click="commit">Speichern</button>
+          <button class="button is-dark" @click="commit" :disabled="isCommitting">Speichern</button>
         </div>
       </div>
     </nav>
@@ -27,11 +27,21 @@ export default {
     commitAction: String,
     title: String,
   },
+  data() {
+    return {
+      isCommitting: false
+    };
+  },
   computed: {
     ...mapGetters(['overlayStatus'])
   },
   methods: {
     commit() {
+      if (this.isCommitting) {
+        return false;
+      }
+
+      this.isCommitting = true;
       this.$store.dispatch(this.commitAction)
         .then(wasUpdated => {
           if (wasUpdated) {
@@ -47,8 +57,9 @@ export default {
               queue: false
             })
           })
-        });
-    }
+        })
+        .finally(() => this.isCommitting = false);
+    },
   }
 }
 </script>
