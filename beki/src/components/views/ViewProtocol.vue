@@ -2,7 +2,7 @@
   <b-loading v-if="isLoading" v-model="isLoading" :is-full-page="true" :can-cancel="false"></b-loading>
   <div v-else>
     <div class="box" id="protocol-header">
-      <status-indicator :status="$store.getters.currentStatus">
+      <status-indicator :status="$store.getters.mainStatus">
         <h4 class="title is-4">Protokoll</h4>
       </status-indicator>
 
@@ -28,7 +28,7 @@
 
     <div class="box navigation-sidebar">
       <p><a class="tag is-dark is-medium mt-1" style="width: 100%" href="#protocol-header">
-        {{ $store.getters.currentView.$repr ? $store.getters.currentView.$repr : 'Protokoll' }}
+        {{ $store.getters.main.$repr ? $store.getters.main.$repr : 'Protokoll' }}
       </a></p>
       <p v-for="(entry, i) in entries" :key="'entrylink-' + i">
         <a class="tag is-light is-medium mt-1" style="width: 100%" role="button" :href="'#entry-' + i">{{ entry.$repr ? entry.$repr : 'Eintrag ' + (i + 1) }}</a>
@@ -90,7 +90,7 @@ export default {
           if (wasUpdated) {
             this.$buefy.snackbar.open("Gespeichert.");
           }
-          this.$store.dispatch("back", { discard: !wasUpdated });
+          this.$store.dispatch("back_main", { discard: !wasUpdated });
         }, errors => {
           errors.forEach(err => {
             const idx = err.index === undefined ? '' : ' ' + err.index;

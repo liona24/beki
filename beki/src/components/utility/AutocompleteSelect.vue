@@ -76,6 +76,7 @@ export default {
       const val = e || cloneDeep(this.initialValue);
       if((val.$status & SyncStatus.Lazy) != 0) {
         this.isWaitingForLazyResolve = true;
+        // TODO: it seems questionable why we need a recursive fetch here
         this.$http.get(`api/${this.requestSrc}/${val.id}/recursive`).then(resp => {
           this.$store.commit(this.update, { val: resp.body, ...this.updateArgs });
         }).finally(() => {
@@ -106,11 +107,11 @@ export default {
     }, 500),
     launchEditor(edit) {
       const obj = cloneDeep(this.value);
-      if (edit !== true) {
+      if (obj.$status === SyncStatus.Empty || edit !== true) {
         obj.$status = SyncStatus.New;
         obj.id = null;
       }
-      this.$store.commit("push", {
+      this.$store.commit("push_overlay", {
         view: obj,
         callback: this.update,
         args: this.updateArgs
@@ -123,7 +124,7 @@ export default {
       // In this case the expected behaviour would be that the element
       // was actually selected, which we make sure of here
 
-      if(this.$store.getters.currentViewType === this.value.$type) {
+      if(this.$store.getters.overlayViewType === this.value.$type) {
         // blurred by entering the next view, skip
         return;
       }

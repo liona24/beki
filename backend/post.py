@@ -131,7 +131,7 @@ def _update(type, id, args):
     obj = _fetcher(type)(id)
     for key in args:
         val = getattr(obj, key)
-        val = args[key]
+        val = args[key]  # noqa F841
 
     return obj
 
@@ -469,6 +469,7 @@ HANDLERS = {
     "person": _person,
     "protocol": _protocol
 }
+
 
 def api_post(collection):
     handler = HANDLERS.get(collection, None)

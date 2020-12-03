@@ -30,15 +30,6 @@ if not os.path.exists(app.config["IMG_UPLOAD_PATH"]):
     os.makedirs(app.config["IMG_UPLOAD_PATH"])
 
 
-def int_or_400(string):
-    try:
-        rv = int(string)
-    except ValueError:
-        abort(400)
-
-    return rv
-
-
 def param_or_400(name):
     rv = request.json.get(name, None)
     if rv is None:

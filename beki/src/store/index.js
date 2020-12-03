@@ -17,18 +17,28 @@ Vue.use(Vuex);
 
 export const store = new Vuex.Store({
   state: {
-    views: [
-      menuState(),
-    ],
-    pop_callbacks: []
+    main: {
+      views: [
+        menuState(),
+      ],
+      pop_callbacks: []
+    },
+    overlay: {
+      views: [],
+      pop_callbacks: []
+    }
   },
   mutations: {
-    push(state, { view, callback, args }) {
-      state.pop_callbacks.push({ callback: callback, args: args });
-      state.views.push(view);
+    push_main(state, { view, callback, args }) {
+      state.main.pop_callbacks.push({ callback: callback, args: args });
+      state.main.views.push(view);
     },
-    updateId(state, { id }) {
-      const obj = state.views[state.views.length - 1];
+    push_overlay(state, { view, callback, args }) {
+      state.overlay.pop_callbacks.push({ callback: callback, args: args });
+      state.overlay.views.push(view);
+    },
+    updateId(state, { window, id }) {
+      const obj = state[window].views[state[window].views.length - 1];
       if (id !== undefined && id !== null) {
         obj.$status &= ~(SyncStatus.New | SyncStatus.Modified);
         obj.$status |= SyncStatus.Stored;
@@ -38,9 +48,13 @@ export const store = new Vuex.Store({
         obj.$status |= SyncStatus.New;
       }
     },
-    pop_view(state) {
-      state.views.pop();
-      state.pop_callbacks.pop();
+    pop_main(state) {
+      state.main.views.pop();
+      state.main.pop_callbacks.pop();
+    },
+    pop_overlay(state) {
+      state.overlay.views.pop();
+      state.overlay.pop_callbacks.pop();
     },
     // sadly we cannot scope the mutations easily
     ...menuMutations,
@@ -54,27 +68,48 @@ export const store = new Vuex.Store({
     ...flawMutations,
   },
   actions: {
-    back({ commit, getters }, { discard }) {
-      const obj = getters.currentView;
-      const { callback, args } = getters.currentCallback;
-      commit("pop_view");
+    back_main({ commit, getters }, { discard }) {
+      const obj = getters.main;
+      const { callback, args } = getters.mainCallback;
+      commit("pop_main");
+      if (!discard && callback) {
+        commit(callback, { val: obj, ...args });
+      }
+    },
+    back_overlay({ commit, getters }, { discard }) {
+      const obj = getters.overlay;
+      const { callback, args } = getters.overlayCallback;
+      commit("pop_overlay");
       if (!discard && callback) {
         commit(callback, { val: obj, ...args });
       }
     },
   },
   getters: {
-    currentViewType(state) {
-      return state.views[state.views.length - 1].$type;
+    mainViewType(state) {
+      return state.main.views[state.main.views.length - 1].$type;
     },
-    currentView(state) {
-      return state.views[state.views.length - 1];
+    main(state) {
+      return state.main.views[state.main.views.length - 1];
     },
-    currentStatus(state) {
-      return state.views[state.views.length - 1].$status;
+    mainStatus(state) {
+      return state.main.views[state.main.views.length - 1].$status;
     },
-    currentCallback(state) {
-      return state.pop_callbacks[state.pop_callbacks.length - 1];
+    mainCallback(state) {
+      return state.main.pop_callbacks[state.main.pop_callbacks.length - 1];
+    },
+
+    overlayViewType(state) {
+      return state.overlay.views[state.overlay.views.length - 1]?.$type;
+    },
+    overlay(state) {
+      return state.overlay.views[state.overlay.views.length - 1];
+    },
+    overlayStatus(state) {
+      return state.overlay.views[state.overlay.views.length - 1]?.$status;
+    },
+    overlayCallback(state) {
+      return state.overlay.pop_callbacks[state.overlay.pop_callbacks.length - 1];
     }
   },
 

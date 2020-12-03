@@ -1,4 +1,4 @@
-import { modifyLatestView, ViewType, SyncStatus, postToServer } from "./common";
+import { modifyOverlayView, ViewType, SyncStatus, postToServer } from "./common";
 
 export function facilityState() {
   return {
@@ -23,21 +23,21 @@ function updateRepr(obj) {
 }
 
 export const facilityMutations = {
-  facility_name: modifyLatestView((obj, name) => {
+  facility_name: modifyOverlayView((obj, name) => {
     obj.name = name;
     updateRepr(obj);
   }),
-  facility_street: modifyLatestView((obj, val) => {
+  facility_street: modifyOverlayView((obj, val) => {
     obj.street = val;
   }),
-  facility_zipCode: modifyLatestView((obj, val) => {
+  facility_zipCode: modifyOverlayView((obj, val) => {
     obj.zip_code = val;
   }),
-  facility_city: modifyLatestView((obj, val) => {
+  facility_city: modifyOverlayView((obj, val) => {
     obj.city = val;
     updateRepr(obj);
   }),
-  facility_picture: modifyLatestView((obj, val) => {
+  facility_picture: modifyOverlayView((obj, val) => {
     obj.picture = val;
   }),
 }
@@ -45,28 +45,28 @@ export const facilityMutations = {
 export const facilityGetters = {
   name(...args) {
     const getter = args[3];
-    return getter.currentView.name;
+    return getter.overlay.name;
   },
   street(...args) {
     const getter = args[3];
-    return getter.currentView.street;
+    return getter.overlay.street;
   },
   zipCode(...args) {
     const getter = args[3];
-    return getter.currentView.zip_code;
+    return getter.overlay.zip_code;
   },
   city(...args) {
     const getter = args[3];
-    return getter.currentView.city;
+    return getter.overlay.city;
   },
   picture(...args) {
     const getter = args[3];
-    return getter.currentView.picture;
+    return getter.overlay.picture;
   },
 }
 
 export const facilityActions = {
   store({ commit, rootGetters }) {
-    return postToServer(commit, rootGetters, "facility");
+    return postToServer(commit, rootGetters, "facility", "overlay");
   }
 }

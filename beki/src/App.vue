@@ -4,7 +4,7 @@
       <template slot="brand">
       </template>
       <template slot="start">
-        <template v-for="(view, i) in views">
+        <template v-for="(view, i) in main.views">
           <b-navbar-item :key="i + 'left'">
             <b-icon v-if="view.$type === ViewType.MainMenu" icon="home"> </b-icon>
             <template v-else> {{ breadcrumbForType(view.$type) }} </template>
@@ -16,7 +16,7 @@
       </template>
 
       <template slot="end">
-        <b-navbar-item v-if="currentViewType !== ViewType.MainMenu" tag="div">
+        <b-navbar-item v-if="mainViewType !== ViewType.MainMenu" tag="div">
             <div class="buttons">
               <a class="button is-light" @click="goBackWithPrompt">
                   Zurück
@@ -26,25 +26,31 @@
       </template>
     </b-navbar>
 
-    <!-- TODO: Snackbar notifications on error / success -->
-
     <section class="section">
       <div class="container is-max-desktop">
-        <view-main-menu v-if="currentViewType === ViewType.MainMenu" />
+        <view-main-menu v-if="mainViewType === ViewType.MainMenu" />
 
-        <view-protocol v-else-if="currentViewType === ViewType.Protocol" />
-
-        <view-facility v-else-if="currentViewType === ViewType.Facility" />
-
-        <view-organization v-else-if="currentViewType === ViewType.Organization" />
-
-        <view-person v-else-if="currentViewType === ViewType.Person" />
-
-        <view-inspection-standard v-else-if="currentViewType === ViewType.InspectionStandard" />
-
-        <view-category v-else-if="currentViewType === ViewType.Category" />
+        <view-protocol v-else-if="mainViewType === ViewType.Protocol" />
       </div>
     </section>
+
+    <div class="modal" :class="{ 'is-active': isOverlayActive }">
+      <div class="modal-background"></div>
+      <div class="modal-content">
+        <div class="container is-max-desktop">
+          <view-facility v-if="overlayViewType === ViewType.Facility" />
+
+          <view-organization v-else-if="overlayViewType === ViewType.Organization" />
+
+          <view-person v-else-if="overlayViewType === ViewType.Person" />
+
+          <view-inspection-standard v-else-if="overlayViewType === ViewType.InspectionStandard" />
+
+          <view-category v-else-if="overlayViewType === ViewType.Category" />
+        </div>
+      </div>
+      <button class="modal-close is-large" aria-label="close" @click="closeOverlayWithPrompt"></button>
+    </div>
   </div>
 </template>
 
@@ -72,11 +78,19 @@ export default {
     ViewFacility,
     ViewOrganization,
   },
+  data() {
+    return {
+      isCanceling: false,
+    }
+  },
   computed: {
-    ...mapState(['views']),
-    ...mapGetters(['currentViewType', 'currentView', 'currentStatus']),
+    ...mapState(['main.views']),
+    ...mapGetters(['mainViewType', 'main', 'mainStatus', 'overlayViewType', 'overlay', 'overlayStatus']),
     ViewType() {
       return ViewType;
+    },
+    isOverlayActive() {
+      return this.overlayViewType !== undefined;
     }
   },
   methods: {
@@ -101,6 +115,12 @@ export default {
       }
     },
     confirmGoBack(onConfirm) {
+      if (this.isCanceling) {
+        return;
+      }
+
+      this.isCanceling = true;
+
       this.$buefy.dialog.confirm({
         title: 'Änderungen verwerfen',
         message: 'Wenn du zuück gehst werden alle Änderungen <b>verworfen</b>. Letzte Chance?',
@@ -108,18 +128,51 @@ export default {
         cancelText: 'Abbrechen',
         type: 'is-danger',
         hasIcon: true,
-        onConfirm: onConfirm
-      })
+        onConfirm: e => {
+          this.isCanceling = false;
+          onConfirm(e);
+        },
+        onCancel: () => this.isCanceling = false
+      });
     },
     goBackWithPrompt() {
-      if ((this.currentStatus & SyncStatus.Modified) !== 0) {
+      if ((this.mainStatus & SyncStatus.Modified) !== 0) {
         this.confirmGoBack(this.goBack);
       } else {
         this.goBack();
       }
     },
     goBack() {
-      this.$store.dispatch("back", { discard: true });
+      this.$store.dispatch("back_main", { discard: true });
+    },
+    closeOverlayWithPrompt() {
+      if ((this.overlayStatus & SyncStatus.Modified) !== 0) {
+        this.confirmGoBack(this.closeOverlay);
+      } else {
+        this.closeOverlay();
+      }
+    },
+    closeOverlay() {
+      this.$store.dispatch("back_overlay", { discard: true });
+    },
+    handleKeyPress({ key }) {
+      if (key === "Escape" || key === "Esc") {
+        if (this.isOverlayActive) {
+          this.closeOverlayWithPrompt();
+        } else {
+          this.goBackWithPrompt();
+        }
+      }
+    }
+  },
+  created() {
+    if (typeof window !== 'undefined') {
+      document.addEventListener('keyup', this.handleKeyPress);
+    }
+  },
+  beforeDestroy() {
+    if (typeof window !== 'undefined') {
+      document.removeEventListener('keyup', this.handleKeyPress);
     }
   }
 }

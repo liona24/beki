@@ -1,4 +1,4 @@
-import { modifyLatestView, ViewType, SyncStatus, postToServer } from "./common";
+import { modifyOverlayView, ViewType, SyncStatus, postToServer } from "./common";
 
 export function categoryState() {
   return {
@@ -12,21 +12,21 @@ export function categoryState() {
 }
 
 export const categoryMutations = {
-  category_name: modifyLatestView((obj, name) => {
+  category_name: modifyOverlayView((obj, name) => {
     obj.name = name;
     obj.$repr = name;
   }),
-  category_inspectionStandards: modifyLatestView((obj, { val }) => {
+  category_inspectionStandards: modifyOverlayView((obj, { val }) => {
     obj.inspection_standards = val;
   }),
-  category_updateInspectionStandard: modifyLatestView((obj, { i, val }) => {
+  category_updateInspectionStandard: modifyOverlayView((obj, { i, val }) => {
     if (i >= 0) {
       obj.inspection_standards[i] = val;
     } else {
       obj.inspection_standards.push(val);
     }
   }),
-  category_removeInspectionStandard: modifyLatestView((obj, i) => {
+  category_removeInspectionStandard: modifyOverlayView((obj, i) => {
     obj.inspection_standards.splice(i, 1);
   }),
 }
@@ -34,16 +34,16 @@ export const categoryMutations = {
 export const categoryGetters = {
   name(...args) {
     const getter = args[3];
-    return getter.currentView.name;
+    return getter.overlay.name;
   },
   inspectionStandards(...args) {
     const getter = args[3];
-    return getter.currentView.inspection_standards;
+    return getter.overlay.inspection_standards;
   }
 }
 
 export const categoryActions = {
   store({ commit, rootGetters }) {
-    return postToServer(commit, rootGetters, "category");
+    return postToServer(commit, rootGetters, "category", 'overlay');
   }
 }

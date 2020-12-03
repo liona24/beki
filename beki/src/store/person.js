@@ -1,4 +1,4 @@
-import { modifyLatestView, ViewType, SyncStatus, postToServer } from "./common";
+import { modifyOverlayView, ViewType, SyncStatus, postToServer } from "./common";
 import { organizationState } from './organization'
 
 export function personState() {
@@ -23,18 +23,18 @@ function updateRepr(obj) {
 }
 
 export const personMutations = {
-  person_name: modifyLatestView((obj, name) => {
+  person_name: modifyOverlayView((obj, name) => {
     obj.name = name;
     updateRepr(obj);
   }),
-  person_firstName: modifyLatestView((obj, val) => {
+  person_firstName: modifyOverlayView((obj, val) => {
     obj.first_name = val;
     updateRepr(obj);
   }),
-  person_email: modifyLatestView((obj, val) => {
+  person_email: modifyOverlayView((obj, val) => {
     obj.email = val;
   }),
-  person_organization: modifyLatestView((obj, { val }) => {
+  person_organization: modifyOverlayView((obj, { val }) => {
     obj.organization = val;
   }),
 }
@@ -42,24 +42,24 @@ export const personMutations = {
 export const personGetters = {
   name(...args) {
     const getter = args[3];
-    return getter.currentView.name;
+    return getter.overlay.name;
   },
   firstName(...args) {
     const getter = args[3];
-    return getter.currentView.first_name;
+    return getter.overlay.first_name;
   },
   email(...args) {
     const getter = args[3];
-    return getter.currentView.email;
+    return getter.overlay.email;
   },
   organization(...args) {
     const getter = args[3];
-    return getter.currentView.organization;
+    return getter.overlay.organization;
   },
 }
 
 export const personActions = {
   store({ commit, rootGetters }) {
-    return postToServer(commit, rootGetters, "person");
+    return postToServer(commit, rootGetters, "person", "overlay");
   },
 }

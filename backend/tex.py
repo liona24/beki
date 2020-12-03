@@ -40,7 +40,6 @@ def configure_jinja(app):
     )
 
 
-
 def _to_camel_case(string):
     return re.sub("_(.)", lambda x: x.group(1).upper(), string)
 

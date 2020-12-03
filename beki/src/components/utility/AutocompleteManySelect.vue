@@ -109,7 +109,7 @@ export default {
       const obj = this.create(this.currentInput);
       obj.$status = SyncStatus.New;
 
-      this.$store.commit("push", {
+      this.$store.commit("push_overlay", {
         view: obj,
         callback: this.update,
         args: {
@@ -122,7 +122,7 @@ export default {
     },
     modifyAt(index) {
       const obj = cloneDeep(this.value[index]);
-      this.$store.commit("push", {
+      this.$store.commit("push_overlay", {
         view: obj,
         callback: this.update,
         args: {

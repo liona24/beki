@@ -1,6 +1,6 @@
 <template>
   <div class="box">
-    <status-indicator :status="currentStatus">
+    <status-indicator :status="overlayStatus">
       <h4 class="title is-4">{{ title }}</h4>
     </status-indicator>
     <slot>
@@ -28,7 +28,7 @@ export default {
     title: String,
   },
   computed: {
-    ...mapGetters(['currentStatus'])
+    ...mapGetters(['overlayStatus'])
   },
   methods: {
     commit() {
@@ -37,7 +37,7 @@ export default {
           if (wasUpdated) {
             this.$buefy.snackbar.open("Gespeichert.");
           }
-          this.$store.dispatch("back", { discard: !wasUpdated });
+          this.$store.dispatch("back_overlay", { discard: !wasUpdated });
         }, errors => {
           errors.forEach(err => {
             this.$buefy.snackbar.open({

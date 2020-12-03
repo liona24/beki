@@ -25,17 +25,24 @@ export const ViewType = Object.freeze({
   Flaw: 8
 });
 
-export function modifyLatestView(func) {
+export function modifyMainView(func) {
   return (state, ...args) => {
-    const obj = state.views[state.views.length - 1];
+    const obj = state.main.views[state.main.views.length - 1];
+    obj.$status |= SyncStatus.Modified;
+    return func(obj, ...args);
+  }
+}
+export function modifyOverlayView(func) {
+  return (state, ...args) => {
+    const obj = state.overlay.views[state.overlay.views.length - 1];
     obj.$status |= SyncStatus.Modified;
     return func(obj, ...args);
   }
 }
 
-export function postToServer(commit, rootGetters, endpoint) {
+export function postToServer(commit, rootGetters, endpoint, window) {
   return new Promise((resolve, reject) => {
-    const obj = rootGetters.currentView;
+    const obj = rootGetters[window];
     if ((obj.$status & SyncStatus.Modified) == 0) {
       resolve(false);
     } else {
@@ -52,7 +59,7 @@ export function postToServer(commit, rootGetters, endpoint) {
         if (json.errors?.length > 0) {
           reject(json.errors);
         } else {
-          commit("updateId", { id: json.id }, { root: true });
+          commit("updateId", { id: json.id, window: window }, { root: true });
           resolve(true);
         }
       }, () => {

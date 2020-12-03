@@ -1,4 +1,4 @@
-import { SyncStatus, ViewType, modifyLatestView } from "./common";
+import { SyncStatus, ViewType, modifyMainView } from "./common";
 import { protocolState } from './protocol'
 import Vue from 'vue'
 
@@ -16,39 +16,39 @@ export function menuState() {
 }
 
 export const menuMutations = {
-  menu_selected: modifyLatestView((obj, selected) => {
+  menu_selected: modifyMainView((obj, selected) => {
     obj.selected = selected;
   }),
-  menu_droppedFiles: modifyLatestView((obj, droppedFiles) => {
+  menu_droppedFiles: modifyMainView((obj, droppedFiles) => {
     obj.droppedFiles = droppedFiles;
   }),
-  menu_searchResults: modifyLatestView((obj, searchResults) => {
+  menu_searchResults: modifyMainView((obj, searchResults) => {
     obj.searchResults = searchResults;
   }),
 
-  menu_removeDroppedFile: modifyLatestView((obj, name) => {
+  menu_removeDroppedFile: modifyMainView((obj, name) => {
     const i = obj.droppedFiles.findIndex(file => file.name === name);
     if (i >= 0) {
       obj.droppedFiles.splice(i, 1);
     }
   }),
-  menu_removePreviewImage: modifyLatestView((obj, name) => {
+  menu_removePreviewImage: modifyMainView((obj, name) => {
     Vue.delete(obj.previewImages, name);
   }),
-  menu_updatePreviewImage: modifyLatestView((obj, { name, url }) => {
+  menu_updatePreviewImage: modifyMainView((obj, { name, url }) => {
     obj.previewImages[name] = url;
   }),
-  menu_isLoading: modifyLatestView((obj, val) => {
+  menu_isLoading: modifyMainView((obj, val) => {
     obj.isLoading = val;
   }),
-  menu_isPreviewLoading: modifyLatestView((obj, val) => {
+  menu_isPreviewLoading: modifyMainView((obj, val) => {
     obj.isPreviewLoading = val;
   }),
-  menu_clearSelectedFiles: modifyLatestView(obj => {
+  menu_clearSelectedFiles: modifyMainView(obj => {
     obj.previewImages = {};
     obj.droppedFiles = [];
   }),
-  menu_currentPreviewId: modifyLatestView((obj, { val }) => {
+  menu_currentPreviewId: modifyMainView((obj, { val }) => {
     obj.currentPreviewId = val?.id;
   })
 }
@@ -56,23 +56,23 @@ export const menuMutations = {
 export const menuGetters = {
   droppedFiles(...args) {
     const getter = args[3];
-    return getter.currentView.droppedFiles;
+    return getter.main.droppedFiles;
   },
   previewImages(...args) {
     const getter = args[3];
-    return getter.currentView.previewImages;
+    return getter.main.previewImages;
   },
   isPreviewLoading(...args) {
     const getter = args[3];
-    return getter.currentView.isPreviewLoading;
+    return getter.main.isPreviewLoading;
   },
   isLoading(...args) {
     const getter = args[3];
-    return getter.currentView.isLoading;
+    return getter.main.isLoading;
   },
   currentPreviewId(...args) {
     const getter = args[3];
-    return getter.currentView.currentPreviewId;
+    return getter.main.currentPreviewId;
   }
 }
 
@@ -100,7 +100,7 @@ export const menuActions = {
     if (getters.droppedFiles.length === 0) {
       const view = protocolState();
       view.$status |= SyncStatus.New;
-      commit('push', { view: view, callback: "menu_currentPreviewId", args: null }, { root: true });
+      commit('push_main', { view: view, callback: "menu_currentPreviewId", args: null }, { root: true });
       return;
     }
 
@@ -121,13 +121,13 @@ export const menuActions = {
         // happy linter
         // do not forget about the SyncStatus.New! Otherwise the server
         // might reject changes
-        commit('push', { view: protocolState() }, { root: true })
+        commit('push_main', { view: protocolState() }, { root: true })
       }
     })
     .finally(() => {
       console.log("Upload done. TODO");
       commit('menu_isLoading', false, { root: true });
-      // commit('push', { view: protocolState() }, { root: true })
+      // commit('push_main', { view: protocolState() }, { root: true })
     });
   }
 }

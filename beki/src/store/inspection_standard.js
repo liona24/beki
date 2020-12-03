@@ -1,4 +1,4 @@
-import { modifyLatestView, ViewType, SyncStatus, postToServer } from "./common";
+import { modifyOverlayView, ViewType, SyncStatus, postToServer } from "./common";
 
 export function inspectionStandardState() {
   return {
@@ -17,15 +17,15 @@ function updateRepr(obj) {
 }
 
 export const inspectionStandardMutations = {
-  inspectionStandard_din: modifyLatestView((obj, val) => {
+  inspectionStandard_din: modifyOverlayView((obj, val) => {
     obj.din = val;
     updateRepr(obj);
   }),
-  inspectionStandard_description: modifyLatestView((obj, val) => {
+  inspectionStandard_description: modifyOverlayView((obj, val) => {
     obj.description = val;
     updateRepr(obj);
   }),
-  inspectionStandard_hasVersion: modifyLatestView((obj, val) => {
+  inspectionStandard_hasVersion: modifyOverlayView((obj, val) => {
     obj.has_version = val;
     updateRepr(obj);
   }),
@@ -34,20 +34,20 @@ export const inspectionStandardMutations = {
 export const inspectionStandardGetters = {
   din(...args) {
     const getter = args[3];
-    return getter.currentView.din;
+    return getter.overlay.din;
   },
   description(...args) {
     const getter = args[3];
-    return getter.currentView.description;
+    return getter.overlay.description;
   },
   hasVersion(...args) {
     const getter = args[3];
-    return getter.currentView.has_version;
+    return getter.overlay.has_version;
   },
 }
 
 export const inspectionStandardActions = {
   store({ commit, rootGetters }) {
-    return postToServer(commit, rootGetters, "inspection_standard");
+    return postToServer(commit, rootGetters, "inspection_standard", "overlay");
   }
 }

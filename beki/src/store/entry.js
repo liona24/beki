@@ -24,7 +24,7 @@ export function entryState() {
 
 function _modifyEntry(func) {
   return (state, param) => {
-    const obj = state.views[state.views.length - 1];
+    const obj = state.main.views[state.main.views.length - 1];
     const entry = obj.entries[param.i];
     entry.$status |= SyncStatus.Modified;
     return func(entry, param);
@@ -64,13 +64,13 @@ export const entryMutations = {
   }),
 
   entry_removeFlaw: (state, { entry, i }) => {
-    const view = state.views[state.views.length - 1];
+    const view = state.main.views[state.main.views.length - 1];
     const obj = view.entries[entry];
     obj.$status |= SyncStatus.Modified;
     obj.flaws.splice(i, 1);
   },
   entry_triggerCollapse: (state, { i }) => {
-    const entry = state.views[state.views.length - 1].entries[i];
+    const entry = state.main.views[state.main.views.length - 1].entries[i];
     entry._collapsed = !entry._collapsed;
   }
 }
