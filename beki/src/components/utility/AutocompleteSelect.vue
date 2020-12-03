@@ -16,7 +16,6 @@
 
         @select="updateSelection"
         @typing="fetchData"
-        @blur="makeSureSelectionIsUpdated"
 
         clearable
         expanded>
@@ -68,7 +67,21 @@ export default {
       data: [],
       isWaitingForLazyResolve: false,
       isFetching: false,
-      innerSearchString: this.value.$repr
+    }
+  },
+  computed: {
+    innerSearchString: {
+      get() {
+        return this.value.$repr;
+      },
+      set() {
+        // buefy is a little shitty with state managment and side effects thereof.
+        // therefor we cannot v-bind this.value directly to <b-autocomplete> but
+        // have to opt out for an "representation" of it
+        // Anyway <b-autocomplete> will still try to set this value, but since
+        // <b-autocomplete> duplicates the state nevertheless we do not need to
+        // update it.
+      }
     }
   },
   methods: {
@@ -117,24 +130,6 @@ export default {
         args: this.updateArgs
       });
     },
-    makeSureSelectionIsUpdated() {
-      // this method is here to check if the selection was updated
-      // in the case the user *only* types the name of the element
-      // he/she wishes to select without actually clicking it.
-      // In this case the expected behaviour would be that the element
-      // was actually selected, which we make sure of here
-
-      if(this.$store.getters.overlayViewType === this.value.$type) {
-        // blurred by entering the next view, skip
-        return;
-      }
-
-      const repr = this.value.$repr;
-      if (repr !== this.innerSearchString) {
-        const candidate = this.data.find(el => el.$repr === this.innerSearchString);
-        this.updateSelection(candidate);
-      }
-    }
   }
 
 }
