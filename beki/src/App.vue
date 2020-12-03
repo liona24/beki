@@ -156,7 +156,7 @@ export default {
       this.$store.dispatch("back_overlay", { discard: true });
     },
     handleKeyPress({ key }) {
-      if (key === "Escape" || key === "Esc") {
+      if (this.mainViewType !== ViewType.MainMenu && key === "Escape" || key === "Esc") {
         if (this.isOverlayActive) {
           this.closeOverlayWithPrompt();
         } else {
