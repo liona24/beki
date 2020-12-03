@@ -6,11 +6,11 @@
 
     <div class="columns">
       <div class="column">
-        <autocomplete-text :value="title" @input="updateTitle" request-key="title" request-src="flaw" required>
+        <autocomplete-text :value="title" @input="updateTitle" request-key="title" request-src="flaw">
           Mangel:
         </autocomplete-text>
 
-        <autocomplete-text :value="priority" @input="updatePriority" request-key="priority" request-src="flaw" required>
+        <autocomplete-text :value="priority" @input="updatePriority" request-key="priority" request-src="flaw">
           Priorität:
         </autocomplete-text>
 

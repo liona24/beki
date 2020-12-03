@@ -16,8 +16,7 @@
           :value="street"
           @input="updateStreet"
           placeholder="Musterstraße 13"
-          expand
-          required>
+          expand>
       </b-input>
     </b-field>
     <b-field label="Postleitzahl:" horizontal>
@@ -27,8 +26,7 @@
           @input="updateZipCode"
           placeholder="12345"
           pattern="[0-9]{5}"
-          expand
-          required>
+          expand>
       </b-input>
     </b-field>
     <b-field label="Stadt:" horizontal>
@@ -37,8 +35,7 @@
           :value="city"
           @input="updateCity"
           placeholder="Musterstadt"
-          expand
-          required>
+          expand>
       </b-input>
     </b-field>
   </simple-editor-layout>

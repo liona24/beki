@@ -224,10 +224,10 @@ class Organization(db.Model, Serializer):
 
     id = db.Column(db.Integer, primary_key=True)
 
-    name = db.Column(db.String, nullable=False)
-    street = db.Column(db.String, nullable=False)
-    zip_code = db.Column(db.String, nullable=False)
-    city = db.Column(db.String, nullable=False)
+    name = db.Column(db.String, nullable=False, unique=True)
+    street = db.Column(db.String)
+    zip_code = db.Column(db.String)
+    city = db.Column(db.String)
 
     autocompleteable = ()
     discoverable = "name", "street", "zip_code", "city"
@@ -245,7 +245,7 @@ class Flaw(db.Model, Serializer):
 
     id = db.Column(db.Integer, primary_key=True)
 
-    title = db.Column(db.String, nullable=False)
+    title = db.Column(db.String)
     notes = db.Column(db.String)
     priority = db.Column(db.String)
     picture = db.Column(db.String)

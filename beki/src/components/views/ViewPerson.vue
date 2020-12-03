@@ -14,16 +14,14 @@
           type="text"
           :value="firstName"
           @input="updateFirstName"
-          expand
-          required>
+          expand>
       </b-input>
     </b-field>
     <b-field label="E-Mail:" horizontal>
       <b-input
           type="email"
           :value="email"
-          @input="updateEmail"
-          expand>
+          @input="updateEmail">
       </b-input>
     </b-field>
     <autocomplete-select

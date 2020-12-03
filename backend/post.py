@@ -238,9 +238,9 @@ def _facility(body, err_agg):
 
     getter = err_agg(body)
     name = getter("name", Err("Feld 'Name' wird benötigt!", "Objekt"))
-    street = getter("street", Err("Feld 'Straße/Nr.' wird benötigt!", "Objekt"))
-    zip_code = getter("zip_code", Err("Feld 'Postleitzahl' wird benötigt!", "Objekt"))
-    city = getter("city", Err("Feld 'Stadt' wird benötigt!", "Objekt"))
+    street = getter("street", None, not_empty=False)
+    zip_code = getter("zip_code", None, not_empty=False)
+    city = getter("city", None, not_empty=False)
     picture = getter("picture", None, not_empty=False)
 
     if picture and _checked_picture(picture) != picture:
@@ -271,7 +271,7 @@ def _flaw(body, err_agg, idx=None):
         return id
 
     getter = err_agg(body)
-    title = getter("title", Err("Feld 'Titel' wird benötigt!", "Mangel", idx=idx))
+    title = getter("title", "")
     notes = getter("notes", "")
     priority = getter("priority", "")
     picture = getter("picture", None, not_empty=False)
@@ -330,9 +330,9 @@ def _organization(body, err_agg):
 
     getter = err_agg(body)
     name = getter("name", Err("Feld 'Name' wird benötigt!", "Organisation"))
-    street = getter("street", Err("Feld 'Straße/Nr.' wird benötigt!", "Organisation"))
-    zip_code = getter("zip_code", Err("Feld 'Postleitzahl' wird benötigt!", "Organisation"))
-    city = getter("city", Err("Feld 'Stadt' wird benötigt!", "Organisation"))
+    street = getter("street", None, not_empty=False)
+    zip_code = getter("zip_code", None, not_empty=False)
+    city = getter("city", None, not_empty=False)
 
     if not err_agg.recent_ok():
         return None
