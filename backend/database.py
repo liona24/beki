@@ -5,7 +5,11 @@ from sqlalchemy.orm.attributes import CollectionAttributeImpl
 from enum import IntFlag, IntEnum
 
 
-db = SQLAlchemy()
+db = SQLAlchemy(session_options={
+    "autoflush": False,
+    "autocommit": False,
+    "expire_on_commit": False
+})
 
 
 def init_db(app):
@@ -24,6 +28,8 @@ class CommonType(IntEnum):
     Entry = 7
     Flaw = 8
 
+    LegacyProtocol = 16
+
 
 class SyncStatus(IntFlag):
     Empty = 0
@@ -36,6 +42,8 @@ class SyncStatus(IntFlag):
 
 
 class Serializer(object):
+
+    _serializer_ignore = ()
 
     @property
     def common_type(self):
@@ -55,7 +63,7 @@ class Serializer(object):
         # The only special case is 'id' itself, corresponding to the
         # primary key of 'self'
 
-        attrs = set(inspect(self).attrs.keys())
+        attrs = set(filter(lambda k: k not in self._serializer_ignore, inspect(self).attrs.keys()))
         ids = list(filter(lambda x: x.endswith("_id"), attrs))
 
         rv = {}
@@ -88,15 +96,6 @@ class Serializer(object):
         rv["$repr"] = self.common_repr()
 
         return rv
-
-
-class Settings(db.Model, Serializer):
-    __tablename__ = "settings"
-
-    id = db.Column(db.Integer, primary_key=True)
-
-    image_width = db.Column(db.Integer, nullable=False)
-    image_height = db.Column(db.Integer, nullable=False)
 
 
 class Facility(db.Model, Serializer):
@@ -301,6 +300,29 @@ class ImageFeature(db.Model):
     image = db.Column(db.String, primary_key=True)
 
 
+class LegacyProtocol(db.Model, Serializer):
+    __tablename__ = "legacy_protocol"
+
+    id = db.Column(db.Integer, primary_key=True)
+    representation = db.Column(db.String, nullable=False, unique=True)
+    version = db.Column(db.Integer, nullable=False)
+    associated_protocol_id = db.Column(db.Integer, db.ForeignKey("protocol.id"), nullable=False)
+
+    data = db.Column(db.String, nullable=False)
+
+    discoverable = "representation",
+    autocomplete = ()
+
+    _serializer_ignore = "data",
+
+    @property
+    def common_type(self):
+        return CommonType.LegacyProtocol
+
+    def common_repr(self):
+        return self.representation
+
+
 class ProtocolEntry(db.Model):
     __tablename__ = "protocol_entry"
 
@@ -330,5 +352,6 @@ TABLES = {
     "inspection_standard": InspectionStandard,
     "organization": Organization,
     "person": Person,
-    "protocol": Protocol
+    "protocol": Protocol,
+    "legacy_protocol": LegacyProtocol
 }

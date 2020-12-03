@@ -1,6 +1,7 @@
 <template>
-  <div>
-    <b-field>
+  <div class="columns">
+    <div class="column">
+    <b-field label="Aktuelle Protokolle">
       <b-autocomplete placeholder="Suchen ..."
         v-model="searchString"
 
@@ -20,8 +21,33 @@
     </b-field>
 
     <b-field>
-      <b-button type="is-dark" outlined expanded :disabled="!selected" @click="displayInNewTab">PDF erstellen</b-button>
+      <b-button type="is-dark" outlined expanded :disabled="!selected" @click="displayInNewTab(selected)">PDF erstellen</b-button>
     </b-field>
+    </div>
+    <div class="column">
+    <b-field label="Archiv">
+      <b-autocomplete placeholder="Suchen ..."
+        v-model="searchStringLegacy"
+
+        type="search"
+        icon="magnify"
+        field="$repr"
+
+        :data="dataLegacy"
+        :loading="isFetchingLegacy"
+
+        @select="updateSelectionLegacy"
+        @typing="fetchDataLegacy"
+
+        clearable
+        expanded>
+      </b-autocomplete>
+    </b-field>
+
+    <b-field>
+      <b-button type="is-dark" outlined expanded :disabled="!selectedLegacy" @click="displayInNewTab(selectedLegacy)">PDF erstellen</b-button>
+    </b-field>
+    </div>
   </div>
 </template>
 
@@ -36,16 +62,20 @@ export default {
       isFetching: false,
       searchString: "",
       data: [],
+      selectedLegacy: null,
+      isFetchingLegacy: false,
+      searchStringLegacy: "",
+      dataLegacy: [],
     }
   },
   methods: {
+    displayInNewTab(selected) {
+      if (selected) {
+        window.open(`/api/_render/${selected.id}`);
+      }
+    },
     updateSelection(e) {
       this.selected = e;
-    },
-    displayInNewTab() {
-      if (this.selected) {
-        window.open(`/api/_render/${this.selected.id}`);
-      }
     },
     fetchData: debounce(function(query) {
       if (query.length < 1) {
@@ -64,6 +94,28 @@ export default {
         console.error("discover api unavailable");
       }).finally(() => {
         this.isFetching = false;
+      });
+    }, 500),
+    updateSelectionLegacy(e) {
+      this.selectedLegacy = e;
+    },
+    fetchDataLegacy: debounce(function(query) {
+      if (query.length < 1) {
+        this.dataLegacy = [];
+        return;
+      }
+
+      this.isFetchingLegacy = true;
+
+      this.$http.post("api/_discover", {
+          q: query,
+          src: "legacy_protocol"
+      }).then(resp => {
+        this.dataLegacy = resp.body;
+      }, () => {
+        console.error("discover api unavailable");
+      }).finally(() => {
+        this.isFetchingLegacy = false;
       });
     }, 500),
   }

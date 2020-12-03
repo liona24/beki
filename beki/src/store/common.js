@@ -22,7 +22,9 @@ export const ViewType = Object.freeze({
   // These are merely placeholders since they are integrated into
   // the ProtocolView
   Entry: 7,
-  Flaw: 8
+  Flaw: 8,
+
+  LegacyProtocol: 16
 });
 
 export function modifyMainView(func) {

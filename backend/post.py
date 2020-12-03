@@ -1,10 +1,11 @@
-from flask import request, abort, jsonify, current_app
+from flask import request, abort, jsonify, current_app, json
 import sqlalchemy
 from werkzeug.utils import secure_filename
 
 import os
-import database
 import datetime
+
+import database
 
 db = database.db
 
@@ -64,14 +65,6 @@ class ErrorAggregator(object):
 
     def ok(self):
         return len(self.errors) == 0
-
-
-def _remove_null_values(dict):
-    keys = list(dict.keys())
-    for k in keys:
-        if not dict[k] and type(dict[k]) != int:
-            dict.pop(k)
-    return dict
 
 
 def _checked_picture(pic):
@@ -159,19 +152,19 @@ def _category(body, err_agg):
         )
     ))
 
-    if err_agg.recent_ok():
-        args = _remove_null_values(dict(
-            name=name,
-            inspection_standards=inspection_standards
-        ))
-        if id is not None:
-            category = _update(database.Category, id, args)
-        else:
-            category = database.Category(**args)
-            db.session.add(category)
-        return category
-    else:
+    if not err_agg.recent_ok():
         return None
+
+    args = dict(
+        name=name,
+        inspection_standards=inspection_standards
+    )
+    if id is not None:
+        category = _update(database.Category, id, args)
+    else:
+        category = database.Category(**args)
+        db.session.add(category)
+    return category
 
 
 def _entry(body, err_agg, idx=None):
@@ -215,27 +208,27 @@ def _entry(body, err_agg, idx=None):
             _category(category, err_agg)
         )
 
-    if err_agg.recent_ok():
-        args = _remove_null_values(dict(
-            title=title,
-            manufacturer=manufacturer,
-            year_built=year_built,
-            inspection_signs=inspection_signs,
-            manufacture_info_available=manufacture_info_available,
-            easy_access=easy_access,
-            index=index,
-            category=category,
-            category_version=category_version,
-            flaws=flaws
-        ))
-        if id is not None:
-            obj = _update(database.Entry, id, args)
-        else:
-            obj = database.Entry(**args)
-            db.session.add(obj)
-        return obj
-    else:
+    if not err_agg.recent_ok():
         return None
+
+    args = dict(
+        title=title,
+        manufacturer=manufacturer,
+        year_built=year_built,
+        inspection_signs=inspection_signs,
+        manufacture_info_available=manufacture_info_available,
+        easy_access=easy_access,
+        index=index,
+        category=category,
+        category_version=category_version,
+        flaws=flaws
+    )
+    if id is not None:
+        obj = _update(database.Entry, id, args)
+    else:
+        obj = database.Entry(**args)
+        db.session.add(obj)
+    return obj
 
 
 def _facility(body, err_agg):
@@ -254,22 +247,22 @@ def _facility(body, err_agg):
         err_agg.add_error(Err("Das angegebene Bild konnte nicht gefunden werden!", "Objekt"))
         picture = None
 
-    if err_agg.recent_ok():
-        args = _remove_null_values(dict(
-            name=name,
-            street=street,
-            zip_code=zip_code,
-            city=city,
-            picture=picture,
-        ))
-        if id is not None:
-            obj = _update(database.Facility, id, args)
-        else:
-            obj = database.Facility(**args)
-            db.session.add(obj)
-        return obj
-    else:
+    if not err_agg.recent_ok():
         return None
+
+    args = dict(
+        name=name,
+        street=street,
+        zip_code=zip_code,
+        city=city,
+        picture=picture,
+    )
+    if id is not None:
+        obj = _update(database.Facility, id, args)
+    else:
+        obj = database.Facility(**args)
+        db.session.add(obj)
+    return obj
 
 
 def _flaw(body, err_agg, idx=None):
@@ -287,21 +280,21 @@ def _flaw(body, err_agg, idx=None):
         err_agg.add_error(Err("Das angegebene Bild konnte nicht gefunden werden!", "Mangel", idx=idx))
         picture = None
 
-    if err_agg.recent_ok():
-        args = _remove_null_values(dict(
-            title=title,
-            notes=notes,
-            priority=priority,
-            picture=picture,
-        ))
-        if id is not None:
-            flaw = _update(database.Flaw, id, args)
-        else:
-            flaw = database.Flaw(**args)
-            db.session.add(flaw)
-        return flaw
-    else:
+    if not err_agg.recent_ok():
         return None
+
+    args = dict(
+        title=title,
+        notes=notes,
+        priority=priority,
+        picture=picture,
+    )
+    if id is not None:
+        flaw = _update(database.Flaw, id, args)
+    else:
+        flaw = database.Flaw(**args)
+        db.session.add(flaw)
+    return flaw
 
 
 def _inspection_standard(body, err_agg):
@@ -314,20 +307,20 @@ def _inspection_standard(body, err_agg):
     description = getter("description", "")
     has_version = getter("has_version", Err("Feld 'Versioniert' wird benötigt!", "Prüfkriterium"))
 
-    if err_agg.recent_ok():
-        args = _remove_null_values(dict(
-            din=din,
-            description=description,
-            has_version=has_version,
-        ))
-        if id is not None:
-            std = _update(database.InspectionStandard, id, args)
-        else:
-            std = database.InspectionStandard(**args)
-            db.session.add(std)
-        return std
-    else:
+    if not err_agg.recent_ok():
         return None
+
+    args = dict(
+        din=din,
+        description=description,
+        has_version=has_version,
+    )
+    if id is not None:
+        std = _update(database.InspectionStandard, id, args)
+    else:
+        std = database.InspectionStandard(**args)
+        db.session.add(std)
+    return std
 
 
 def _organization(body, err_agg):
@@ -341,21 +334,21 @@ def _organization(body, err_agg):
     zip_code = getter("zip_code", Err("Feld 'Postleitzahl' wird benötigt!", "Organisation"))
     city = getter("city", Err("Feld 'Stadt' wird benötigt!", "Organisation"))
 
-    if err_agg.recent_ok():
-        args = _remove_null_values(dict(
-            name=name,
-            street=street,
-            zip_code=zip_code,
-            city=city
-        ))
-        if id is not None:
-            obj = _update(database.Organization, id, args)
-        else:
-            obj = database.Organization(**args)
-            db.session.add(obj)
-        return obj
-    else:
+    if not err_agg.recent_ok():
         return None
+
+    args = dict(
+        name=name,
+        street=street,
+        zip_code=zip_code,
+        city=city
+    )
+    if id is not None:
+        obj = _update(database.Organization, id, args)
+    else:
+        obj = database.Organization(**args)
+        db.session.add(obj)
+    return obj
 
 
 def _person(body, err_agg):
@@ -373,21 +366,46 @@ def _person(body, err_agg):
         converter=lambda v: _fetcher(database.Organization)(_organization(v, err_agg))
     )
 
-    if err_agg.recent_ok():
-        args = _remove_null_values(dict(
-            name=name,
-            first_name=first_name,
-            email=email,
-            organization=organization
-        ))
-        if id is not None:
-            obj = _update(database.Person, id, args)
-        else:
-            obj = database.Person(**args)
-            db.session.add(obj)
-        return obj
-    else:
+    if not err_agg.recent_ok():
         return None
+
+    args = dict(
+        name=name,
+        first_name=first_name,
+        email=email,
+        organization=organization
+    )
+    if id is not None:
+        obj = _update(database.Person, id, args)
+    else:
+        obj = database.Person(**args)
+        db.session.add(obj)
+    return obj
+
+
+def _transform_to_legacy(protocol):
+    # we only ever store one version of protocol for each facility
+    # all the others are dumped into legaxy_protocol to be readonly
+    # for eternity
+
+    representation = protocol.common_repr()
+
+    version = db.session.query(sqlalchemy.func.max(database.LegacyProtocol.version))\
+        .filter(database.LegacyProtocol.associated_protocol_id == protocol.id)\
+        .scalar()
+    if version is None:
+        version = 0
+    else:
+        version += 1
+
+    data = protocol.serialize(full=True)
+    legacy_protocol = database.LegacyProtocol(
+        version=version,
+        representation=representation,
+        data=json.dumps(data),
+        associated_protocol_id=protocol.id
+    )
+    db.session.add(legacy_protocol)
 
 
 def _protocol(body, err_agg):
@@ -436,27 +454,35 @@ def _protocol(body, err_agg):
     if inspection_date is not None:
         inspection_date = datetime.date.fromisoformat(inspection_date)
 
-    if err_agg.recent_ok():
-        args = _remove_null_values(dict(
-            title=title,
-            overview=overview,
-            inspection_date=inspection_date,
-            attendees=attendees,
-            inspector=inspector,
-            facility=facility,
-            issuer=issuer,
-            entries=entries
-        ))
-        if id is not None:
-            # TODO: make sure that this is used correctly w.r.t legacy protocols
-            obj = _update(database.Protocol, id, args)
+    if not err_agg.recent_ok():
+        return None
+
+    args = dict(
+        title=title,
+        overview=overview,
+        inspection_date=inspection_date,
+        attendees=attendees,
+        inspector=inspector,
+        facility=facility,
+        issuer=issuer,
+        entries=entries
+    )
+
+    obj = None
+    if id is not None:
+        # TODO: make sure that this is used correctly w.r.t legacy protocols
+        obj = _update(database.Protocol, id, args)
+    elif "facility" in args:
+        protocol = db.session.query(database.Protocol)\
+            .filter(database.Protocol.facility_id == args["facility"].id)\
+            .scalar()
+        if protocol is not None:
+            _transform_to_legacy(protocol)
+            obj = _update(database.Protocol, protocol.id, args)
         else:
-            # TODO: update legacy protocols
             obj = database.Protocol(**args)
             db.session.add(obj)
-        return obj
-    else:
-        return None
+    return obj
 
 
 HANDLERS = {
