@@ -61,7 +61,7 @@ def _prepare_recursive(arg):
         arg = str(arg)
         return ''.join([ TEX_SYMBOL_MAPPING.get(c, c) for c in arg ])
     else:
-        return None
+        return ''
 
 
 def _render(dict):

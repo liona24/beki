@@ -21,7 +21,7 @@
     </b-field>
 
     <b-field>
-      <b-button type="is-dark" outlined expanded :disabled="!selected" @click="displayInNewTab(selected)">PDF erstellen</b-button>
+      <b-button type="is-dark" outlined expanded :disabled="!selected" @click="displayInNewTab(selected, false)">PDF erstellen</b-button>
     </b-field>
     </div>
     <div class="column">
@@ -45,7 +45,7 @@
     </b-field>
 
     <b-field>
-      <b-button type="is-dark" outlined expanded :disabled="!selectedLegacy" @click="displayInNewTab(selectedLegacy)">PDF erstellen</b-button>
+      <b-button type="is-dark" outlined expanded :disabled="!selectedLegacy" @click="displayInNewTab(selectedLegacy, true)">PDF erstellen</b-button>
     </b-field>
     </div>
   </div>
@@ -69,9 +69,10 @@ export default {
     }
   },
   methods: {
-    displayInNewTab(selected) {
+    displayInNewTab(selected, legacy) {
       if (selected) {
-        window.open(`/api/_render/${selected.id}`);
+        const endpoint = `api/_render/${selected.id}${legacy ? '/legacy' : ''}`;
+        window.open(endpoint);
       }
     },
     updateSelection(e) {

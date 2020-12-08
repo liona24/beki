@@ -307,6 +307,7 @@ class LegacyProtocol(db.Model, Serializer):
     representation = db.Column(db.String, nullable=False, unique=True)
     version = db.Column(db.Integer, nullable=False)
     associated_protocol_id = db.Column(db.Integer, db.ForeignKey("protocol.id"), nullable=False)
+    associated_protocol = db.relationship("Protocol", foreign_keys=associated_protocol_id)
 
     data = db.Column(db.String, nullable=False)
 

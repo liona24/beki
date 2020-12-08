@@ -4,7 +4,7 @@
       <template slot="brand">
       </template>
       <template slot="start">
-        <template v-for="(view, i) in main.views">
+        <template v-for="(view, i) in $store.state.main.views">
           <b-navbar-item :key="i + 'left'">
             <b-icon v-if="view.$type === ViewType.MainMenu" icon="home"> </b-icon>
             <template v-else> {{ breadcrumbForType(view.$type) }} </template>
@@ -65,7 +65,7 @@ import ViewCategory from './components/views/ViewCategory.vue'
 
 import { SyncStatus, ViewType } from './store/common'
 
-import { mapGetters, mapState } from 'vuex'
+import { mapGetters } from 'vuex'
 
 export default {
   name: 'App',
@@ -84,7 +84,6 @@ export default {
     }
   },
   computed: {
-    ...mapState(['main.views']),
     ...mapGetters(['mainViewType', 'main', 'mainStatus', 'overlayViewType', 'overlay', 'overlayStatus']),
     ViewType() {
       return ViewType;

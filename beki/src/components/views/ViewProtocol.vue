@@ -38,24 +38,34 @@
 
     <div class="field is-grouped is-grouped-centered">
       <p class="control">
-        <a class="button is-dark is-outlined" @click="addEntry">
-          Eintrag hinzufügen
+        <a class="button is-dark is-outlined" :disabled="isLoading" @click="storeProtocol">
+          Speichern
         </a>
       </p>
     </div>
+    <br>
 
     <b-navbar type="is-dark" :fixed-bottom="true" :centered="true">
       <template slot="brand">
       </template>
       <template slot="start">
-        <div class="buttons">
-          <a class="button is-light" @click="storeProtocol" :disabled="isLoading">
-              Speichern
-          </a>
-        </div>
       </template>
 
       <template slot="end">
+        <b-navbar-item>
+        <div class="buttons">
+          <a class="button is-light" @click="openPreview" :disabled="isLoading">
+              Vorschau
+          </a>
+        </div>
+        </b-navbar-item>
+        <b-navbar-item>
+        <div class="buttons">
+          <a class="button is-light" @click="addEntry" :disabled="isLoading">
+              Eintrag hinzufügen
+          </a>
+        </div>
+        </b-navbar-item>
       </template>
     </b-navbar>
   </div>
@@ -85,6 +95,9 @@ export default {
     },
     addEntry() {
       this.$store.commit("protocol_addEntry");
+      this.$nextTick(() => {
+        window.location.hash = `entry-${this.entries.length - 1}`;
+      });
     },
     storeProtocol() {
       if (this.isLoading) {
@@ -111,11 +124,14 @@ export default {
         })
         .finally(() => this.isLoading = false);
     },
+    openPreview() {
+      const data = btoa(JSON.stringify(this.$store.getters.main));
+      window.open("/api/_render?data=" + data);
+    },
     triggerCollapse(index) {
       this.$store.commit("entry_triggerCollapse", { i: index });
     }
   }
-
 }
 </script>
 

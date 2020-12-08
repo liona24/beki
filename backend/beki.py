@@ -1,7 +1,8 @@
 import os
 import hashlib
+import binascii
 
-from flask import Flask, request, jsonify, abort, send_from_directory
+from flask import Flask, request, jsonify, abort, send_from_directory, json
 from werkzeug.utils import secure_filename
 from sqlalchemy import or_, and_
 import cv2 as cv
@@ -186,6 +187,44 @@ def render(id):
         .first_or_404()
 
     return render_protocol(protocol.serialize(full=True))
+
+
+@app.route("/api/_render/<int:id>/legacy", methods=["GET"])
+def render_legacy(id):
+    protocol = db.session.query(database.LegacyProtocol)\
+        .filter(database.LegacyProtocol.id == id)\
+        .first_or_404()
+
+    protocol = json.loads(protocol.data)
+
+    return render_protocol(protocol)
+
+
+@app.route("/api/_render", methods=["GET"])
+def render_raw():
+    b64 = request.args.get("data", None)
+    if b64 is None:
+        abort(400)
+
+    try:
+        protocol = binascii.a2b_base64(b64)
+    except binascii.Error:
+        abort(400)
+
+    try:
+        protocol = json.loads(protocol.decode("utf-8"))
+    except UnicodeDecodeError:
+        try:
+            protocol = json.loads(protocol.decode("unicode-escape"))
+        except UnicodeDecodeError:
+            abort(400)
+
+    try:
+        resp = render_protocol(protocol)
+    except:
+        return "Da fehlen wohl noch ein paar Dinge :(", 400
+    else:
+        return resp
 
 
 if __name__ == '__main__':

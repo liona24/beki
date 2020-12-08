@@ -193,10 +193,9 @@ if __name__ == '__main__':
                     print("WARN: missing id:", json.dumps(f))
                     continue
 
-                # TODO: FIXME
-                # flaws.append(defer(f, flaw))
+                flaws.append(defer(f, flaw))
 
-                if len(flaws) == 3:
+                if len(flaws) == 5:
                     # whatever, just drop em
                     break
 
@@ -206,9 +205,31 @@ if __name__ == '__main__':
         p["entries"] = entries
 
     # we can now add the simple objects
+    print("Trying to find recovery point ..")
+    recov_path = os.path.join(dump_dir, "upload.json")
+    if os.path.exists(recov_path):
+        print(f"Found. Using '{recov_path}' to fast forward upload.")
+        with open(recov_path, "r") as f:
+            upload = json.load(f)
+
+        facility.update(upload.get("facility", {}))
+        person.update(upload.get("person", {}))
+        organization.update(upload.get("organization", {}))
+        category.update(upload.get("category", {}))
+        inspection_standard.update(upload.get("inspection_standard", {}))
+        entry.update(upload.get("entry", {}))
+        flaw.update(upload.get("flaw", {}))
+    else:
+        upload = {}
+
 
     print("Uploading facilities ..")
+    n_skipped = 0
     for k in facility:
+        if not isinstance(facility[k], dict):
+            n_skipped += 1
+            continue
+
         obj = prepare(facility[k])
         pic = obj.get("picture", None)
         if pic:
@@ -216,37 +237,90 @@ if __name__ == '__main__':
 
         facility[k] = upload_json(url, "facility", obj)
 
+    upload["facility"] = facility
+    with open(recov_path, "w") as f:
+        json.dump(upload, f)
+
+    print(f"Done. ({n_skipped} skipped.)")
+
     print()
     print("Uploading organizations ..")
+    n_skipped = 0
     for k in organization:
+        if not isinstance(organization[k], dict):
+            n_skipped += 1
+            continue
+
         obj = prepare(organization[k])
 
         organization[k] = upload_json(url, "organization", obj)
 
+    upload["organization"] = organization
+    with open(recov_path, "w") as f:
+        json.dump(upload, f)
+
+    print(f"Done. ({n_skipped} skipped.)")
+
     print()
     print("Uploading persons ..")
+    n_skipped = 0
     for k in person:
+        if not isinstance(person[k], dict):
+            n_skipped += 1
+            continue
+
         obj = prepare(person[k])
 
         person[k] = upload_json(url, "person", obj)
 
+    upload["person"] = person
+    with open(recov_path, "w") as f:
+        json.dump(upload, f)
+
+    print(f"Done. ({n_skipped} skipped.)")
+
     print()
     print("Uploading inspection standards ..")
+    n_skipped = 0
     for k in inspection_standard:
+        if not isinstance(inspection_standard[k], dict):
+            n_skipped += 1
+            continue
         obj = prepare(inspection_standard[k])
 
         inspection_standard[k] = upload_json(url, "inspection_standard", obj)
 
+    upload["inspection_standard"] = inspection_standard
+    with open(recov_path, "w") as f:
+        json.dump(upload, f)
+
+    print(f"Done. ({n_skipped} skipped.)")
+
     print()
     print("Uploading categories ..")
+    n_skipped = 0
     for k in category:
+        if not isinstance(category[k], dict):
+            n_skipped += 1
+            continue
         obj = prepare(category[k])
 
         category[k] = upload_json(url, "category", obj)
 
+    upload["category"] = category
+    with open(recov_path, "w") as f:
+        json.dump(upload, f)
+
+    print(f"Done. ({n_skipped} skipped.)")
+
     print()
     print("Uploading flaws ..")
+    n_skipped = 0
     for k in flaw:
+        if not isinstance(flaw[k], dict):
+            n_skipped += 1
+            continue
+
         obj = prepare(flaw[k])
 
         title = obj.pop("flaw")
@@ -258,17 +332,34 @@ if __name__ == '__main__':
 
         flaw[k] = upload_json(url, "flaw", obj)
 
+    upload["flaw"] = flaw
+    with open(recov_path, "w") as f:
+        json.dump(upload, f)
+
+    print(f"Done. ({n_skipped} skipped.)")
+
     print()
     print("Uploading entries ..")
+    n_skipped = 0
     for k in entry:
+        if not isinstance(entry[k], dict):
+            n_skipped += 1
+            continue
+
         obj = prepare(entry[k])
 
         entry[k] = upload_json(url, "entry", obj)
 
+    upload["entry"] = entry
+    with open(recov_path, "w") as f:
+        json.dump(upload, f)
+
+    print(f"Done. ({n_skipped} skipped.)")
+
     print()
     print("Uploading protocols ..")
-    for k in protocols:
-        obj = prepare(protocol[k])
+    for p in protocols:
+        obj = prepare(p)
 
         upload_json(url, "protocol", obj)
 

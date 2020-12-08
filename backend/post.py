@@ -189,8 +189,8 @@ def _entry(body, err_agg, idx=None):
     if not isinstance(flaws, list):
         abort(400)
 
-    if len(flaws) > 3:
-        err_agg.add_error(Err("Maximal 3 Mängel pro Eintrag!", "Eintrag", idx=idx))
+    if len(flaws) > 5:
+        err_agg.add_error(Err("Maximal 5 Mängel pro Eintrag!", "Eintrag", idx=idx))
     else:
         flaws = list(map(
             _fetcher(database.Flaw),
