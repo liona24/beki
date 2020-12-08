@@ -72,7 +72,8 @@ def _render(dict):
 def _download_picture(working_dir, pic_name):
     src = os.path.join(current_app.config["IMG_UPLOAD_PATH"], pic_name)
     dst = os.path.join(working_dir, pic_name)
-    os.symlink(src, dst)
+    if not os.path.exists(dst):
+        os.symlink(src, dst)
 
 
 def render_protocol(protocol):
