@@ -208,16 +208,11 @@ def render_raw():
 
     try:
         protocol = binascii.a2b_base64(b64)
-    except binascii.Error:
+        protocol = protocol.decode("raw_unicode_escape")
+        protocol = json.loads(protocol)
+    except (binascii.Error, json.JSONDecodeError):
         abort(400)
 
-    try:
-        protocol = json.loads(protocol.decode("utf-8"))
-    except UnicodeDecodeError:
-        try:
-            protocol = json.loads(protocol.decode("unicode-escape"))
-        except UnicodeDecodeError:
-            abort(400)
 
     try:
         resp = render_protocol(protocol)

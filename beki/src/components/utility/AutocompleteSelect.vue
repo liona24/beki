@@ -67,6 +67,7 @@ export default {
       data: [],
       isWaitingForLazyResolve: false,
       isFetching: false,
+      ignoreNextSelection: false,
     }
   },
   computed: {
@@ -86,6 +87,11 @@ export default {
   },
   methods: {
     updateSelection(e) {
+      if (this.ignoreNextSelection) {
+        this.ignoreNextSelection = false;
+        return;
+      }
+
       const val = e || cloneDeep(this.initialValue);
       if((val.$status & SyncStatus.Lazy) != 0) {
         this.isWaitingForLazyResolve = true;
@@ -124,6 +130,11 @@ export default {
         obj.$status = SyncStatus.New;
         obj.id = null;
       }
+
+      // HACK: Prevent bubbling of the select(null) event
+      // after we force the update of innerSearchString
+      this.ignoreNextSelection = true;
+
       this.$store.commit("push_overlay", {
         view: obj,
         callback: this.update,

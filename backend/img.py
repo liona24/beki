@@ -16,8 +16,12 @@ def _read_file(file):
 
 def _store_unified(img):
     w, h = current_app.config["IMG_CROP_SIZE"]
-    # TODO: rotated images
     assert w != h, "TODO we might want to actually crop the image"
+
+    # invert if not landscape
+    if img.shape[0] > img.shape[1]:
+        w, h = h, w
+
     img = cv.resize(img, (w, h), interpolation=cv.INTER_AREA)
 
     _, out_buf = cv.imencode(".png", img)

@@ -1,9 +1,10 @@
-from flask import request, abort, jsonify, current_app, json
+from flask import request, abort, jsonify, current_app
 import sqlalchemy
 from werkzeug.utils import secure_filename
 
 import os
 import datetime
+import json
 
 import database
 
@@ -123,8 +124,7 @@ def _fetcher(type):
 def _update(type, id, args):
     obj = _fetcher(type)(id)
     for key in args:
-        val = getattr(obj, key)
-        val = args[key]  # noqa F841
+        setattr(obj, key, args[key])
 
     return obj
 
@@ -399,10 +399,19 @@ def _transform_to_legacy(protocol):
         version += 1
 
     data = protocol.serialize(full=True)
+
+    def encode_datetime(obj):
+        if isinstance(obj, datetime.date):
+            return obj.isoformat()
+        else:
+            raise TypeError(obj)
+
+    data = json.dumps(data, separators=(',', ':'), default=encode_datetime)
+
     legacy_protocol = database.LegacyProtocol(
         version=version,
         representation=representation,
-        data=json.dumps(data),
+        data=data,
         associated_protocol_id=protocol.id
     )
     db.session.add(legacy_protocol)
