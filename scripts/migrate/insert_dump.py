@@ -11,7 +11,10 @@ from collections import defaultdict
 
 import requests
 
-N_LATEST_TO_KEEP = 2
+# With this script only the last protocol can be kept right now
+# The problem is the auto-cleanup feature of the server
+# In order to support more, just disable it temporarly
+N_LATEST_TO_KEEP = 1
 
 
 def upload_img(base_url, filename):
@@ -142,8 +145,11 @@ if __name__ == '__main__':
     protocols = []
 
     for name in protocols_to_keep:
+        dates = set()
         for protocol in reversed(protocols_to_keep[name]):
-            protocols.append(protocol)
+            if protocol["inspectionDate"] not in dates:
+                protocols.append(protocol)
+                dates.add(protocol["inspectionDate"])
 
     # in order to avoid duplication we will replace all objects
     # with lazy refs

@@ -1,5 +1,6 @@
 from flask import request, abort, jsonify, current_app
 import sqlalchemy
+from sqlalchemy.sql import exists
 from werkzeug.utils import secure_filename
 
 import os
@@ -476,11 +477,13 @@ def _protocol(body, err_agg):
         issuer=issuer,
         entries=entries
     )
+    updated = False
 
     obj = None
     if id is not None:
         # TODO: make sure that this is used correctly w.r.t legacy protocols
         obj = _update(database.Protocol, id, args)
+        updated = True
     elif "facility" in args:
         protocol = db.session.query(database.Protocol)\
             .filter(database.Protocol.facility_id == args["facility"].id)\
@@ -488,9 +491,20 @@ def _protocol(body, err_agg):
         if protocol is not None:
             _transform_to_legacy(protocol)
             obj = _update(database.Protocol, protocol.id, args)
+            updated = True
         else:
             obj = database.Protocol(**args)
             db.session.add(obj)
+
+    if updated:
+        # clear orphaned entries / flaws
+        db.session.query(database.Entry)\
+            .filter(~ exists().where(database.Entry.id == database.ProtocolEntry.entry_id))\
+            .delete(synchronize_session=False)
+        db.session.query(database.Flaw)\
+            .filter(~ exists().where(database.Flaw.id == database.EntryFlaw.flaw_id))\
+            .delete(synchronize_session=False)
+
     return obj
 
 
@@ -515,6 +529,9 @@ def api_post(collection):
     id = None
 
     rv = handler(request.json, err_agg)
+    # WARNING: Do not use the db.session for anything else other than commit
+    # The protocol handler uses synchronize_session=False to clean up
+    # orphaned entries which may render future queries invalid!
 
     if err_agg.ok():
         try:
