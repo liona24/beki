@@ -8,8 +8,9 @@ RUN python3 -m pip install flake8
 RUN wget http://mirror.ctan.org/systems/texlive/tlnet/install-tl-unx.tar.gz --no-check-certificate
 RUN mkdir install-tl-unx
 RUN tar -xf install-tl-unx.tar.gz -C install-tl-unx && rm install-tl-unx.tar.gz
-RUN echo "selected_scheme scheme-basic" >> install-tl-unx/tex.profile
-RUN ./install-tl-unx/install-tl -profile install-tl/tex.profile
+RUN cd install-tl-unx/install-tl*
+RUN echo "selected_scheme scheme-basic" >> tex.profile
+RUN ./install-tl -profile tex.profile
 ENV PATH="/usr/local/texlive/2020/bin/x86_64-linux:${PATH}"
 
 RUN tlmgr install latexmk texliveonfly babel-german hyphen-german
