@@ -293,11 +293,26 @@ class Entry(db.Model, Serializer):
         return self.title
 
 
-class ImageFeature(db.Model):
-    __tablename__ = "image_feature"
+class ImageMeta(db.Model):
+    __tablename__ = "image_meta"
 
-    feature = db.Column(db.String, primary_key=True)
-    image = db.Column(db.String, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True)
+    picture = db.Column(db.String, nullable=False, unique=True)
+
+    timestamp = db.Column(db.Integer, nullable=False)
+
+    # placeholder for meta elements
+    data = db.Column(db.String)
+
+    discoverable = ()
+    autocomplete = ()
+
+    @property
+    def common_type(self):
+        return CommonType.Unknown
+
+    def common_repr(self):
+        return "<META>"
 
 
 class LegacyProtocol(db.Model, Serializer):

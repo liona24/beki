@@ -1,6 +1,8 @@
 import { SyncStatus, ViewType, modifyMainView } from "./common";
 import { protocolState } from './protocol'
+import { wizardState } from './wizard'
 import Vue from 'vue'
+import { SnackbarProgrammatic as Snackbar } from 'buefy'
 
 export function menuState() {
   return {
@@ -96,7 +98,7 @@ export const menuActions = {
       )
     ).then(() => commit('menu_isPreviewLoading', false, { root: true }));
   },
-  newProtocol({ commit, getters }) {
+  newProtocol({ commit, getters, dispatch }) {
     if (getters.droppedFiles.length === 0) {
       const view = protocolState();
       view.$status |= SyncStatus.New;
@@ -116,18 +118,23 @@ export const menuActions = {
     .then(resp => resp.json())
     .then(json => {
       commit('menu_clearSelectedFiles', null, { root: true });
-      console.log("upload successful", json);
-      if (json === "ASDF") {
-        // happy linter
-        // do not forget about the SyncStatus.New! Otherwise the server
-        // might reject changes
-        commit('push_main', { view: protocolState() }, { root: true })
+      const wizard = wizardState();
+      wizard.images = Object.keys(json).map(k => json[k]);
+      if (wizard.images.length > 0) {
+        commit('push_main', { view: wizard }, { root: true });
+        dispatch("wizard/preprocess", null, { root: true });
+      } else {
+        throw Error();
       }
     })
-    .finally(() => {
-      console.log("Upload done. TODO");
+    .catch(() => {
       commit('menu_isLoading', false, { root: true });
-      // commit('push_main', { view: protocolState() }, { root: true })
+      Snackbar.open({
+        duration: 6000,
+        message: `Fehler: Bilder konnten nicht hochgeladen werden!`,
+        type: 'is-danger',
+        queue: false
+      });
     });
   }
 }

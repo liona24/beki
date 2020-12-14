@@ -84,6 +84,7 @@ export default {
   },
   methods: {
     deleteDropFile(name) {
+      // TODO: this should prolly be combined in an action
       this.$store.commit("menu_removePreviewImage", name);
       this.$store.commit("menu_removeDroppedFile", name);
     },
@@ -91,6 +92,7 @@ export default {
       this.$store.dispatch("menu/newProtocol");
     },
     updateDroppedFiles(e) {
+      // TODO: this should prolly be combined in the action
       this.$store.commit("menu_droppedFiles", e);
       this.$store.dispatch("menu/loadPreviews");
     }

@@ -24,7 +24,9 @@ export const ViewType = Object.freeze({
   Entry: 7,
   Flaw: 8,
 
-  LegacyProtocol: 16
+  LegacyProtocol: 16,
+
+  Wizard: 999
 });
 
 export function modifyMainView(func) {

@@ -11,7 +11,7 @@ import numpy as np
 import database
 from post import api_post
 from tex import render_protocol, configure_jinja
-from img import upload_img_file
+import img
 
 app = Flask(__name__)
 app.config.from_object("settings")
@@ -145,7 +145,12 @@ def upload_image():
 
     results = {}
     for file in files:
-        results[file.name] = upload_img_file(file)
+        results[file.name] = img.upload_img_file(file)
+
+    if len(results) == 1:
+        # initialize preprocessing for single file uploads automatically
+        for res in results.values():
+            img.preprocess(res)
 
     return jsonify(results)
 
@@ -214,6 +219,49 @@ def render_raw():
     else:
         return resp
 
+
+@app.route("/api/_imaging/preprocess", methods=["POST"])
+def preprocess():
+    images = param_or_400("images")
+
+    if not isinstance(images, list) or len(images) == 0:
+        abort(400)
+
+    errors = []
+
+    for i in images:
+        err = img.preprocess(i)
+        if err is not None:
+            errors.append({ i: err })
+
+    return jsonify(errors=errors)
+
+
+@app.route("/api/_autocompose", methods=["POST"])
+def autocompose():
+    images = param_or_400("images")
+
+    if not isinstance(images, list) or len(images) == 0:
+        abort(400)
+
+    facility_id = request.json.get("facility", None)
+    protocol = None
+    if facility is not None:
+        try:
+            facility_id = int(facility_id)
+        except ValueError:
+            abort(400)
+
+        protocol = db.session.query(database.Protocol)\
+            .filter(database.protocol.facility_id == facility_id)\
+            .first()
+
+    if protocol is not None:
+        comp = img.find_composition_with_ref(images, protocol)
+    else:
+        comp = img.find_composition(images)
+
+    return jsonify(comp)
 
 if __name__ == '__main__':
     app.run("0.0.0.0", port=5000, debug=True)

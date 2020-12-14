@@ -8,6 +8,7 @@ import { organizationGetters, organizationMutations, organizationActions } from 
 import { categoryGetters, categoryMutations, categoryActions } from './category'
 import { inspectionStandardGetters, inspectionStandardMutations, inspectionStandardActions } from './inspection_standard'
 import { personGetters, personMutations, personActions } from './person'
+import { wizardActions, wizardGetters, wizardMutations } from './wizard'
 
 import { entryMutations } from './entry'
 import { flawMutations } from './flaw'
@@ -66,6 +67,7 @@ export const store = new Vuex.Store({
     ...personMutations,
     ...entryMutations,
     ...flawMutations,
+    ...wizardMutations
   },
   actions: {
     back_main({ commit, getters }, { discard }) {
@@ -177,6 +179,15 @@ export const store = new Vuex.Store({
         ...personActions
       }
     },
+    wizard: {
+      namespaced: true,
+      getters: {
+        ...wizardGetters
+      },
+      actions: {
+        ...wizardActions
+      }
+    }
   }
 
 });

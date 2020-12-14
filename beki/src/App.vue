@@ -31,6 +31,8 @@
         <view-main-menu v-if="mainViewType === ViewType.MainMenu" />
 
         <view-protocol v-else-if="mainViewType === ViewType.Protocol" />
+
+        <view-wizard v-else-if="mainViewType === ViewType.Wizard" />
       </div>
     </section>
 
@@ -62,6 +64,7 @@ import ViewOrganization from './components/views/ViewOrganization'
 import ViewPerson from './components/views/ViewPerson'
 import ViewInspectionStandard from './components/views/ViewInspectionStandard'
 import ViewCategory from './components/views/ViewCategory.vue'
+import ViewWizard from './components/views/ViewWizard.vue'
 
 import { SyncStatus, ViewType } from './store/common'
 
@@ -77,6 +80,7 @@ export default {
     ViewPerson,
     ViewFacility,
     ViewOrganization,
+    ViewWizard,
   },
   data() {
     return {
@@ -97,6 +101,8 @@ export default {
       switch (type) {
         case ViewType.MainMenu:
           return '#'
+        case ViewType.Wizard:
+          return 'Vorbereiten'
         case ViewType.Protocol:
           return 'Protokoll'
         case ViewType.Facility:
