@@ -14,8 +14,8 @@ Es gibt leider keine Doku, da zu viel Arbeit - ich werde jegliche Pull-Requests 
 
 ## Deployment
 
-Eine Production-ähnliche Umgebung wird in Form eines Docker-Images bereitgestellt.
-Dieses benutzt [uWSGI]() sowie [nginx]().
+Eine Production-ähnliche Umgebung wird in Form eines Docker-Images exemplarisch bereitgestellt.
+Dieses benutzt [uWSGI](https://uwsgi-docs.readthedocs.io/en/latest/) sowie [nginx](https://www.nginx.com/).
 
 Zum bundlen kann das folgende Script verwendet werden:
 ```bash
@@ -39,8 +39,10 @@ $ ls data
 uploads/
 beki.db
 err.log
-$ docker run -d -p 5000:5000 -v /mnt/beki:$(PWD)/data beki
+$ docker run -d -p 80:5000 -v $(PWD)/data:/mnt/beki beki
 ```
+
+WARNUNG: Das Deployment ist sicherheitstechnisch nicht zu empfehlen, inbesondere da der uWSGI Server als `root` ausgeführt wird.
 
 ## Migration von `bekiga`
 
