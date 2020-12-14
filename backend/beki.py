@@ -14,15 +14,8 @@ from tex import render_protocol, configure_jinja
 from img import upload_img_file
 
 app = Flask(__name__)
-
-DB_PATH = "/tmp/beki.db"
-app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///" + DB_PATH
-app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-
-app.config["IMG_UPLOAD_PATH"] = "/tmp/beki/uploads"
-app.config["IMG_CROP_SIZE"] = (342, 256)
-
-app.config["TEX_WORKDIR"] = "/tmp/beki/tex"
+app.config.from_object("settings")
+app.config.from_envvar("BEKI_SETTINGS", silent=True)
 
 database.init_db(app)
 configure_jinja(app)

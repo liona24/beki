@@ -1,6 +1,11 @@
 __pycache__/
 .pyc
 .pyo
+.ipynb_checkpoints/
+.empty/
+experiments/uploads
 
 venv/
 node_modules/
+
+dist/bundle
