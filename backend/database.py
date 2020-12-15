@@ -3,6 +3,7 @@ from sqlalchemy.inspection import inspect
 from sqlalchemy.orm.attributes import CollectionAttributeImpl
 
 from enum import IntFlag, IntEnum
+import datetime
 
 
 db = SQLAlchemy(session_options={
@@ -86,6 +87,8 @@ class Serializer(object):
                 val = getattr(self, a)
                 if isinstance(val, Serializer):
                     val = val.serialize(full)
+                elif isinstance(val, datetime.date):
+                    val = val.isoformat()
                 rv[a] = val
 
         rv["$status"] = SyncStatus.Stored
@@ -307,10 +310,11 @@ class ImageMeta(db.Model):
     timestamp = db.Column(db.Integer, nullable=False)
 
     # placeholder for meta elements
-    data = db.Column(db.String)
+    features = db.Column(db.String)
 
     discoverable = ()
     autocomplete = ()
+    _serializer_ignore = "features",
 
     @property
     def common_type(self):
