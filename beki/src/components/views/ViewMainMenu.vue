@@ -6,6 +6,9 @@
       <b-tab-item label="Neu" icon="file">
         <menu-create-new />
       </b-tab-item>
+      <b-tab-item label="Bearbeiten" icon="pencil">
+        <menu-edit />
+      </b-tab-item>
       <b-tab-item label="Anzeigen" icon="magnify">
         <menu-search-and-display />
       </b-tab-item>
@@ -16,11 +19,12 @@
 <script>
 import MenuSearchAndDisplay from '../content/menu/MenuSearchAndDisplay'
 import MenuCreateNew from '../content/menu/MenuCreateNew'
+import MenuEdit from '../content/menu/MenuEdit'
 import { mapGetters } from 'vuex'
 
 export default {
   name: "ViewMainMenu",
-  components: { MenuSearchAndDisplay, MenuCreateNew },
+  components: { MenuSearchAndDisplay, MenuCreateNew, MenuEdit },
   data() {
     return {
       isLoadingInternal: false, // for some reason we need this for b-loading

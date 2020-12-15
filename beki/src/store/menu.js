@@ -3,6 +3,7 @@ import { protocolState } from './protocol'
 import { wizardState } from './wizard'
 import Vue from 'vue'
 import { SnackbarProgrammatic as Snackbar } from 'buefy'
+import { chunk } from 'lodash'
 
 export function menuState() {
   return {
@@ -80,23 +81,32 @@ export const menuGetters = {
 
 export const menuActions = {
   loadPreviews({ commit, getters }) {
-    commit('menu_isPreviewLoading', true, { root: true });
+    commit('menu_isLoading', true, { root: true });
+    const tasks = getters.droppedFiles.map(
+      file => new Promise(resolve => {
+        const reader = new FileReader();
+        reader.onload = e => {
+          commit('menu_updatePreviewImage', {
+            name: file.name,
+            url: e.target.result
+          }, { root: true });
+          resolve();
+        };
+        reader.readAsDataURL(file);
+      })
+    );
 
-    Promise.all(
-      getters.droppedFiles.map(
-        file => new Promise(resolve => {
-          const reader = new FileReader();
-          reader.onload = e => {
-            commit('menu_updatePreviewImage', {
-              name: file.name,
-              url: e.target.result
-            }, { root: true });
-            resolve();
-          };
-          reader.readAsDataURL(file);
-        })
-      )
-    ).then(() => commit('menu_isPreviewLoading', false, { root: true }));
+    tasks.reduce((promiseChain, currentTask) => {
+      return promiseChain.then(chainResults =>
+          currentTask.then(currentResult =>
+          [ ...chainResults, currentResult ]
+        )
+      );
+    }, Promise.resolve([]))
+    .then(() => commit('menu_isLoading', false, { root: true }));
+
+    // parallel version (slows down the browser quite a lot.)
+    // Promise.all(tasks).then(() => commit('menu_isLoading', false, { root: true }));
   },
   newProtocol({ commit, getters, dispatch }) {
     if (getters.droppedFiles.length === 0) {
@@ -107,31 +117,63 @@ export const menuActions = {
     }
 
     commit('menu_isLoading', true, { root: true });
-    const data = new FormData();
-    getters.droppedFiles.forEach(file => {
-      data.append(file.name, file);
-    });
-    fetch("/api/_upload", {
-      method: "POST",
-      body: data
-    })
-    .then(resp => resp.json())
-    .then(json => {
-      commit('menu_clearSelectedFiles', null, { root: true });
-      const wizard = wizardState();
-      wizard.images = Object.keys(json).map(k => json[k]);
-      if (wizard.images.length > 0) {
-        commit('push_main', { view: wizard }, { root: true });
-        dispatch("wizard/preprocess", null, { root: true });
-      } else {
+
+    const images = [];
+
+    // be nice to the server
+    const chunks = chunk(getters.droppedFiles, 5);
+    const uploads = chunks.map(files => new Promise((resolve, reject) => {
+      const data = new FormData();
+      files.forEach(file => {
+        data.append(file.name, file);
+      });
+
+      fetch("/api/_upload", {
+        method: "POST",
+        body: data
+      })
+      .then(resp => resp.json())
+      .then(json => {
+        images.push(...Object.keys(json).map(k => json[k]));
+        resolve();
+      })
+      .catch(reject);
+    }));
+
+    Promise.all(uploads).then(() => {
+      if (wizard.images.length === 0) {
         throw Error();
       }
+      commit('menu_clearSelectedFiles', null, { root: true });
+      commit('menu_isLoading', false, { root: true });
+      const wizard = wizardState();
+      wizard.images = images;
+      commit('push_main', { view: wizard }, { root: true });
+      dispatch("wizard/preprocess", null, { root: true });
     })
     .catch(() => {
       commit('menu_isLoading', false, { root: true });
       Snackbar.open({
         duration: 6000,
         message: `Fehler: Bilder konnten nicht hochgeladen werden!`,
+        type: 'is-danger',
+        queue: false
+      });
+    });
+  },
+  editProtocol({ commit }, protocol) {
+    commit("menu_isLoading", true, { root: true });
+    fetch(`/api/protocol/${protocol.id}/recursive`)
+    .then(resp => resp.json())
+    .then(json => {
+      commit('menu_isLoading', false, { root: true });
+      commit('push_main', { view: json, callback: "menu_currentPreviewId", args: null }, { root: true });
+    })
+    .catch(() => {
+      commit('menu_isLoading', false, { root: true });
+      Snackbar.open({
+        duration: 6000,
+        message: `Fehler: Protokoll konnte nicht geladen werden!`,
         type: 'is-danger',
         queue: false
       });

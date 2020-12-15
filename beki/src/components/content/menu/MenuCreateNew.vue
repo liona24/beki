@@ -40,7 +40,7 @@
           </a>
         </div>
         <div class="card-content" style="overflow-x: auto">
-          <div class="tile is-ancestor" v-show="!isPreviewLoading">
+          <div class="tile is-ancestor">
             <div v-for="(img, name) in previewImages" class="tile is-parent" :key="name">
               <div class="tile is-child box">
                 <b-tooltip position="is-bottom" type="is-light" always>
@@ -80,7 +80,7 @@ import { mapGetters } from 'vuex'
 export default {
   name: "MenuCreateNew",
   computed: {
-    ...mapGetters('menu', ['droppedFiles', 'previewImages', 'isPreviewLoading'])
+    ...mapGetters('menu', ['droppedFiles', 'previewImages'])
   },
   methods: {
     deleteDropFile(name) {

@@ -13,7 +13,12 @@ export function inspectionStandardState() {
 }
 
 function updateRepr(obj) {
-  obj.$repr = `DIN ${obj.has_version === 'Ja' ? '(V) ' : ''} ${obj.din} ${obj.description}`;
+  const descMaxLen = 10
+  let desc = obj.description;
+  if (desc.len >= descMaxLen) {
+    desc = desc.substring(0, descMaxLen - 2) + "..";
+  }
+  obj.$repr = `DIN ${obj.has_version === 'Ja' ? '(V) ' : ''} ${obj.din} ${desc}`;
 }
 
 export const inspectionStandardMutations = {

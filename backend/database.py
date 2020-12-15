@@ -216,7 +216,12 @@ class InspectionStandard(db.Model, Serializer):
         v = ''
         if self.has_version.startswith('Ja'):
             v = '(V)'
-        return f"DIN {v} {self.din} {self.description}"
+
+        max_len = 10
+        desc = self.description
+        if len(desc) >= max_len:
+            desc = desc[:max_len - 2] + ".."
+        return f"DIN {v} {self.din} {desc}"
 
 
 class Organization(db.Model, Serializer):
