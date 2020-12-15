@@ -133,23 +133,33 @@ if __name__ == '__main__':
             continue
 
         protocols_to_keep[name].append(protocol)
-        if len(protocols_to_keep[name]) > N_LATEST_TO_KEEP:
-            protocols_to_keep[name].sort(
-                key=lambda p: p["inspectionDate"],
-                reverse=True
-            )
-            protocols_to_keep[name].pop()
 
     print(f"Transforming into new schema ..")
 
     protocols = []
 
     for name in protocols_to_keep:
-        dates = set()
-        for protocol in reversed(protocols_to_keep[name]):
-            if protocol["inspectionDate"] not in dates:
-                protocols.append(protocol)
-                dates.add(protocol["inspectionDate"])
+        tmp = protocols_to_keep[name]
+        # latest protocols first
+        tmp.sort(
+                key=lambda p: p["inspectionDate"],
+                reverse=True
+            )
+
+        to_add = {}
+        for p in tmp:
+            date = p["inspectionDate"]
+            if date in to_add:
+                to_add[date] = max(to_add[date], p, key=lambda x: x["_id"])
+            else:
+                to_add[date] = p
+
+            if len(to_add) >= N_LATEST_TO_KEEP:
+                break
+
+        # earliest protocols first
+        for k in reversed(to_add):
+            protocols.append(to_add[k])
 
     # in order to avoid duplication we will replace all objects
     # with lazy refs
