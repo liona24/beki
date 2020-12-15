@@ -1,4 +1,5 @@
 import { SyncStatus, ViewType, modifyMainView } from "./common";
+import { facilityState } from "./facility";
 
 export function wizardState() {
   return {
@@ -6,7 +7,7 @@ export function wizardState() {
     $status: SyncStatus.Empty,
     $repr: "",
     isPreprocessingWorking: true,
-    facility: null,
+    facility: facilityState(),
     images: [],
   }
 }
@@ -14,6 +15,9 @@ export function wizardState() {
 export const wizardMutations = {
   wizard_facility: modifyMainView((obj, { val }) => {
     obj.facility = val;
+  }),
+  wizard_preprocessingFinished: modifyMainView(obj => {
+    obj.isPreprocessingWorking = false;
   }),
 }
 
@@ -34,12 +38,12 @@ export const wizardGetters = {
 
 export const wizardActions = {
   preprocess({ commit, getters }) {
-    const body = JSON.stringify(getters.images);
-    const n_trials = 3;
+    const body = JSON.stringify({ images: getters.images });
+    const n_trials = 2;
     const attemptPreprocessing = trial => {
       const retry = () => {
         console.log(`Preprocessing failed. Trying again. (${trial + 1}/${n_trials})`);
-        if (trial < n_trials) {
+        if (trial + 1 < n_trials) {
           attemptPreprocessing(trial + 1);
         } else {
           console.error("Preprocessing failed.");

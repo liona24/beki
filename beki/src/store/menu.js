@@ -141,7 +141,7 @@ export const menuActions = {
     }));
 
     Promise.all(uploads).then(() => {
-      if (wizard.images.length === 0) {
+      if (images.length === 0) {
         throw Error();
       }
       commit('menu_clearSelectedFiles', null, { root: true });
@@ -152,6 +152,7 @@ export const menuActions = {
       dispatch("wizard/preprocess", null, { root: true });
     })
     .catch(() => {
+      commit("menu_clearSelectedFiles", null, { root: true });
       commit('menu_isLoading', false, { root: true });
       Snackbar.open({
         duration: 6000,

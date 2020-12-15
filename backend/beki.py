@@ -246,14 +246,14 @@ def autocompose():
 
     facility_id = request.json.get("facility", None)
     protocol = None
-    if facility is not None:
+    if facility_id is not None:
         try:
             facility_id = int(facility_id)
         except ValueError:
             abort(400)
 
         protocol = db.session.query(database.Protocol)\
-            .filter(database.protocol.facility_id == facility_id)\
+            .filter(database.Protocol.facility_id == facility_id)\
             .first()
 
     if protocol is not None:
