@@ -71,20 +71,28 @@ export const store = new Vuex.Store({
   },
   actions: {
     back_main({ commit, getters }, { discard }) {
-      const obj = getters.main;
-      const { callback, args } = getters.mainCallback;
-      commit("pop_main");
-      if (!discard && callback) {
-        commit(callback, { val: obj, ...args });
-      }
+      return new Promise(resolve => {
+        const obj = getters.main;
+        const { callback, args } = getters.mainCallback;
+        commit("pop_main");
+        if (!discard && callback) {
+          commit(callback, { val: obj, ...args });
+        }
+
+        resolve();
+      })
     },
     back_overlay({ commit, getters }, { discard }) {
-      const obj = getters.overlay;
-      const { callback, args } = getters.overlayCallback;
-      commit("pop_overlay");
-      if (!discard && callback) {
-        commit(callback, { val: obj, ...args });
-      }
+      return new Promise(resolve => {
+        const obj = getters.overlay;
+        const { callback, args } = getters.overlayCallback;
+        commit("pop_overlay");
+        if (!discard && callback) {
+          commit(callback, { val: obj, ...args });
+        }
+
+        resolve();
+      })
     },
   },
   getters: {

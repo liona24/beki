@@ -45,7 +45,7 @@
               <div class="tile is-child box">
                 <b-tooltip position="is-bottom" type="is-light" always>
                   <template slot="content">
-                    {{ name }}
+                    {{ name.length > 5 ? name.substring(0, 4) + '..' : name }}
                     <button class="delete is-small"
                           type="button"
                           @click="deleteDropFile(name)">

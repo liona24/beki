@@ -1,7 +1,6 @@
 <template>
-  <div class="columns">
-    <div class="column">
-    <b-field label="Aktuelle Protokolle">
+  <div>
+    <b-field :label="legacy ? 'Archiv' : 'Aktuelle Protokolle'">
       <b-autocomplete placeholder="Suchen ..."
         v-model="searchString"
 
@@ -21,33 +20,8 @@
     </b-field>
 
     <b-field>
-      <b-button type="is-dark" outlined expanded :disabled="!selected" @click="displayInNewTab(selected, false)">PDF erstellen</b-button>
+      <b-button type="is-dark" outlined expanded :disabled="!selected" @click="displayInNewTab">PDF erstellen</b-button>
     </b-field>
-    </div>
-    <div class="column">
-    <b-field label="Archiv">
-      <b-autocomplete placeholder="Suchen ..."
-        v-model="searchStringLegacy"
-
-        type="search"
-        icon="magnify"
-        field="$repr"
-
-        :data="dataLegacy"
-        :loading="isFetchingLegacy"
-
-        @select="updateSelectionLegacy"
-        @typing="fetchDataLegacy"
-
-        clearable
-        expanded>
-      </b-autocomplete>
-    </b-field>
-
-    <b-field>
-      <b-button type="is-dark" outlined expanded :disabled="!selectedLegacy" @click="displayInNewTab(selectedLegacy, true)">PDF erstellen</b-button>
-    </b-field>
-    </div>
   </div>
 </template>
 
@@ -56,22 +30,21 @@ import debounce from 'lodash/debounce'
 
 export default {
   name: "MenuSearchAndDisplay",
+  props: {
+    legacy: Boolean
+  },
   data() {
     return {
       selected: null,
       isFetching: false,
       searchString: "",
       data: [],
-      selectedLegacy: null,
-      isFetchingLegacy: false,
-      searchStringLegacy: "",
-      dataLegacy: [],
     }
   },
   methods: {
-    displayInNewTab(selected, legacy) {
-      if (selected) {
-        const endpoint = `api/_render/${selected.id}${legacy ? '/legacy' : ''}`;
+    displayInNewTab() {
+      if (this.selected) {
+        const endpoint = `api/_render/${this.selected.id}${this.legacy ? '/legacy' : ''}`;
         window.open(endpoint);
       }
     },
@@ -88,35 +61,13 @@ export default {
 
       this.$http.post("api/_discover", {
           q: query,
-          src: "protocol"
+          src: this.legacy ? "legacy_protocol" : "protocol"
       }).then(resp => {
         this.data = resp.body;
       }, () => {
         console.error("discover api unavailable");
       }).finally(() => {
         this.isFetching = false;
-      });
-    }, 500),
-    updateSelectionLegacy(e) {
-      this.selectedLegacy = e;
-    },
-    fetchDataLegacy: debounce(function(query) {
-      if (query.length < 1) {
-        this.dataLegacy = [];
-        return;
-      }
-
-      this.isFetchingLegacy = true;
-
-      this.$http.post("api/_discover", {
-          q: query,
-          src: "legacy_protocol"
-      }).then(resp => {
-        this.dataLegacy = resp.body;
-      }, () => {
-        console.error("discover api unavailable");
-      }).finally(() => {
-        this.isFetchingLegacy = false;
       });
     }, 500),
   }

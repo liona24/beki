@@ -237,8 +237,8 @@ def preprocess():
     return jsonify(errors=errors)
 
 
-@app.route("/api/_autocompose", methods=["POST"])
-def autocompose():
+@app.route("/api/_wizard/autocompose", methods=["POST"])
+def wizard_autocompose():
     images = param_or_400("images")
 
     if not isinstance(images, list) or len(images) == 0:
@@ -254,7 +254,7 @@ def autocompose():
 
         protocol = db.session.query(database.Protocol)\
             .filter(database.Protocol.facility_id == facility_id)\
-            .first()
+            .scalar()
 
     if protocol is not None:
         comp = img.find_composition_with_ref(images, protocol)
@@ -262,6 +262,46 @@ def autocompose():
         comp = img.find_composition(images)
 
     return jsonify(comp)
+
+
+@app.route("/api/_wizard/assemble", methods=["POST"])
+def wizard_assemble():
+    entries = param_or_400("entries")
+
+    if not isinstance(entries, list):
+        abort(400)
+
+    facility_id = param_or_400("facility")
+    try:
+        facility_id = int(facility_id)
+    except ValueError:
+        abort(400)
+
+    facility = db.session.query(database.Facility)\
+        .filter(database.Facility.id == facility_id)\
+        .first_or_404()
+
+    protocol = db.session.query(database.Protocol)\
+        .filter(database.Protocol.facility_id == facility_id)\
+        .scalar()
+
+    if protocol is None:
+        def prep_entry(e):
+            e.pop("id", None)
+            flaws = e.get("flaws", [])
+
+            e["flaws"] = list(map(lambda pic: dict(picture=pic), flaws))
+            return e
+
+        entries = list(map(prep_entry, entries))
+        blueprint = dict(facility=facility.serialize(full=True), entries=entries)
+    else:
+        print("TODO")
+        protocol = protocol.serialize(full=True)
+        blueprint = None #TODO
+
+    return jsonify(blueprint)
+
 
 if __name__ == '__main__':
     app.run("0.0.0.0", port=5000, debug=True)

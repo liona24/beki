@@ -184,4 +184,8 @@ export default {
 </script>
 
 <style>
+img {
+  filter: drop-shadow(0.3em 0.3em 0.3em #22222254);
+}
+
 </style>

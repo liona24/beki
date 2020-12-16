@@ -10,7 +10,10 @@
         <menu-edit />
       </b-tab-item>
       <b-tab-item label="Anzeigen" icon="magnify">
-        <menu-search-and-display />
+        <menu-search-and-display :legacy="false" />
+      </b-tab-item>
+      <b-tab-item label="Archiv" icon="package-variant">
+        <menu-search-and-display :legacy="true" />
       </b-tab-item>
     </b-tabs>
   </div>
