@@ -61,20 +61,7 @@
               </section>
           </b-upload>
         </b-field>
-        <template v-else>
-          <b-tooltip position="is-bottom" type="is-light" always>
-            <template slot="content">
-              {{ imgFile ? imgFile.name : '' }}
-              <button class="delete is-small"
-                    type="button"
-                    @click="updatePicture(null)">
-              </button>
-            </template>
-            <figure class="image">
-              <img :src="pictureUrl" />
-            </figure>
-          </b-tooltip>
-        </template>
+        <removable-image v-else :url="pictureUrl" @remove="updatePicture(null)" />
       </div>
     </div>
   </simple-editor-layout>
@@ -83,9 +70,10 @@
 <script>
 import { mapGetters } from 'vuex'
 import SimpleEditorLayout from '../content/editor/generic/SimpleEditorLayout.vue'
+import RemovableImage from '../utility/RemovableImage.vue';
 
 export default {
-  components: { SimpleEditorLayout },
+  components: { SimpleEditorLayout, RemovableImage },
   name: "ViewFacility",
   data() {
     return {

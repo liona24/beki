@@ -42,20 +42,7 @@
               </section>
           </b-upload>
         </b-field>
-        <template v-else>
-          <b-tooltip position="is-bottom" type="is-light" always>
-            <template slot="content">
-              {{ imgFile ? imgFile.name : '' }}
-              <button class="delete is-small"
-                    type="button"
-                    @click="removePicture">
-              </button>
-            </template>
-            <figure class="image">
-              <img :src="pictureUrl" />
-            </figure>
-          </b-tooltip>
-        </template>
+        <removable-image v-else :url="pictureUrl" @remove="removePicture" />
       </div>
     </div>
   </div>
@@ -66,10 +53,11 @@ import StatusIndicator from '../../utility/StatusIndicator'
 import AutocompleteText from '../../utility/AutocompleteText'
 import AutocompleteTextarea from '../../utility/AutocompleteTextarea.vue'
 import { mapGetters } from 'vuex'
+import RemovableImage from '../../utility/RemovableImage.vue'
 
 export default {
   name: "EditorFlaw",
-  components: { StatusIndicator, AutocompleteText, AutocompleteTextarea },
+  components: { StatusIndicator, AutocompleteText, AutocompleteTextarea, RemovableImage },
   props: {
     entry: Number,
     index: Number,

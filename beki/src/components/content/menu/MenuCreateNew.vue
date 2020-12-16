@@ -42,19 +42,8 @@
         <div class="card-content" style="overflow-x: auto">
           <div class="tile is-ancestor">
             <div v-for="(img, name) in previewImages" class="tile is-parent" :key="name">
-              <div class="tile is-child box">
-                <b-tooltip position="is-bottom" type="is-light" always>
-                  <template slot="content">
-                    {{ name.length > 5 ? name.substring(0, 4) + '..' : name }}
-                    <button class="delete is-small"
-                          type="button"
-                          @click="deleteDropFile(name)">
-                    </button>
-                  </template>
-                  <figure class="image is-128x128">
-                    <img :src="img" />
-                  </figure>
-                </b-tooltip>
+              <div class="tile is-child" style="max-width: 128px">
+                <removable-image :url="img" @remove="deleteDropFile(name)" />
               </div>
             </div>
           </div>
@@ -76,9 +65,11 @@
 
 <script>
 import { mapGetters } from 'vuex'
+import RemovableImage from '../../utility/RemovableImage.vue';
 
 export default {
   name: "MenuCreateNew",
+  components: { RemovableImage },
   computed: {
     ...mapGetters('menu', ['droppedFiles', 'previewImages'])
   },
