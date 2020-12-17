@@ -42,7 +42,7 @@
               @start="isDragging = true"
               @end="isDragging = false">
 
-              <div class="tile is-parent" v-for="flaw in entry.flaws" :key="flaw.img">
+              <div class="tile is-parent" v-for="flaw in entry.flaws" :key="flaw.ident">
                 <div class="tile is-child" style="display: flex; justify-content: center">
                   <figure class="image is-128x128" >
                     <img :src="'/images/' + flaw.img" class="is-rounded" style="border-radius: .3em" />
@@ -119,7 +119,7 @@ export default {
 
       const fetchTitle = (id, fallback) => {
         return new Promise(resolve => {
-          fetch(`/api/entries/${id}`)
+          fetch(`/api/entry/${id}`)
           .then(resp => resp.json())
           .then(json => {
             resolve(json.title);
@@ -145,6 +145,7 @@ export default {
         })
         .then(resp => resp.json())
         .then(json => {
+          let glob_flaw_ident = 1;
           const entries = json.map((v, i) => {
             const entry = {
               id: v.id,
@@ -152,6 +153,7 @@ export default {
               title: '',
               flaws: v.flaws.map(f => {
                 return {
+                  ident: 'flaw-' + glob_flaw_ident++,
                   img: f,
                 };
               })
@@ -222,14 +224,17 @@ export default {
       .then(json => {
         const protocol = Object.assign(protocolState(), json);
         protocol.$status |= SyncStatus.New | SyncStatus.Modified;
+        protocol.$repr = protocol.title;
 
         protocol.entries = protocol.entries.map(e => {
           const entry = Object.assign(entryState(), e);
           entry.$status |= SyncStatus.New | SyncStatus.Modified;
+          entry.$repr = entry.title;
 
           entry.flaws = entry.flaws.map(f => {
             const flaw = Object.assign(flawState(), f);
             flaw.$status |= SyncStatus.New | SyncStatus.Modified;
+            flaw.$repr = flaw.title;
             return flaw;
           });
 

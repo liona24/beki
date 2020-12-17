@@ -10,6 +10,7 @@ import numpy as np
 import hashlib
 from io import BytesIO
 import datetime
+from collections import defaultdict
 
 import database
 
@@ -180,7 +181,7 @@ def find_composition_with_ref(images, protocol):
                 continue
 
             features = _get_features(pic)
-            if features:
+            if features is not None:
                 ims.append(features)
 
         old_comp.append((ims, entry))
@@ -189,7 +190,7 @@ def find_composition_with_ref(images, protocol):
     new_features = []
     for i, im in enumerate(images):
         f = _get_features(im)
-        if f:
+        if f is not None:
             indices.append(i)
             new_features.append(f)
 
@@ -198,17 +199,14 @@ def find_composition_with_ref(images, protocol):
     bf = cv.BFMatcher(cv.NORM_HAMMING, True)
     best_matches = defaultdict(list)
     for ni, nf in enumerate(new_features):
-        best_sim = 0.2
+        best_sim = 0.5
         best_match = -1
         for mi, (member_features, _) in enumerate(old_comp):
             metrics = []
             for mf in member_features:
                 matches = bf.knnMatch(mf, nf, k=1)
-                count = 0
-                for m, n in matches:
-                    if m.distance < 0.75 * n.distance:
-                        count += 1
-                metrices.append(count / min(len(mf), len(nf)))
+                count = sum(map(len, matches))
+                metrics.append(count / min(len(mf), len(nf)))
 
             sim = np.array(metrics).mean()
             if sim > best_sim:
@@ -235,7 +233,7 @@ def find_composition_with_ref(images, protocol):
             })
         else:
             # possibly detect outliers
-            lof = LocalOutlierFactor()
+            lof = LocalOutlierFactor(n_neighbors=min(len(matches), 5))
             sims = list(map(lambda m: [ m[0] ], matches))
             labels = lof.fit_predict(sims)
 

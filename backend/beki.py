@@ -1,6 +1,7 @@
 import os
 import hashlib
 import binascii
+from itertools import chain
 
 from flask import Flask, request, jsonify, abort, send_from_directory, json
 from werkzeug.utils import secure_filename
@@ -285,7 +286,6 @@ def wizard_assemble():
         .filter(database.Protocol.facility_id == facility_id)\
         .scalar()
 
-    if protocol is None:
         def prep_entry(e):
             e.pop("id", None)
             flaws = e.get("flaws", [])
@@ -294,11 +294,52 @@ def wizard_assemble():
             return e
 
         entries = list(map(prep_entry, entries))
+
+    if protocol is None:
         blueprint = dict(facility=facility.serialize(full=True), entries=entries)
     else:
-        print("TODO")
-        protocol = protocol.serialize(full=True)
-        blueprint = None #TODO
+        def edit_dist(s0, s1):
+            diff = abs(len(s0) - len(s1))
+            for c0, c1 in zip(s0, s1):
+                diff += int(c0 != c1)
+            return diff
+
+        meta_keys = [ "$status", "$type", "$repr", "id" ]
+
+        for entry in entries:
+            title = entry.get("title", None)
+
+            if not title:
+                continue
+
+            best = (3, None)
+            for ref in protocol.entries:
+                ed = edit_dist(ref.title, title)
+                if ed < best[0]:
+                    best = ed, ref
+
+            if best[1] is None:
+                continue
+
+            updates = best[1].serialize('no_secondary')
+
+            if len(entry["flaws"]) == 1 and len(ref.flaws) == 1:
+                flaw = ref.flaws[0].serialize()
+                for key in meta_keys:
+                    flaw.pop(key, None)
+                flaw.pop("picture", None)
+                entry["flaws"][0].update(flaw)
+
+            for key in  chain(meta_keys, [ "title", "flaws" ]):
+                updates.pop(key, None)
+            entry.update(updates)
+
+        protocol = protocol.serialize('no_secondary')
+        for key in chain(meta_keys, [ "entries", "inspection_date" ]):
+            protocol.pop(key, None)
+
+        blueprint = protocol
+        blueprint["entries"] = entries
 
     return jsonify(blueprint)
 

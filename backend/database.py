@@ -79,7 +79,7 @@ class Serializer(object):
         for a in attrs:
             if isinstance(getattr(self.__class__, a).impl, CollectionAttributeImpl):
                 # prevent lazy loading for many-to-* associations
-                if not full:
+                if not full or full == 'no_secondary':
                     continue
                 else:
                     rv[a] = [ el.serialize(full) for el in getattr(self, a) ]
@@ -92,7 +92,7 @@ class Serializer(object):
                 rv[a] = val
 
         rv["$status"] = SyncStatus.Stored
-        if not full:
+        if not full or full == 'no_secondary':
             rv["$status"] |= SyncStatus.Lazy
 
         rv["$type"] = self.common_type
