@@ -1,7 +1,7 @@
 <template>
   <div class="image-container">
     <figure class="image">
-        <img :src="url" />
+        <img :src="url" class="is-rounded" style="border-radius: .3em" />
     </figure>
     <div class="delete-overlay">
       <a @click="remove"><b-icon tag="a" icon="delete-outline" size="is-medium" type="is-white"></b-icon></a>
@@ -29,6 +29,7 @@ export default {
   position: relative;
   display: flex;
   justify-content: center;
+  min-width: 128px;
 }
 .delete-overlay {
   position: absolute;
@@ -39,6 +40,7 @@ export default {
   height: 100%;
   width: 100%;
   opacity: 0;
+  border-radius: 0.3em;
   transition: 0.3s ease;
   background-color: rgba(0, 0, 0, 0.7);
 }

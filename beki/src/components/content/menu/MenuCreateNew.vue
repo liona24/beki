@@ -42,7 +42,7 @@
         <div class="card-content" style="overflow-x: auto">
           <div class="tile is-ancestor">
             <div v-for="(img, name) in previewImages" class="tile is-parent" :key="name">
-              <div class="tile is-child" style="max-width: 128px">
+              <div class="tile is-child" style="max-width: 171px">
                 <removable-image :url="img" @remove="deleteDropFile(name)" />
               </div>
             </div>

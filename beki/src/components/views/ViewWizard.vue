@@ -32,9 +32,7 @@
           @start="isDragging = true"
           @end="isDragging = false">
           <div v-for="entry in protocolSkeleton" :key="entry.index" class="box" style="overflow-x: auto">
-            <b-field>
-              <b-input v-model="entry.title" placeholder="Neuer Eintrag" type="text"></b-input>
-            </b-field>
+              <autocomplete-text v-model="entry.title" placeholder="Neuer Eintrag" request-key="title" request-src="entry" :no-label="true"></autocomplete-text>
             <draggable v-model="entry.flaws"
               tag="div"
               class="tile is-ancestor"
@@ -68,6 +66,7 @@
 
 <script>
 import AutocompleteSelect from '../utility/AutocompleteSelect'
+import AutocompleteText from '../utility/AutocompleteText'
 import draggable from 'vuedraggable'
 import { flawState } from '../../store/flaw'
 import { protocolState } from '../../store/protocol'
@@ -77,7 +76,7 @@ import { mapGetters } from 'vuex'
 import { SyncStatus } from '../../store/common'
 
 export default {
-  components: { AutocompleteSelect, draggable },
+  components: { AutocompleteSelect, AutocompleteText, draggable },
   name: "ViewWizard",
   data() {
     return {

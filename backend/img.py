@@ -171,8 +171,8 @@ def find_composition(images):
 
 
 def find_composition_with_ref(images, protocol):
-    old_comp = []
-    for entry in protocol.entries:
+    ref = []
+    for i, entry in enumerate(protocol.entries):
         title = entry.title
         ims = []
         for flaw in entry.flaws:
@@ -182,86 +182,76 @@ def find_composition_with_ref(images, protocol):
 
             features = _get_features(pic)
             if features is not None:
-                ims.append(features)
+                ref.append((features, i))
 
-        old_comp.append((ims, entry))
-
-    indices = []
-    new_features = []
-    for i, im in enumerate(images):
+    new = []
+    for im in images:
         f = _get_features(im)
         if f is not None:
-            indices.append(i)
-            new_features.append(f)
+            new.append((f, im))
 
     # Step 1: Match against all the existing clusters of pictures
     # and report the cluster (entry) with the highest score
     bf = cv.BFMatcher(cv.NORM_HAMMING, True)
     best_matches = defaultdict(list)
-    for ni, nf in enumerate(new_features):
-        best_sim = 0.5
-        best_match = -1
-        for mi, (member_features, _) in enumerate(old_comp):
-            metrics = []
-            for mf in member_features:
-                matches = bf.knnMatch(mf, nf, k=1)
-                count = sum(map(len, matches))
-                metrics.append(count / min(len(mf), len(nf)))
+    for new_f, new_im in new:
+        best = (0.2, -1)  # only respect correspondences where at least 20% of features match
+        for ref_f, entry_i in ref:
+            matches = bf.knnMatch(new_f, ref_f, k=1)
+            count = sum(map(len, matches))
+            sim = count / min(len(new_f), len(ref_f))
+            if sim > best[0]:
+                best = (sim, entry_i)
 
-            sim = np.array(metrics).mean()
-            if sim > best_sim:
-                best_sim = sim
-                best_match = mi
-
-        best_matches[best_match].append((best_sim, ni))
+        best_matches[best[1]].append((best[0], new_im))
 
     # Step 2: Aggregate similiar matching images into the corresponding new entries
     entries = []
     outliers = list(map(lambda m: m[1], best_matches[-1]))
-    for mi in range(len(old_comp)):
-        matches = best_matches[mi]
-        if len(matches) == 0:
+    for i in best_matches:
+        if i == -1:
             continue
 
-        if len(matches) == 1:
-            ni = matches[0][1]
-            im_i = indices[ni]
+        matches = best_matches[i]
 
+        if len(matches) == 1:
+            im = matches[0][1]
             entries.append({
-                "id": old_comp[mi][1].id,
-                "flaws": [ images[im_i] ]
+                "id": protocol.entries[i].id,
+                "flaws": [ im ]
             })
         else:
             # possibly detect outliers
             lof = LocalOutlierFactor(n_neighbors=min(len(matches), 5))
-            sims = list(map(lambda m: [ m[0] ], matches))
+            sims = np.array(list(map(lambda m: [ m[0] ], matches)))
             labels = lof.fit_predict(sims)
 
+            # determine whether the "outlier" is actually our best match and
+            # the rest is crap
             neg = labels < 0
-            pos = labels > 0
             if neg.any():
-                out_label = sims[pos].mean() - sims[neg].mean()
+                pos = labels > 0
+                out_label = np.sign(sims[pos == True].mean() - sims[neg == True].mean())
             else:
                 out_label = 1
 
             flaws = []
-            for (_, ni), label in zip(matches, labels):
+            for (_, im), label in zip(matches, labels):
                 if label * out_label > 0:
-                    flaws.append(images[indices[ni]])
+                    flaws.append(im)
                 else:
-                    outliers.append(ni)
+                    outliers.append(im)
             entries.append({
-                "id": old_comp[mi][1].id,
+                "id": protocol.entries[i].id,
                 "flaws": flaws
             })
 
     # Step 3: Try to cluster outliers together
-
-    for ni in outliers:
+    for im in outliers:
         # lulz
         entries.append({
             "id": None,
-            "flaws": [ images[indices[ni]] ]
+            "flaws": [ im ]
         })
 
     return entries

@@ -1,27 +1,24 @@
 <template>
-  <div class="block">
-    <b-field horizontal>
-      <b-autocomplete
-        :value="value"
-        @input="updateValue"
+  <b-field :horizontal="!noLabel">
+    <b-autocomplete
+      :value="value"
+      @input="updateValue"
 
-        :data="data"
-        :loading="isFetching"
-        @typing="fetchData"
+      :data="data"
+      :loading="isFetching"
+      @typing="fetchData"
 
-        placeholder="..."
-        clearable
-        :required="required"
-        @select="updateValue">
-        <template slot="empty">Keine Übereinstimmung</template>
-      </b-autocomplete>
-      <template slot="label">
-        <slot>
-          <span class="has-text-danger">TODO a label is missing</span>
-        </slot>
-      </template>
-    </b-field>
-  </div>
+      :placeholder="placeholder"
+      clearable
+      :required="required"
+      @select="updateValue">
+      <template slot="empty">Keine Übereinstimmung</template>
+    </b-autocomplete>
+    <template v-if="!noLabel" slot="label">
+      <slot>
+      </slot>
+    </template>
+  </b-field>
 </template>
 
 <script>
@@ -33,6 +30,14 @@ export default {
     required: {
       type: Boolean,
       default: false
+    },
+    placeholder: {
+      type: String,
+      default: "..."
+    },
+    noLabel: {
+      type: Boolean,
+      default: false,
     },
     value: String,
     requestSrc: String,
