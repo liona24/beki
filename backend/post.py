@@ -496,7 +496,7 @@ def _protocol(body, err_agg):
             obj = database.Protocol(**args)
             db.session.add(obj)
 
-    if updated:
+    if updated and current_app.config["ENABLE_AUTO_PURGE"]:
         # clear orphaned entries / flaws
         db.session.query(database.Entry)\
             .filter(~ exists().where(database.Entry.id == database.ProtocolEntry.entry_id))\

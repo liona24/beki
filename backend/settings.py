@@ -5,3 +5,4 @@ IMG_UPLOAD_PATH = "/tmp/beki/uploads"
 IMG_CROP_SIZE = (342, 256)
 
 TEX_WORKDIR = "/tmp/beki/tex"
+ENABLE_AUTO_PURGE = False
