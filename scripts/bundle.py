@@ -14,6 +14,7 @@ if __name__ == '__main__':
         shutil.rmtree(bundle_dir)
 
     os.makedirs(app_dir)
+    os.makedirs(tex_dir)
 
     print("Collecting backend ..")
     for f in glob.glob("backend/*.py"):
