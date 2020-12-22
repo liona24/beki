@@ -304,14 +304,14 @@ def wizard_assemble():
         .filter(database.Protocol.facility_id == facility_id)\
         .scalar()
 
-        def prep_entry(e):
-            e.pop("id", None)
-            flaws = e.get("flaws", [])
+    def prep_entry(e):
+        e.pop("id", None)
+        flaws = e.get("flaws", [])
 
-            e["flaws"] = list(map(lambda pic: dict(picture=pic), flaws))
-            return e
+        e["flaws"] = list(map(lambda pic: dict(picture=pic), flaws))
+        return e
 
-        entries = list(map(prep_entry, entries))
+    entries = list(map(prep_entry, entries))
 
     if protocol is None:
         blueprint = dict(facility=facility.serialize(full=True), entries=entries)
