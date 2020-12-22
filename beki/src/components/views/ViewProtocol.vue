@@ -123,8 +123,30 @@ export default {
         .finally(() => this.isLoading = false);
     },
     openPreview() {
+      this.isLoading = true;
       const data = btoa(JSON.stringify(this.$store.getters.main));
-      window.open("/api/_render?data=" + data);
+      fetch("/api/_render", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({data: data})
+      })
+      .then(resp => resp.json())
+      .then(json => {
+        if (json.err !== undefined) {
+            this.$buefy.snackbar.open({
+              duration: 6000,
+              message: json.err,
+              type: 'is-danger',
+              queue: false
+            })
+        } else {
+          window.open("/api/_display_render/" + json.file);
+        }
+      })
+      .catch(console.error)
+      .finally(() => this.isLoading = false);
     },
     triggerCollapse(index) {
       this.$store.commit("entry_triggerCollapse", { i: index });

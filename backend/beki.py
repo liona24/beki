@@ -179,6 +179,25 @@ def serve_img(img):
     return send_from_directory(app.config["IMG_UPLOAD_PATH"], img_path)
 
 
+@app.route("/api/_display_render/<file>", methods=["GET"])
+def display(file):
+    key = secure_filename(file) + ".pdf"
+
+    path = os.path.join(app.config["RENDER_SERVE_PATH"], key)
+    if not os.path.exists(path):
+        abort(404)
+
+    def read_pdf():
+        with open(path, 'rb') as f:
+            yield from f
+
+        os.remove(path)
+
+    resp = app.response_class(read_pdf(), mimetype="application/pdf")
+    resp.headers.set("Content-Disposition", "attachment", filename=key)
+    return resp
+
+
 @app.route("/api/_render/<int:id>", methods=["GET"])
 def render(id):
     protocol = db.session.query(database.Protocol)\
@@ -199,9 +218,9 @@ def render_legacy(id):
     return render_protocol(protocol)
 
 
-@app.route("/api/_render", methods=["GET"])
+@app.route("/api/_render", methods=["POST"])
 def render_raw():
-    b64 = request.args.get("data", None)
+    b64 = request.json.get("data", None)
     if b64 is None:
         abort(400)
 
@@ -212,11 +231,10 @@ def render_raw():
     except (binascii.Error, json.JSONDecodeError):
         abort(400)
 
-
     try:
-        resp = render_protocol(protocol)
+        resp = render_protocol(protocol, raw=True)
     except:
-        return "Da fehlen wohl noch ein paar Dinge :(", 400
+        return jsonify(err="Da fehlen wohl noch ein paar Dinge :(")
     else:
         return resp
 

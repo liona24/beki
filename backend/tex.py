@@ -1,8 +1,9 @@
-from flask import current_app
+from flask import current_app, redirect, jsonify
 import jinja2
 
 import os
-from shutil import rmtree
+from shutil import rmtree, move
+import hashlib
 import re
 import uuid
 import subprocess
@@ -76,7 +77,7 @@ def _download_picture(working_dir, pic_name):
         os.symlink(src, dst)
 
 
-def render_protocol(protocol):
+def render_protocol(protocol, raw=False):
     tmp_dir = os.path.join(current_app.config["TEX_WORKDIR"], uuid.uuid4().hex)
     os.mkdir(tmp_dir)
 
@@ -135,12 +136,19 @@ def render_protocol(protocol):
     compiler.wait()
     """
 
-    def read_pdf():
-        with open(os.path.join(tmp_dir, 'main.pdf'), 'rb') as f:
-            yield from f
+    pdf = os.path.join(tmp_dir, 'main.pdf')
+    with open(pdf, "rb") as f:
+        h = hashlib.sha1()
+        h.update(f.read())
+        digest = h.hexdigest()
 
-        rmtree(tmp_dir)
+    if not os.path.exists(current_app.config["RENDER_SERVE_PATH"]):
+        os.makedirs(current_app.config["RENDER_SERVE_PATH"])
 
-    resp = current_app.response_class(read_pdf(), mimetype="application/pdf")
-    # resp.headers.set("Content-Disposition", "attachment", filename="protocol.pdf")
-    return resp
+    move(pdf, os.path.join(current_app.config["RENDER_SERVE_PATH"], digest + '.pdf'))
+    rmtree(tmp_dir)
+
+    if raw:
+        return jsonify(file=digest)
+    else:
+        return redirect(f'/api/_display_render/{digest}')

@@ -7,4 +7,6 @@ IMG_CROP_SIZE = (342, 256)
 TEX_WORKDIR = "/var/tmp/beki/tex"
 TEX_PATH = "/usr/local/texlive/2020/bin/x86_64-linux"
 
+RENDER_SERVE_PATH = "/tmp/beki/renderings"
+
 ENABLE_AUTO_PURGE = True
