@@ -11,18 +11,31 @@ import database
 
 app = Flask(__name__)
 
-db_path = "/tmp/beki.db"
+if len(sys.argv) > 1:
+    db_path = sys.argv[1]
+else:
+    db_path = "/tmp/beki/beki.db"
+    print(f"WARNING: No path specified. Fallback to {db_path}")
+
 if os.path.exists(db_path):
     print("WARNING: Database exists. Overwriting.")
     os.remove(db_path)
+
+if not os.path.exists(os.path.dirname(db_path)):
+    os.makedirs(os.path.dirname(db_path))
 
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///" + db_path
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 database.init_db(app)
 db = database.db
+
 with app.app_context():
     db.create_all(app=app)
+
+    if len(sys.argv) > 2 and sys.argv[2].strip() == 'empty':
+        print(f"Initialized empty database in {db_path}")
+        exit(0)
 
     flaws = [
         database.Flaw(

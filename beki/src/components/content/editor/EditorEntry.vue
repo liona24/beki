@@ -48,7 +48,7 @@
         <b-radio-button expanded :value="manufactureInfoAvailable" @input="updateManufactureInfoAvailable"
           native-value="Nein"
           type="is-danger is-light">
-          <b-icon icon="close"></b-icon>
+          <b-icon icon="times"></b-icon>
           <span>Nein</span>
         </b-radio-button>
 
@@ -72,7 +72,7 @@
         <b-radio-button expanded :value="easyAccess" @input="updateEasyAccess"
           native-value="Nein"
           type="is-danger is-light">
-          <b-icon icon="close"></b-icon>
+          <b-icon icon="times"></b-icon>
           <span>Nein</span>
         </b-radio-button>
 
@@ -89,7 +89,7 @@
     <editor-flaw v-for="(_flaw, i) in flaws" :entry="index" :index="i" :key="'protocol-entry-flaw' + i" />
 
     <b-button v-if="flaws.length < 5" size="is-small" type="is-dark" outlined expanded @click="addFlaw">
-      <b-icon icon="chevron-double-right" size="is-small"></b-icon> Mangel hinzufügen
+      <b-icon icon="plus" size="is-small"></b-icon><span> </span>Mangel hinzufügen
     </b-button>
   </div>
 </template>

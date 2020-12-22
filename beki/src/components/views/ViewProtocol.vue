@@ -19,7 +19,7 @@
         </template>
         <template slot="center">
           <a class="is-light tag" role="button" @click="triggerCollapse(i)">
-            <b-icon :icon="entry._collapsed ? 'menu-down' : 'menu-up'" />
+            <b-icon :icon="entry._collapsed ? 'chevron-down' : 'chevron-up'" />
           </a>
         </template>
       </status-indicator>
@@ -37,11 +37,11 @@
     </div>
 
     <div class="field is-grouped is-grouped-centered">
-      <p class="control">
-        <a class="button is-dark is-outlined" :disabled="isLoading" @click="storeProtocol">
-          Speichern
-        </a>
-      </p>
+        <div class="buttons">
+          <a class="button is-dark is-outlined" @click="addEntry" :disabled="isLoading">
+              Eintrag hinzufügen
+          </a>
+        </div>
     </div>
     <br>
 
@@ -60,11 +60,9 @@
         </div>
         </b-navbar-item>
         <b-navbar-item>
-        <div class="buttons">
-          <a class="button is-light" @click="addEntry" :disabled="isLoading">
-              Eintrag hinzufügen
+          <a class="button is-light" :disabled="isLoading" @click="storeProtocol">
+            Speichern
           </a>
-        </div>
         </b-navbar-item>
       </template>
     </b-navbar>

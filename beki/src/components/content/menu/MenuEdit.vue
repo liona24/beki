@@ -5,7 +5,7 @@
         v-model="searchString"
 
         type="search"
-        icon="magnify"
+        icon="search"
         field="$repr"
 
         :data="data"

@@ -5,7 +5,7 @@
         v-model="innerSearchString"
 
         type="search"
-        icon="magnify"
+        icon="search"
         field="$repr"
 
         :data="data"
@@ -27,7 +27,7 @@
         </template>
       </b-autocomplete>
       <p class="control">
-        <button class="button" @click="() => launchEditor(true)" :disabled="isWaitingForLazyResolve"><b-icon icon="pencil" ></b-icon></button>
+        <button class="button" @click="() => launchEditor(true)" :disabled="isWaitingForLazyResolve"><b-icon icon="edit" ></b-icon></button>
       </p>
       <p class="control">
         <button class="button" @click="() => launchEditor(false)" :disabled="isWaitingForLazyResolve"><b-icon icon="file" ></b-icon></button>

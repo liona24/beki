@@ -13,8 +13,7 @@ import requests
 
 # With this script only the last protocol can be kept right now
 # The problem is the auto-cleanup feature of the server
-# In order to support more, just disable it temporarly
-N_LATEST_TO_KEEP = 1
+# In order to support more, just set ENABLE_AUTO_PURGE = False
 
 
 def upload_img(base_url, filename):

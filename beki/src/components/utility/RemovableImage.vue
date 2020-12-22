@@ -4,7 +4,7 @@
         <img :src="url" class="is-rounded" style="border-radius: .3em" />
     </figure>
     <div class="delete-overlay">
-      <a @click="remove"><b-icon tag="a" icon="delete-outline" size="is-medium" type="is-white"></b-icon></a>
+      <a @click="remove"><b-icon tag="a" icon="trash" size="is-medium" type="is-white"></b-icon></a>
     </div>
   </div>
 </template>

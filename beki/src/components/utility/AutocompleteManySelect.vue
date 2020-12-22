@@ -5,7 +5,7 @@
         :value="value"
         @add="addValue"
 
-        icon="label"
+        icon="tags"
         field="$repr"
 
         :data="filteredData"
@@ -25,12 +25,12 @@
         </template>
         <template slot="selected" slot-scope="props">
           <div class="tags has-addons" v-for="(tag, index) in props.tags" :key="index">
-            <a class="tag is-dark" role="button" :tabindex="false" @click="modifyAt(index)" @keyup.delete.prevent="close">
-              <b-icon icon="pencil" size="is-small"></b-icon>
+            <a class="tag is-danger" role="button" :tabindex="false" @click="removeAt(index)" @keyup.delete.prevent="close">
+              <b-icon icon="times" size="is-small"></b-icon>
             </a>
             <span class="tag">{{ tag.$repr }}</span>
-            <a class="tag is-danger" role="button" :tabindex="false" @click="removeAt(index)" @keyup.delete.prevent="close">
-              <b-icon icon="close" size="is-small"></b-icon>
+            <a class="tag is-dark" role="button" :tabindex="false" @click="modifyAt(index)" @keyup.delete.prevent="close">
+              <b-icon icon="edit" size="is-small"></b-icon>
             </a>
           </div>
         </template>

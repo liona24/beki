@@ -16,7 +16,9 @@ export function flawState() {
 function _modifyFlaw(func) {
   return (state, param) => {
     const obj = state.main.views[state.main.views.length - 1];
+    obj.$status |= SyncStatus.Modified;
     const entry = obj.entries[param.entry];
+    entry.$status |= SyncStatus.Modified;
     const flaw = entry.flaws[param.i];
     flaw.$status |= SyncStatus.Modified;
     return func(flaw, param);

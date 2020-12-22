@@ -11,10 +11,10 @@
     <div class="column">
       <div class="level-item is-pulled-right">
         <b-tag :type="type">
-          <b-icon v-if="isErr" size="is-small" icon="alert-circle-outline"></b-icon>
-          <b-icon v-else-if="isSucc" size="is-small" icon="cloud-upload"></b-icon>
+          <b-icon v-if="isErr" size="is-small" icon="exclamation-triangle"></b-icon>
+          <b-icon v-else-if="isSucc" size="is-small" icon="cloud-upload-alt"></b-icon>
           <b-icon v-else-if="isAwaiting" size="is-small" icon="eye"></b-icon>
-          <b-icon v-else-if="isNew" size="is-small" icon="newspaper-plus"></b-icon>
+          <b-icon v-else-if="isNew" size="is-small" icon="asterisk"></b-icon>
         </b-tag>
       </div>
     </div>

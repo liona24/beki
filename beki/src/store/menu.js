@@ -168,6 +168,7 @@ export const menuActions = {
     .then(resp => resp.json())
     .then(json => {
       commit('menu_isLoading', false, { root: true });
+      commit('menu_clearSelectedFiles', null, { root: true });
       commit('push_main', { view: json, callback: "menu_currentPreviewId", args: null }, { root: true });
     })
     .catch(() => {

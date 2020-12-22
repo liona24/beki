@@ -12,7 +12,7 @@
             <div class="content has-text-centered">
                 <p>
                   <b-icon
-                      icon="upload"
+                      icon="file-upload"
                       size="is-large">
                   </b-icon>
                 </p>
@@ -35,7 +35,7 @@
           </p>
           <a class="card-header-icon">
             <b-icon
-              :icon="props.open ? 'menu-down' : 'menu-up'">
+              :icon="props.open ? 'chevron-down' : 'chevron-up'">
             </b-icon>
           </a>
         </div>

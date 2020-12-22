@@ -53,10 +53,14 @@ export const protocolMutations = {
     obj.entries.splice(index, 1);
   }),
   protocol_prepareForSync: modifyMainView(obj => {
-    obj.entries = obj.entries.filter(entry => (entry.$status & SyncStatus.Modified) !== 0);
+    const isValid = obj =>
+      ((obj.$status & SyncStatus.New) !== 0 && (obj.$status & SyncStatus.Modified) !== 0) ||
+      (obj.$status & SyncStatus.Stored) !== 0;
+
+    obj.entries = obj.entries.filter(isValid);
     obj.entries.forEach((entry, i) => {
       entry.index = i;
-      entry.flaws = entry.flaws.filter(flaw => (flaw.$status & SyncStatus.Modified) !== 0);
+      entry.flaws = entry.flaws.filter(isValid);
     });
   })
 }

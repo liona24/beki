@@ -6,13 +6,13 @@
       <b-tab-item label="Neu" icon="file">
         <menu-create-new />
       </b-tab-item>
-      <b-tab-item label="Bearbeiten" icon="pencil">
+      <b-tab-item label="Bearbeiten" icon="edit">
         <menu-edit />
       </b-tab-item>
-      <b-tab-item label="Anzeigen" icon="magnify">
+      <b-tab-item label="Anzeigen" icon="search">
         <menu-search-and-display :legacy="false" />
       </b-tab-item>
-      <b-tab-item label="Archiv" icon="package-variant">
+      <b-tab-item label="Archiv" icon="archive">
         <menu-search-and-display :legacy="true" />
       </b-tab-item>
     </b-tabs>

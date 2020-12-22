@@ -25,6 +25,7 @@ export function entryState() {
 function _modifyEntry(func) {
   return (state, param) => {
     const obj = state.main.views[state.main.views.length - 1];
+    obj.$status |= SyncStatus.Modified;
     const entry = obj.entries[param.i];
     entry.$status |= SyncStatus.Modified;
     return func(entry, param);

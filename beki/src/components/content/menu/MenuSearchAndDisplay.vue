@@ -5,7 +5,7 @@
         v-model="searchString"
 
         type="search"
-        icon="magnify"
+        icon="search"
         field="$repr"
 
         :data="data"
@@ -16,6 +16,7 @@
 
         clearable
         expanded>
+        <template slot="empty">Keine Übereinstimmung für {{searchString}}</template>
       </b-autocomplete>
     </b-field>
 

@@ -52,7 +52,7 @@
                   <div class="content has-text-centered">
                       <p>
                           <b-icon
-                              icon="upload"
+                              icon="file-upload"
                               size="is-large">
                           </b-icon>
                       </p>
