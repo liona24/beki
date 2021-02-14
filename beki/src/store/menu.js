@@ -121,7 +121,7 @@ export const menuActions = {
     const images = [];
 
     // be nice to the server
-    const chunks = chunk(getters.droppedFiles, 5);
+    const chunks = chunk(getters.droppedFiles, 2);
     const uploads = chunks.map(files => new Promise((resolve, reject) => {
       const data = new FormData();
       files.forEach(file => {
