@@ -480,21 +480,23 @@ def _protocol(body, err_agg):
     updated = False
 
     obj = None
+    protocol = None
     if id is not None:
-        # TODO: make sure that this is used correctly w.r.t legacy protocols
-        obj = _update(database.Protocol, id, args)
-        updated = True
+        protocol = db.session.query(database.Protocol)\
+            .filter(database.Protocol.id == id)\
+            .scalar()
     elif "facility" in args:
         protocol = db.session.query(database.Protocol)\
             .filter(database.Protocol.facility_id == args["facility"].id)\
             .scalar()
-        if protocol is not None:
-            _transform_to_legacy(protocol)
-            obj = _update(database.Protocol, protocol.id, args)
-            updated = True
-        else:
-            obj = database.Protocol(**args)
-            db.session.add(obj)
+
+    if protocol is not None:
+        _transform_to_legacy(protocol)
+        obj = _update(database.Protocol, protocol.id, args)
+        updated = True
+    else:
+        obj = database.Protocol(**args)
+        db.session.add(obj)
 
     if updated and current_app.config["ENABLE_AUTO_PURGE"]:
         # clear orphaned entries / flaws
