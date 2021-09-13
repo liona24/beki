@@ -116,7 +116,6 @@ symbol
 tex
 tex-ini-files
 tex.x86_64-linux
-texlive-docindex
 texlive-en
 texlive-msg-translations
 texlive-scripts
