@@ -429,6 +429,9 @@ def _protocol(body, err_agg):
     inspection_date = getter("inspection_date", Err("Feld 'Prüfdatum' wird benötigt!", "Protokoll"))
     attendees = getter("attendees", None)
 
+    if inspection_date is not None:
+        inspection_date = datetime.date.fromisoformat(inspection_date)
+
     inspector = getter(
         "inspector",
         Err("Feld 'Prüfer' wird benötigt!", "Protokoll"),
@@ -444,6 +447,21 @@ def _protocol(body, err_agg):
         Err("Feld 'Auftraggeber' wird benötigt!", "Protokoll"),
         converter=lambda v: _fetcher(database.Organization)(_organization(v, err_agg))
     )
+
+    protocol = None
+    if id is not None:
+        protocol = db.session.query(database.Protocol)\
+            .filter(database.Protocol.id == id)\
+            .scalar()
+    else:
+        protocol = db.session.query(database.Protocol)\
+            .filter(database.Protocol.facility_id == facility.id)\
+            .scalar()
+
+    # potentially persist a protocol into the archive before we update all the
+    # entries
+    if protocol is not None and protocol.inspection_date != inspection_date:
+        _transform_to_legacy(protocol)
 
     entries = getter("entries", [])
 
@@ -461,9 +479,6 @@ def _protocol(body, err_agg):
         )
     ))
 
-    if inspection_date is not None:
-        inspection_date = datetime.date.fromisoformat(inspection_date)
-
     if not err_agg.recent_ok():
         return None
 
@@ -477,35 +492,22 @@ def _protocol(body, err_agg):
         issuer=issuer,
         entries=entries
     )
-    updated = False
 
     obj = None
-    protocol = None
-    if id is not None:
-        protocol = db.session.query(database.Protocol)\
-            .filter(database.Protocol.id == id)\
-            .scalar()
-    elif "facility" in args:
-        protocol = db.session.query(database.Protocol)\
-            .filter(database.Protocol.facility_id == args["facility"].id)\
-            .scalar()
-
-    if protocol is not None:
-        _transform_to_legacy(protocol)
-        obj = _update(database.Protocol, protocol.id, args)
-        updated = True
-    else:
+    if protocol is None:
         obj = database.Protocol(**args)
         db.session.add(obj)
+    else:
+        obj = _update(database.Protocol, protocol.id, args)
 
-    if updated and current_app.config["ENABLE_AUTO_PURGE"]:
-        # clear orphaned entries / flaws
-        db.session.query(database.Entry)\
-            .filter(~ exists().where(database.Entry.id == database.ProtocolEntry.entry_id))\
-            .delete(synchronize_session=False)
-        db.session.query(database.Flaw)\
-            .filter(~ exists().where(database.Flaw.id == database.EntryFlaw.flaw_id))\
-            .delete(synchronize_session=False)
+        if current_app.config["ENABLE_AUTO_PURGE"]:
+            # clear orphaned entries / flaws
+            db.session.query(database.Entry)\
+                .filter(~ exists().where(database.Entry.id == database.ProtocolEntry.entry_id))\
+                .delete(synchronize_session=False)
+            db.session.query(database.Flaw)\
+                .filter(~ exists().where(database.Flaw.id == database.EntryFlaw.flaw_id))\
+                .delete(synchronize_session=False)
 
     return obj
 
