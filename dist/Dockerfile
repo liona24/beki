@@ -1,4 +1,4 @@
-FROM python:3.7-slim
+FROM python:3.9-slim
 
 RUN apt-get update -y --fix-missing && apt-get upgrade -y
 
