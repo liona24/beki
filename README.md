@@ -32,14 +32,15 @@ $ cd dist/
 $ docker build -t beki .
 ```
 
-Standardmäßg kann der Server dann im Image ausgeführt werden.
+Standardmäßg kann der Server dann im Container ausgeführt werden.
+Alternativ steht ein Pre-Built im Hub zur Verfügung: https://hub.docker.com/r/milck/beki.
 Es wird erwartet, dass ein Ordner in `/mnt/beki` eingebunden ist, in welchem persistente Informationen gespeichert werden:
 ```
 $ ls data
 uploads/
 beki.db
 err.log
-$ docker run -d -p 80:5000 -v $(PWD)/data:/mnt/beki beki
+$ docker run -d -p 80:5000 -v $(PWD)/data:/mnt/beki milck/beki:latest
 ```
 
 WARNUNG: Das Deployment ist sicherheitstechnisch nicht zu empfehlen, inbesondere da der uWSGI Server als `root` ausgeführt wird.
