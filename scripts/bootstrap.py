@@ -21,7 +21,7 @@ if os.path.exists(db_path):
     print("WARNING: Database exists. Overwriting.")
     os.remove(db_path)
 
-if not os.path.exists(os.path.dirname(db_path)):
+if os.path.dirname(db_path) and not os.path.exists(os.path.dirname(db_path)):
     os.makedirs(os.path.dirname(db_path))
 
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///" + db_path
