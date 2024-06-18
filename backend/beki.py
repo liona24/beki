@@ -45,11 +45,25 @@ def generic_autocomplete_handler(table, key, query):
     if key not in table.autocompleteable:
         abort(404)
 
-    query = escape_for_like_query(query)
-
     column = get_column(table, key)
+
+    words = query.strip().split()
+    condition = None
+    for word in filter(None, words):
+        like = f"%{escape_for_like_query(word)}%"
+
+        if condition is None:
+            condition = column.like(like)
+        else:
+            condition = and_(condition, column.like(like))
+
+    if condition is None:
+        # fallback to normal search
+        like = f"%{escape_for_like_query(query)}%"
+        condition = column.like(like)
+
     result = db.session.query(column)\
-        .filter(column.like(f"%{query}%"))\
+        .filter(condition)\
         .distinct()\
         .limit(10)\
         .all()
